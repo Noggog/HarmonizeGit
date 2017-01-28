@@ -11,16 +11,14 @@ if not Lock("checkout"):
 	Unlock("checkout")
 	sys.exit(1)
  
-config = ImportHarmonizeConfig()
+uncommittedRepos = GetReposWithUncommittedChanges()
+if len(uncommittedRepos) != 0:
+	print("Rolling back, because repos had uncommitted changes:")
+	for repo in uncommittedRepos:
+		print("   -", repo)
+	CheckoutBranchAtCommit(sys.argv[1]) 
+	sys.exit(1) 
 
-for parentRepo in config:
-	print("Checking", parentRepo.Nickname, "for changes. (", parentRepo.Path, ")")
-	check = CheckForUncommitedChanges(parentRepo.Path)
-	if check.Success:
-		print(parentRepo.Nickname, "had uncommitted changes.  Reversing checkout.")
-		CheckoutBranchAtCommit(sys.argv[1])
-		sys.exit(1)
-
-print(parentRepo.Nickname, "had no uncommitted changes.")
+print("No uncommitted changes in parent repos.")
 Unlock("checkout")
 sys.exit(0)

@@ -5,6 +5,9 @@ from git import Repo
 class ConfigItem:
 	Nickname = ""
 	Path = ""
+
+	def __str__(self):
+		return self.Nickname + " (" + self.Path + ")"
 	
 class GetResponse:
 	Success = False
@@ -41,6 +44,22 @@ def CheckoutBranchAtCommit(sha):
 			b.checkout()
 			return
 			
+def GetReposWithUncommittedChanges():
+	config = ImportHarmonizeConfig()
+
+	repos = []
+	for parentRepo in config:
+		print("Checking", parentRepo.Nickname, "for changes. (", parentRepo.Path, ")")
+		check = CheckForUncommitedChanges(parentRepo.Path)
+		if check.Success:
+			repos.append(parentRepo)
+			
+	return repos
+		
+def CheckForUncommitedChanges():
+	repos = GetReposWithUncommittedChanges()
+	return len(repos) != 0
+
 def CheckForUncommitedChanges(repoPath):
 	repo = Repo(path = repoPath)
 	if repo.bare:
