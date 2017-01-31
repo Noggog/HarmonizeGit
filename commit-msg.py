@@ -7,12 +7,12 @@ file.write("\n")
 file.write("<HarmonizeGitMeta>\n")
 
 config = ImportHarmonizeConfig()
-for c in config:
-	repo = Repo(c.Path)
-	file.write("<Ref ")
-	file.write("Nickname=\"" + c.Nickname + "\" ")
-	file.write("Sha=\"" + repo.active_branch.commit.hexsha + "\" />")
-	file.write("\n")
-	
+for c in config.values():
+    repo = Repo(c.Path)
+    file.write("<Ref ")
+    file.write("Nickname=\"" + c.Nickname + "\" ")
+    file.write("Sha=\"" + repo.active_branch.commit.hexsha + "\" />")
+    file.write("\n")
+
 file.write("</HarmonizeGitMeta>")
 file.close()
