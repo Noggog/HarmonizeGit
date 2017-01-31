@@ -4,11 +4,15 @@ from commoncode import *
 
 file = open(sys.argv[1], "a")
 file.write("\n")
-file.write("HarmonizeGit\n")
+file.write("<HarmonizeGitMeta>\n")
 
 config = ImportHarmonizeConfig()
 for c in config:
 	repo = Repo(c.Path)
-	file.write(c.Nickname + ":" + repo.active_branch.commit.hexsha + "\n")
+	file.write("<Ref ")
+	file.write("Nickname=\"" + c.Nickname + "\" ")
+	file.write("Sha=\"" + repo.active_branch.commit.hexsha + "\" />")
+	file.write("\n")
 	
+file.write("</HarmonizeGitMeta>")
 file.close()
