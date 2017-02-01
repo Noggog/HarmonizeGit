@@ -45,10 +45,8 @@ def ImportHarmonizeConfig():
 
 
 def CheckoutBranchAtCommit(repo, sha):
-    print(sha)
     assert not repo.bare
     for b in repo.branches:
-        print("Test", b.commit.hexsha)
         if b.commit.hexsha == sha:
             print("Checking out", b)
             b.checkout()
@@ -73,6 +71,12 @@ def CheckForUncommitedChanges():
     repos = GetReposWithUncommittedChanges()
     return len(repos) != 0
 
+def GetBranch(repo: Repo, branchName: str):
+    for b in repo.branches:
+        if b.name == branchName:
+            return b
+    return None
+
 
 def CheckForUncommitedChanges(repoPath):
     repo = Repo(path=repoPath)
@@ -84,6 +88,9 @@ def CheckForUncommitedChanges(repoPath):
     else:
         return GetResponse(False, note="")
 
+def GetIsLoneTip(repo, sha, branchName):
+    ret = repo.git.execute("git branch --contains " + sha + " | grep -v \"" + branchName + "\"", shell=True)
+    return ret.isspace() or not ret
 
 def GetShasForParentRepoCommits():
     config = ImportHarmonizeConfig()
