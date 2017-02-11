@@ -24,10 +24,11 @@ class GetResponse:
         self.StatusNote = note
 
 
-def ImportHarmonizeConfig():
+def ImportHarmonizeConfig(createIfNone):
     if not os.path.exists(".harmonize"):
-        print("No harmonize config existed. Creating empty one.")
-        file = open('.harmonize', 'w+')
+        if createIfNone:
+            print("No harmonize config existed. Creating empty one.")
+            file = open('.harmonize', 'w+')
         return ConfigItem()
 
     ret = {}

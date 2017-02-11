@@ -6,7 +6,7 @@ file = open(sys.argv[1], "a")
 file.write("\n")
 file.write("<HarmonizeGitMeta>\n")
 
-config = ImportHarmonizeConfig()
+config = ImportHarmonizeConfig(True)
 for c in config.values():
     repo = Repo(c.Path)
     file.write("<Ref ")
