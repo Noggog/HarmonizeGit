@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Config\RepoListing.cs" />
+    <Compile Include="Hooks\DiscardHandler.cs" />
     <Compile Include="Hooks\StatusHandler.cs" />
     <Compile Include="Hooks\CheckoutHandler.cs" />
     <Compile Include="Hooks\CommitHandler.cs" />

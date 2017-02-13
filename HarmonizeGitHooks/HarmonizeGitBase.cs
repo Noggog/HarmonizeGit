@@ -34,7 +34,7 @@ namespace HarmonizeGitHooks
                 case "pre-checkout":
                     handler = new CheckoutHandler(this);
                     break;
-                case "pre-reset":
+                case "post-reset":
                     handler = new ResetHandler(this);
                     break;
                 case "pre-commit":
@@ -42,6 +42,9 @@ namespace HarmonizeGitHooks
                     break;
                 case "post-status":
                     handler = new StatusHandler(this);
+                    break;
+                case "post-discard":
+                    handler = new DiscardHandler(this);
                     break;
                 default:
                     return;
@@ -84,19 +87,24 @@ namespace HarmonizeGitHooks
         public void SyncConfigToParentShas()
         {
             var config = this.Config.Value;
-            bool changed = false;
+            List<RepoListing> changed = new List<RepoListing>();
 
             foreach (var listing in config.ParentRepos)
             {
                 using (var repo = new Repository(listing.Path))
                 {
                     if (listing.Sha.Equals(repo.Head.Tip.Sha)) continue;
-                    changed = true;
+                    changed.Add(listing);
                     listing.Sha = repo.Head.Tip.Sha;
                 }
             }
 
-            if (!changed) return;
+            if (changed.Count == 0) return;
+            this.WriteLine("Updating config as parent repos have changed: ");
+            foreach (var change in changed)
+            {
+                this.WriteLine("  " + change.Nickname);
+            }
 
             string xmlStr;
             XmlSerializer xsSubmit = new XmlSerializer(typeof(HarmonizeConfig));
@@ -112,7 +120,7 @@ namespace HarmonizeGitHooks
                     xmlStr = sw.ToString();
                 }
             }
-            
+
             configSyncer.WaitOne();
             try
             {
@@ -140,33 +148,14 @@ namespace HarmonizeGitHooks
             }
         }
 
-        public void SyncParentReposToSha(string targetCommitSha)
+        public void SyncParentRepos()
         {
-            HarmonizeConfig targetConfig;
-            using (var repo = new Repository("."))
-            {
-                var targetCommit = repo.Lookup<Commit>(targetCommitSha);
-                if (targetCommit == null)
-                {
-                    throw new ArgumentException("Target commit does not exist. " + targetCommitSha);
-                }
+            SyncParentRepos(this.Config.Value);
+        }
 
-                var entry = targetCommit[HarmonizeConfigPath];
-                var blob = entry?.Target as Blob;
-                if (blob == null)
-                {
-                    this.WriteLine("No harmonize config at target commit.  Exiting without syncing.");
-                    return;
-                }
-
-                var contentStream = blob.GetContentStream();
-                using (var tr = new StreamReader(contentStream, Encoding.UTF8))
-                {
-                    targetConfig = HarmonizeConfig.Factory(tr.BaseStream);
-                }
-            }
-
-            foreach (var listing in targetConfig.ParentRepos)
+        public void SyncParentRepos(HarmonizeConfig config)
+        {
+            foreach (var listing in config.ParentRepos)
             {
                 this.WriteLine($"Processing {listing.Nickname} at path {listing.Path}. Trying to check out an existing branch at {listing.Sha}.");
 
@@ -210,6 +199,34 @@ namespace HarmonizeGitHooks
                 }
                 throw new NotImplementedException("Delete some branches.  You have over 100.");
             }
+        }
+
+        public void SyncParentReposToSha(string targetCommitSha)
+        {
+            HarmonizeConfig targetConfig;
+            using (var repo = new Repository("."))
+            {
+                var targetCommit = repo.Lookup<Commit>(targetCommitSha);
+                if (targetCommit == null)
+                {
+                    throw new ArgumentException("Target commit does not exist. " + targetCommitSha);
+                }
+
+                var entry = targetCommit[HarmonizeConfigPath];
+                var blob = entry?.Target as Blob;
+                if (blob == null)
+                {
+                    this.WriteLine("No harmonize config at target commit.  Exiting without syncing.");
+                    return;
+                }
+
+                var contentStream = blob.GetContentStream();
+                using (var tr = new StreamReader(contentStream, Encoding.UTF8))
+                {
+                    targetConfig = HarmonizeConfig.Factory(tr.BaseStream);
+                }
+            }
+            SyncParentRepos(targetConfig);
         }
 
         private bool IsLoneTip(Repository repo, Branch targetBranch, string sha)

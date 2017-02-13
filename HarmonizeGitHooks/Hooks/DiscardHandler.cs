@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LibGit2Sharp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,16 +7,16 @@ using System.Threading.Tasks;
 
 namespace HarmonizeGitHooks
 {
-    class ResetHandler : TypicalHandlerBase
+    class DiscardHandler : TypicalHandlerBase
     {
-        public ResetHandler(HarmonizeGitBase harmonize) 
+        public DiscardHandler(HarmonizeGitBase harmonize)
             : base(harmonize)
         {
         }
 
         public override void Handle(List<string> args)
         {
-            harmonize.SyncParentRepos();
+            this.harmonize.SyncParentRepos();
         }
     }
 }
