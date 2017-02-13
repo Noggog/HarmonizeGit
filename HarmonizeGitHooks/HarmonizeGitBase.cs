@@ -4,21 +4,25 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace HarmonizeGitHooks
 {
     class HarmonizeGitBase
     {
+        public EventWaitHandle configSyncer = new EventWaitHandle(true, EventResetMode.AutoReset, "GIT_HARMONIZE_CONFIG_SYNCER");
         public const string BranchName = "GitHarmonize";
         public const string HarmonizeConfigPath = ".harmonize";
-        public readonly Lazy<HarmonizeConfig> Config = new Lazy<HarmonizeConfig>(
-            () =>
-            {
-                return HarmonizeConfig.Factory(HarmonizeConfigPath);
-            });
+        public readonly Lazy<HarmonizeConfig> Config;
+
+        public HarmonizeGitBase()
+        {
+            Config = new Lazy<HarmonizeConfig>(LoadConfig);
+        }
 
         public void Handle(string[] args)
         {
@@ -35,6 +39,9 @@ namespace HarmonizeGitHooks
                     break;
                 case "pre-commit":
                     handler = new CommitHandler(this);
+                    break;
+                case "post-status":
+                    handler = new StatusHandler(this);
                     break;
                 default:
                     return;
@@ -72,6 +79,65 @@ namespace HarmonizeGitHooks
                 }
             }
             return ret;
+        }
+
+        public void SyncConfigToParentShas()
+        {
+            var config = this.Config.Value;
+            bool changed = false;
+
+            foreach (var listing in config.ParentRepos)
+            {
+                using (var repo = new Repository(listing.Path))
+                {
+                    if (listing.Sha.Equals(repo.Head.Tip.Sha)) continue;
+                    changed = true;
+                    listing.Sha = repo.Head.Tip.Sha;
+                }
+            }
+
+            if (!changed) return;
+
+            string xmlStr;
+            XmlSerializer xsSubmit = new XmlSerializer(typeof(HarmonizeConfig));
+            var settings = new XmlWriterSettings();
+            settings.Indent = true;
+            settings.OmitXmlDeclaration = true;
+            var emptyNs = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
+            using (var sw = new StringWriter())
+            {
+                using (XmlWriter writer = XmlWriter.Create(sw, settings))
+                {
+                    xsSubmit.Serialize(writer, config, emptyNs);
+                    xmlStr = sw.ToString();
+                }
+            }
+            
+            configSyncer.WaitOne();
+            try
+            {
+                File.WriteAllText(HarmonizeConfigPath, xmlStr);
+            }
+            finally
+            {
+                configSyncer.Set();
+            }
+        }
+
+        private HarmonizeConfig LoadConfig()
+        {
+            configSyncer.WaitOne();
+            try
+            {
+                using (var stream = new FileStream(HarmonizeConfigPath, FileMode.Open, FileAccess.Read))
+                {
+                    return HarmonizeConfig.Factory(stream);
+                }
+            }
+            finally
+            {
+                configSyncer.Set();
+            }
         }
 
         public void SyncParentReposToSha(string targetCommitSha)

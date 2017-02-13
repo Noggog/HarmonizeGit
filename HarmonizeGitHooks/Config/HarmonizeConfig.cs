@@ -12,11 +12,8 @@ namespace HarmonizeGitHooks
     public class HarmonizeConfig
     {
         public List<RepoListing> ParentRepos = new List<RepoListing>();
-
-        public static HarmonizeConfig Factory(string filePath)
-        {
-            return Factory(new FileStream(filePath, FileMode.Open, FileAccess.Read));
-        }
+        [XmlIgnore]
+        public string OriginalXML;
 
         public static HarmonizeConfig Factory(Stream stream)
         {
@@ -29,7 +26,9 @@ namespace HarmonizeGitHooks
                 XmlSerializer serializer = new XmlSerializer(typeof(HarmonizeConfig));
                 using (XmlReader reader = new XmlTextReader(read))
                 {
-                    return (HarmonizeConfig)serializer.Deserialize(reader);
+                    var ret = (HarmonizeConfig)serializer.Deserialize(reader);
+                    ret.OriginalXML = xmlString;
+                    return ret;
                 }
             }
         }

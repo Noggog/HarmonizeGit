@@ -18,34 +18,8 @@ namespace HarmonizeGitHooks
         }
 
         public override void Handle(List<string> args)
-        {            
-            var config = this.harmonize.Config.Value;
-            
-            foreach (var listing in config.ParentRepos)
-            {
-                using (var repo = new Repository(listing.Path))
-                {
-                    listing.Sha = repo.Head.Tip.Sha;
-                }
-            }
-
-            string xmlStr;
-            XmlSerializer xsSubmit = new XmlSerializer(typeof(HarmonizeConfig));
-            var settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.OmitXmlDeclaration = true;
-            var emptyNs = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
-            using (var sw = new StringWriter())
-            {
-                using (XmlWriter writer = XmlWriter.Create(sw, settings))
-                {
-                    xsSubmit.Serialize(writer, config, emptyNs);
-                    xmlStr = sw.ToString();
-                }
-            }
-
-            File.WriteAllText(HarmonizeGitBase.HarmonizeConfigPath, xmlStr);
-
+        {
+            this.harmonize.SyncConfigToParentShas();
             using (var repo = new Repository("."))
             {
                 Commands.Stage(repo, HarmonizeGitBase.HarmonizeConfigPath);
