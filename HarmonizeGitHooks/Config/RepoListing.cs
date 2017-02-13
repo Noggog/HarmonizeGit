@@ -10,5 +10,6 @@ namespace HarmonizeGitHooks
     {
         public string Nickname;
         public string Path;
+        public string Sha;
     }
 }

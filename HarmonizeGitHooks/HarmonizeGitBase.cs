@@ -1,5 +1,4 @@
-﻿using HarmonizeGitHooks.MetaData;
-using LibGit2Sharp;
+﻿using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,10 +13,11 @@ namespace HarmonizeGitHooks
     class HarmonizeGitBase
     {
         public const string BranchName = "GitHarmonize";
+        public const string HarmonizeConfigPath = ".harmonize";
         public readonly Lazy<HarmonizeConfig> Config = new Lazy<HarmonizeConfig>(
             () =>
             {
-                return HarmonizeConfig.Factory(".harmonize");
+                return HarmonizeConfig.Factory(HarmonizeConfigPath);
             });
 
         public void Handle(string[] args)
@@ -30,11 +30,11 @@ namespace HarmonizeGitHooks
                 case "pre-checkout":
                     handler = new CheckoutHandler(this);
                     break;
-                case "commit-msg":
-                    handler = new CommitMsgHandler(this);
-                    break;
                 case "pre-reset":
                     handler = new ResetHandler(this);
+                    break;
+                case "pre-commit":
+                    handler = new CommitHandler(this);
                     break;
                 default:
                     return;
@@ -74,100 +74,45 @@ namespace HarmonizeGitHooks
             return ret;
         }
 
-        public bool GetShasForParentRepoCommits(string commitMsg, out List<Tuple<RepoListing, string>> list)
+        public void SyncParentReposToSha(string targetCommitSha)
         {
-            var index = commitMsg.IndexOf("<HarmonizeGitMeta>");
-            if (index == -1)
-            {
-                list = null;
-                this.WriteLine("No HarmonizeGit meta info found in commit message.");
-                return false;
-            }
-            var dupIndex = commitMsg.LastIndexOf("<HarmonizeGitMeta>");
-            if (index != dupIndex)
-            {
-                list = null;
-                this.WriteLine("Multiple HarmonizeGit metadata found in commit message.");
-                return false;
-            }
-            var endNode = "</HarmonizeGitMeta>";
-            var endIndex = commitMsg.IndexOf(endNode);
-            if (endIndex == -1)
-            {
-                list = null;
-                this.WriteLine("No end HarmonizeGit metadata xml node.");
-                return false;
-            }
-            if (index > endIndex)
-            {
-                list = null;
-                this.WriteLine("HarmonizeGit metadata end node came before start node.");
-                return false;
-            }
-            var metaData = commitMsg.Substring(index, endIndex + endNode.Length - index);
-
-            HarmonizeGitMeta meta;
-            using (StringReader read = new StringReader(metaData))
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof(HarmonizeGitMeta));
-                using (XmlReader reader = new XmlTextReader(read))
-                {
-                    meta = (HarmonizeGitMeta)serializer.Deserialize(reader);
-                }
-            }
-
-            list = new List<Tuple<RepoListing, string>>();
-            foreach (var r in meta.Refs)
-            {
-                foreach (var listing in this.Config.Value.ParentRepos)
-                {
-                    if (listing.Nickname.Equals(r.Nickname))
-                    {
-                        list.Add(
-                            new Tuple<RepoListing, string>(
-                                listing,
-                                r.Sha));
-                    }
-                }
-            }
-
-            return true;
-        }
-
-        public void SyncParentReposToSha(string curRepoSha)
-        {
-            string commitMsg;
+            HarmonizeConfig targetConfig;
             using (var repo = new Repository("."))
             {
-                var targetCommit = repo.Lookup<Commit>(curRepoSha);
+                var targetCommit = repo.Lookup<Commit>(targetCommitSha);
                 if (targetCommit == null)
                 {
-                    throw new ArgumentException("Target commit does not exist. " + curRepoSha);
+                    throw new ArgumentException("Target commit does not exist. " + targetCommitSha);
                 }
 
-                commitMsg = targetCommit.Message;
+                var entry = targetCommit[HarmonizeConfigPath];
+                var blob = entry?.Target as Blob;
+                if (blob == null)
+                {
+                    this.WriteLine("No harmonize config at target commit.  Exiting without syncing.");
+                    return;
+                }
+
+                var contentStream = blob.GetContentStream();
+                using (var tr = new StreamReader(contentStream, Encoding.UTF8))
+                {
+                    targetConfig = HarmonizeConfig.Factory(tr.BaseStream);
+                }
             }
 
-
-            List<Tuple<RepoListing, string>> list;
-            if (!this.GetShasForParentRepoCommits(commitMsg, out list))
+            foreach (var listing in targetConfig.ParentRepos)
             {
-                this.WriteLine("Error getting metadata.");
-            }
+                this.WriteLine($"Processing {listing.Nickname} at path {listing.Path}. Trying to check out an existing branch at {listing.Sha}.");
 
-            foreach (var listing in list)
-            {
-                this.WriteLine($"Processing {listing.Item1.Nickname} at path {listing.Item1.Path}. Trying to check out an existing branch at {listing.Item2}.");
-
-                using (var repo = new Repository(listing.Item1.Path))
+                using (var repo = new Repository(listing.Path))
                 {
                     var existingBranch = repo.Branches
-                        .Where((b) => b.Tip.Sha.Equals(listing.Item2))
+                        .Where((b) => b.Tip.Sha.Equals(listing.Sha))
                         .OrderBy((b) => b.FriendlyName.Contains("GitHarmonize") ? 0 : 1)
                         .FirstOrDefault();
                     if (existingBranch != null)
                     {
-                        this.WriteLine($"Checking out existing branch {existingBranch.FriendlyName}.");
+                        this.WriteLine($"Checking out existing branch {listing.Nickname}:{existingBranch.FriendlyName}.");
                         LibGit2Sharp.Commands.Checkout(repo, existingBranch.FriendlyName);
                         return;
                     }
@@ -178,8 +123,8 @@ namespace HarmonizeGitHooks
                         var harmonizeBranch = repo.Branches[branchName];
                         if (harmonizeBranch == null)
                         { // Create new branch
-                            this.WriteLine($"Creating {branchName}.");
-                            var branch = repo.CreateBranch(branchName, listing.Item2);
+                            this.WriteLine($"Creating {listing.Nickname}:{branchName}.");
+                            var branch = repo.CreateBranch(branchName, listing.Sha);
                             Commands.Checkout(repo, branch);
                             return;
                         }
@@ -190,9 +135,9 @@ namespace HarmonizeGitHooks
                         }
                         else
                         {
-                            this.WriteLine("Moving " + harmonizeBranch.FriendlyName + " to target commit.");
+                            this.WriteLine($"Moving {listing.Nickname}:{harmonizeBranch.FriendlyName} to target commit.");
                             Commands.Checkout(repo, harmonizeBranch);
-                            repo.Reset(ResetMode.Hard, listing.Item2);
+                            repo.Reset(ResetMode.Hard, listing.Sha);
                             return;
                         }
                     }

@@ -15,8 +15,13 @@ namespace HarmonizeGitHooks
 
         public static HarmonizeConfig Factory(string filePath)
         {
+            return Factory(new FileStream(filePath, FileMode.Open, FileAccess.Read));
+        }
+
+        public static HarmonizeConfig Factory(Stream stream)
+        {
             XmlDocument xml = new XmlDocument();
-            xml.Load(filePath);
+            xml.Load(stream);
             string xmlString = xml.OuterXml;
 
             using (StringReader read = new StringReader(xmlString))

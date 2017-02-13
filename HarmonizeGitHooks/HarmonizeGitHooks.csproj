@@ -52,11 +52,9 @@
   <ItemGroup>
     <Compile Include="Config\RepoListing.cs" />
     <Compile Include="Hooks\CheckoutHandler.cs" />
-    <Compile Include="Hooks\CommitMsgHandler.cs" />
+    <Compile Include="Hooks\CommitHandler.cs" />
     <Compile Include="Config\HarmonizeConfig.cs" />
     <Compile Include="HarmonizeGitBase.cs" />
-    <Compile Include="MetaData\HarmonizeGitMeta.cs" />
-    <Compile Include="MetaData\Ref.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Hooks\ResetHandler.cs" />
