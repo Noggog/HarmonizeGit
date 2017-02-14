@@ -17,13 +17,14 @@ namespace HarmonizeGitHooks
         {
         }
 
-        public override void Handle(List<string> args)
+        public override bool Handle(List<string> args)
         {
             this.harmonize.SyncConfigToParentShas();
             using (var repo = new Repository("."))
             {
                 Commands.Stage(repo, HarmonizeGitBase.HarmonizeConfigPath);
             }
+            return true;
         }
     }
 }

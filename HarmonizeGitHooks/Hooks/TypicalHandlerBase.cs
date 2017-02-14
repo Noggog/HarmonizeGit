@@ -15,6 +15,6 @@ namespace HarmonizeGitHooks
             this.harmonize = harmonize;
         }
 
-        public abstract void Handle(List<string> args);
+        public abstract bool Handle(List<string> args);
     }
 }

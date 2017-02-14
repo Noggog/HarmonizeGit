@@ -24,9 +24,9 @@ namespace HarmonizeGitHooks
             Config = new Lazy<HarmonizeConfig>(LoadConfig);
         }
 
-        public void Handle(string[] args)
+        public bool Handle(string[] args)
         {
-            if (args.Length < 2) return;
+            if (args.Length < 2) return true;
 
             TypicalHandlerBase handler;
             switch (args[0])
@@ -47,7 +47,7 @@ namespace HarmonizeGitHooks
                     handler = new DiscardHandler(this);
                     break;
                 default:
-                    return;
+                    return true;
             }
 
             List<string> trimmedArgs = new List<string>();
@@ -55,7 +55,7 @@ namespace HarmonizeGitHooks
             {
                 trimmedArgs.Add(args[i]);
             }
-            handler.Handle(trimmedArgs);
+            return handler.Handle(trimmedArgs);
         }
 
         public void WriteLine(string line)

@@ -13,9 +13,10 @@ namespace HarmonizeGitHooks
         {
         }
 
-        public override void Handle(List<string> args)
+        public override bool Handle(List<string> args)
         {
             harmonize.SyncParentRepos();
+            return true;
         }
     }
 }

@@ -8,10 +8,10 @@ namespace HarmonizeGitHooks
 {
     class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
             HarmonizeGitBase harmonize = new HarmonizeGitBase();
-            harmonize.Handle(args);
+            return harmonize.Handle(args) ? 0 : 1;
         }
     }
 }

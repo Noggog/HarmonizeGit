@@ -36,7 +36,7 @@ namespace HarmonizeGitHooks
             }
         }
 
-        public override void Handle(List<string> args)
+        public override bool Handle(List<string> args)
         {
             ParseArgs(args);
 
@@ -44,7 +44,7 @@ namespace HarmonizeGitHooks
             if (curSha.Equals(targetSha))
             {
                 this.harmonize.WriteLine("Target commit was the same as the source commit.");
-                return;
+                return true;
             }
 
             var uncomittedChangeRepos = this.harmonize.GetReposWithUncommittedChanges();
@@ -55,9 +55,11 @@ namespace HarmonizeGitHooks
                 {
                     this.harmonize.WriteLine("   -" + repo.Nickname);
                 }
+                return false;
             }
 
             harmonize.SyncParentReposToSha(targetSha);
+            return true;
         }
     }
 }
