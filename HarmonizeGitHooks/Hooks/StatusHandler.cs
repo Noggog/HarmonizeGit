@@ -19,13 +19,12 @@ namespace HarmonizeGitHooks
             try
             {
                 this.harmonize.SyncConfigToParentShas();
-                return true;
             }
             catch (Exception ex)
             {
                 this.harmonize.WriteLine("Failed up sync config. " + ex.Message);
-                return false;
             }
+            return true;
         }
     }
 }
