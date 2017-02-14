@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace HarmonizeGitHooks
 {
-    class DiscardHandler : TypicalHandlerBase
+    class TakeHandler : TypicalHandlerBase
     {
-        public DiscardHandler(HarmonizeGitBase harmonize)
+        public TakeHandler(HarmonizeGitBase harmonize)
             : base(harmonize)
         {
         }

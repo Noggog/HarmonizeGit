@@ -43,8 +43,8 @@ namespace HarmonizeGitHooks
                 case "post-status":
                     handler = new StatusHandler(this);
                     break;
-                case "post-discard":
-                    handler = new DiscardHandler(this);
+                case "post-take":
+                    handler = new TakeHandler(this);
                     break;
                 default:
                     return true;
