@@ -11,6 +11,8 @@ namespace HarmonizeGitHooks
 {
     public class HarmonizeConfig
     {
+        [XmlAttribute]
+        public int Version = 1;
         public List<RepoListing> ParentRepos = new List<RepoListing>();
         [XmlIgnore]
         public string OriginalXML;
