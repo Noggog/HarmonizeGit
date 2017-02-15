@@ -93,7 +93,7 @@ namespace HarmonizeGitHooks
             {
                 using (var repo = new Repository(listing.Path))
                 {
-                    if (listing.Sha.Equals(repo.Head.Tip.Sha)) continue;
+                    if (object.Equals(listing.Sha, repo.Head.Tip.Sha)) continue;
                     changed.Add(listing);
                     listing.Sha = repo.Head.Tip.Sha;
                 }

@@ -26,7 +26,7 @@ namespace HarmonizeGitHooks
             }
             catch (Exception ex)
             {
-                this.harmonize.WriteLine("Failed up sync config. " + ex.Message);
+                this.harmonize.WriteLine("Failed up sync config. " + ex);
             }
             return true;
         }
