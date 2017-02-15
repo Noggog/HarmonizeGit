@@ -16,6 +16,10 @@ namespace HarmonizeGitHooks
 
         public override bool Handle(List<string> args)
         {
+            using (var repo = new Repository("."))
+            {
+                if (repo.Info.CurrentOperation != CurrentOperation.None) return true;
+            }
             try
             {
                 this.harmonize.SyncConfigToParentShas();
