@@ -47,14 +47,8 @@ namespace HarmonizeGitHooks
                 return true;
             }
 
-            var uncomittedChangeRepos = this.harmonize.GetReposWithUncommittedChanges();
-            if (uncomittedChangeRepos.Count > 0)
+            if (this.harmonize.CancelIfParentsHaveChanges())
             {
-                this.harmonize.WriteLine("Cancelling because repos had uncommitted changes:");
-                foreach (var repo in uncomittedChangeRepos)
-                {
-                    this.harmonize.WriteLine("   -" + repo.Nickname);
-                }
                 return false;
             }
 

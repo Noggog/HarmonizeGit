@@ -19,6 +19,11 @@ namespace HarmonizeGitHooks
 
         public override bool Handle(List<string> args)
         {
+            if (this.harmonize.CancelIfParentsHaveChanges())
+            {
+                return false;
+            }
+
             this.harmonize.SyncConfigToParentShas();
             using (var repo = new Repository("."))
             {

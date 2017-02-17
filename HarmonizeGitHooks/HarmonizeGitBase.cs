@@ -68,6 +68,21 @@ namespace HarmonizeGitHooks
             System.Console.WriteLine(line);
         }
 
+        public bool CancelIfParentsHaveChanges()
+        {
+            var uncomittedChangeRepos = this.GetReposWithUncommittedChanges();
+            if (uncomittedChangeRepos.Count > 0)
+            {
+                this.WriteLine("Cancelling because repos had uncommitted changes:");
+                foreach (var repo in uncomittedChangeRepos)
+                {
+                    this.WriteLine("   -" + repo.Nickname);
+                }
+                return true;
+            }
+            return false;
+        }
+
         public List<RepoListing> GetReposWithUncommittedChanges()
         {
             List<RepoListing> ret = new List<RepoListing>();
