@@ -110,7 +110,7 @@ namespace HarmonizeGitHooks
                 {
                     if (object.Equals(listing.Sha, repo.Head.Tip.Sha)) continue;
                     changed.Add(listing);
-                    listing.Sha = repo.Head.Tip.Sha;
+                    listing.SetToCommit(repo.Head.Tip);
                 }
             }
 
