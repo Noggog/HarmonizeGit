@@ -172,48 +172,53 @@ namespace HarmonizeGitHooks
         {
             foreach (var listing in config.ParentRepos)
             {
-                this.WriteLine($"Processing {listing.Nickname} at path {listing.Path}. Trying to check out an existing branch at {listing.Sha}.");
+                SyncParentRepo(listing);
+            }
+        }
 
-                using (var repo = new Repository(listing.Path))
+        private void SyncParentRepo(RepoListing listing)
+        {
+            this.WriteLine($"Processing {listing.Nickname} at path {listing.Path}. Trying to check out an existing branch at {listing.Sha}.");
+
+            using (var repo = new Repository(listing.Path))
+            {
+                var existingBranch = repo.Branches
+                    .Where((b) => b.Tip.Sha.Equals(listing.Sha))
+                    .OrderBy((b) => b.FriendlyName.Contains("GitHarmonize") ? 0 : 1)
+                    .FirstOrDefault();
+                if (existingBranch != null)
                 {
-                    var existingBranch = repo.Branches
-                        .Where((b) => b.Tip.Sha.Equals(listing.Sha))
-                        .OrderBy((b) => b.FriendlyName.Contains("GitHarmonize") ? 0 : 1)
-                        .FirstOrDefault();
-                    if (existingBranch != null)
-                    {
-                        this.WriteLine($"Checking out existing branch {listing.Nickname}:{existingBranch.FriendlyName}.");
-                        LibGit2Sharp.Commands.Checkout(repo, existingBranch.FriendlyName);
+                    this.WriteLine($"Checking out existing branch {listing.Nickname}:{existingBranch.FriendlyName}.");
+                    LibGit2Sharp.Commands.Checkout(repo, existingBranch.FriendlyName);
+                    return;
+                }
+                this.WriteLine("No branch found.  Allocating a Harmonize branch.");
+                for (int i = 0; i < 100; i++)
+                {
+                    var branchName = BranchName + (i == 0 ? "" : i.ToString());
+                    var harmonizeBranch = repo.Branches[branchName];
+                    if (harmonizeBranch == null)
+                    { // Create new branch
+                        this.WriteLine($"Creating {listing.Nickname}:{branchName}.");
+                        var branch = repo.CreateBranch(branchName, listing.Sha);
+                        Commands.Checkout(repo, branch);
                         return;
                     }
-                    this.WriteLine("No branch found.  Allocating a Harmonize branch.");
-                    for (int i = 0; i < 100; i++)
+                    else if (IsLoneTip(repo, harmonizeBranch, harmonizeBranch.Tip.Sha))
                     {
-                        var branchName = BranchName + (i == 0 ? "" : i.ToString());
-                        var harmonizeBranch = repo.Branches[branchName];
-                        if (harmonizeBranch == null)
-                        { // Create new branch
-                            this.WriteLine($"Creating {listing.Nickname}:{branchName}.");
-                            var branch = repo.CreateBranch(branchName, listing.Sha);
-                            Commands.Checkout(repo, branch);
-                            return;
-                        }
-                        else if (IsLoneTip(repo, harmonizeBranch, harmonizeBranch.Tip.Sha))
-                        {
-                            this.WriteLine(harmonizeBranch.FriendlyName + " was unsafe to move.");
-                            continue;
-                        }
-                        else
-                        {
-                            this.WriteLine($"Moving {listing.Nickname}:{harmonizeBranch.FriendlyName} to target commit.");
-                            Commands.Checkout(repo, harmonizeBranch);
-                            repo.Reset(ResetMode.Hard, listing.Sha);
-                            return;
-                        }
+                        this.WriteLine(harmonizeBranch.FriendlyName + " was unsafe to move.");
+                        continue;
+                    }
+                    else
+                    {
+                        this.WriteLine($"Moving {listing.Nickname}:{harmonizeBranch.FriendlyName} to target commit.");
+                        Commands.Checkout(repo, harmonizeBranch);
+                        repo.Reset(ResetMode.Hard, listing.Sha);
+                        return;
                     }
                 }
-                throw new NotImplementedException("Delete some branches.  You have over 100.");
             }
+            throw new NotImplementedException("Delete some branches.  You have over 100.");
         }
 
         public void SyncParentReposToSha(string targetCommitSha)
