@@ -23,12 +23,15 @@ namespace HarmonizeGitHooks
                     string.Join(" ", args));
                 startInfo.CreateNoWindow = true;
                 startInfo.RedirectStandardError = true;
-                startInfo.RedirectStandardInput = true;
                 startInfo.RedirectStandardOutput = true;
                 startInfo.UseShellExecute = false;
-                Process proc = Process.Start(startInfo);
-                proc.WaitForExit();
-                return proc.ExitCode;
+                using (Process proc = Process.Start(startInfo))
+                {
+                    proc.WaitForExit();
+                    System.Console.Write(proc.StandardOutput.ReadToEnd());
+                    System.Console.Error.Write(proc.StandardError.ReadToEnd());
+                    return proc.ExitCode;
+                }
             }
         }
     }
