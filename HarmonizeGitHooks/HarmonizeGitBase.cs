@@ -149,10 +149,15 @@ namespace HarmonizeGitHooks
 
         private HarmonizeConfig LoadConfig()
         {
+            return LoadConfig(HarmonizeConfigPath);
+        }
+
+        private HarmonizeConfig LoadConfig(string path)
+        {
             configSyncer.WaitOne();
             try
             {
-                using (var stream = new FileStream(HarmonizeConfigPath, FileMode.Open, FileAccess.Read))
+                using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
                 {
                     return HarmonizeConfig.Factory(stream);
                 }
