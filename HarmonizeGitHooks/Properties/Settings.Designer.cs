@@ -31,5 +31,14 @@ namespace HarmonizeGitHooks.Properties {
                 return ((bool)(this["AddMetadataToConfig"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string RoutePath {
+            get {
+                return ((string)(this["RoutePath"]));
+            }
+        }
     }
 }
