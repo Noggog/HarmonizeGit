@@ -23,7 +23,6 @@ namespace HarmonizeGitHooks
             }
             try
             {
-                this.harmonize.UpdatePathingConfig(trim: false);
                 this.harmonize.SyncConfigToParentShas();
             }
             catch (Exception ex)

@@ -19,16 +19,12 @@ namespace HarmonizeGitHooks
         public const string BranchName = "GitHarmonize";
         public const string HarmonizeConfigPath = ".harmonize";
         public const string HarmonizePathingPath = ".harmonize-pathing";
-        public readonly Lazy<HarmonizeConfig> Config;
-        public readonly Lazy<PathingConfig> Pathing;
+        public HarmonizeConfig OriginalConfig;
+        public PathingConfig OriginalPathing;
+        public HarmonizeConfig Config;
+        public PathingConfig Pathing;
         public bool Silent;
-
-        public HarmonizeGitBase()
-        {
-            Config = new Lazy<HarmonizeConfig>(() => LoadConfig(HarmonizeConfigPath));
-            this.Pathing = new Lazy<PathingConfig>(() => LoadPathing(HarmonizePathingPath));
-        }
-
+        
         public bool Handle(string[] args)
         {
             if (args.Length < 2) return true;
@@ -54,6 +50,12 @@ namespace HarmonizeGitHooks
                 default:
                     return true;
             }
+
+            this.OriginalConfig = LoadConfig(HarmonizeConfigPath);
+            this.Config = LoadConfig(HarmonizeConfigPath);
+            this.OriginalPathing = LoadPathing(HarmonizePathingPath);
+            this.Pathing = LoadPathing(HarmonizePathingPath);
+            this.SyncPathing();
 
             List<string> trimmedArgs = new List<string>();
             for (int i = 2; i < args.Length; i++)
@@ -98,9 +100,9 @@ namespace HarmonizeGitHooks
         public List<RepoListing> GetReposWithUncommittedChanges()
         {
             List<RepoListing> ret = new List<RepoListing>();
-            foreach (var repoListing in Config.Value.ParentRepos)
+            foreach (var repoListing in Config.ParentRepos)
             {
-                var path = this.Pathing.Value.GetListing(repoListing.Nickname).Path;
+                var path = this.Pathing.GetListing(repoListing.Nickname).Path;
                 using (var repo = new Repository(path))
                 {
                     if (repo.RetrieveStatus().IsDirty)
@@ -114,12 +116,10 @@ namespace HarmonizeGitHooks
 
         public void SyncConfigToParentShas()
         {
-            var config = this.Config.Value;
             List<RepoListing> changed = new List<RepoListing>();
-
-            foreach (var listing in config.ParentRepos)
+            foreach (var listing in this.Config.ParentRepos)
             {
-                var path = this.Pathing.Value.GetListing(listing.Nickname).Path;
+                var path = this.Pathing.GetListing(listing.Nickname).Path;
                 using (var repo = new Repository())
                 {
                     if (object.Equals(listing.Sha, repo.Head.Tip.Sha)) continue;
@@ -127,8 +127,10 @@ namespace HarmonizeGitHooks
                     listing.SetToCommit(repo.Head.Tip);
                 }
             }
+            
+            if (changed.Count > 0
+                || this.Config.Equals(this.OriginalConfig)) return;
 
-            if (changed.Count == 0) return;
             this.WriteLine("Updating config as parent repos have changed: ");
             foreach (var change in changed)
             {
@@ -145,7 +147,7 @@ namespace HarmonizeGitHooks
             {
                 using (XmlWriter writer = XmlWriter.Create(sw, settings))
                 {
-                    xsSubmit.Serialize(writer, config, emptyNs);
+                    xsSubmit.Serialize(writer, this.Config, emptyNs);
                     xmlStr = sw.ToString();
                 }
             }
@@ -198,7 +200,7 @@ namespace HarmonizeGitHooks
 
         public void SyncParentRepos()
         {
-            SyncParentRepos(this.Config.Value);
+            SyncParentRepos(this.Config);
         }
 
         public void SyncParentRepos(HarmonizeConfig config)
@@ -211,7 +213,7 @@ namespace HarmonizeGitHooks
 
         private void SyncParentRepo(RepoListing listing)
         {
-            var path = this.Pathing.Value.GetListing(listing.Nickname).Path;
+            var path = this.Pathing.GetListing(listing.Nickname).Path;
             this.WriteLine($"Processing {listing.Nickname} at path {path}. Trying to check out an existing branch at {listing.Sha}.");
 
             using (var repo = new Repository(path))
@@ -283,18 +285,36 @@ namespace HarmonizeGitHooks
             SyncParentRepos(targetConfig);
         }
 
+        public void SyncPathing()
+        {
+            foreach (var listing in this.Config.ParentRepos)
+            {
+                PathingListing pathListing;
+                if (this.Pathing.TryGetListing(listing.Nickname, out pathListing)) continue;
+                this.Pathing.Paths.Add(
+                    new PathingListing()
+                    {
+                        Nickname = listing.Nickname,
+                        Path = "../" + listing.Nickname
+                    });
+                this.UpdatePathingConfig(trim: false);
+            }
+        }
+
         public void UpdatePathingConfig(bool trim)
         {
             if (trim)
             {
-                foreach (var path in this.Pathing.Value.Paths.ToList())
+                foreach (var path in this.Pathing.Paths.ToList())
                 {
-                    if (!this.Config.Value.ParentRepos.Any((listing) => listing.Nickname.Equals(path.Nickname)))
+                    if (!this.Config.ParentRepos.Any((listing) => listing.Nickname.Equals(path.Nickname)))
                     {
-                        this.Pathing.Value.Paths.Remove(path);
+                        this.Pathing.Paths.Remove(path);
                     }
                 }
             }
+
+            if (this.Pathing.Equals(this.OriginalPathing)) return;
 
             string xmlStr;
             XmlSerializer xsSubmit = new XmlSerializer(typeof(PathingConfig));
@@ -306,7 +326,7 @@ namespace HarmonizeGitHooks
             {
                 using (XmlWriter writer = XmlWriter.Create(sw, settings))
                 {
-                    xsSubmit.Serialize(writer, this.Pathing.Value, emptyNs);
+                    xsSubmit.Serialize(writer, this.Pathing, emptyNs);
                     xmlStr = sw.ToString();
                 }
             }

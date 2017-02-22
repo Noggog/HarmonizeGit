@@ -49,13 +49,7 @@ namespace HarmonizeGitHooks
 
         public PathingListing GetListing(string name)
         {
-            PathingListing listing;
-            if (this.TryGetListing(name, out listing)) return listing;
-            return new PathingListing()
-            {
-                Nickname = name,
-                Path = "../" + name
-            };
+            return this.pathsDict[name];
         }
 
         public override bool Equals(object obj)
