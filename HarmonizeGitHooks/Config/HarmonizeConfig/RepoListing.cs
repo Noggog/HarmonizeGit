@@ -11,7 +11,6 @@ namespace HarmonizeGitHooks
     public class RepoListing
     {
         public string Nickname;
-        public string Path;
         public string Sha;
         public string CommitDate
         {

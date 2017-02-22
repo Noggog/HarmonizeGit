@@ -34,19 +34,5 @@ namespace HarmonizeGitHooks
                 }
             }
         }
-
-        public void Export(string filePath)
-        {
-            XmlDocument xmlDocument = new XmlDocument();
-            XmlSerializer serializer = new XmlSerializer(this.GetType());
-            using (var stream = new MemoryStream())
-            {
-                serializer.Serialize(stream, this);
-                stream.Position = 0;
-                xmlDocument.Load(stream);
-                xmlDocument.Save(filePath);
-                stream.Close();
-            }
-        }
     }
 }

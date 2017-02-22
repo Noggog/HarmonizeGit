@@ -50,12 +50,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\RepoListing.cs" />
+    <Compile Include="Config\HarmonizeConfig\RepoListing.cs" />
+    <Compile Include="Config\PathingConfig\PathingConfig.cs" />
+    <Compile Include="Config\PathingConfig\PathingListing.cs" />
     <Compile Include="Hooks\TakeHandler.cs" />
     <Compile Include="Hooks\StatusHandler.cs" />
     <Compile Include="Hooks\CheckoutHandler.cs" />
     <Compile Include="Hooks\CommitHandler.cs" />
-    <Compile Include="Config\HarmonizeConfig.cs" />
+    <Compile Include="Config\HarmonizeConfig\HarmonizeConfig.cs" />
     <Compile Include="HarmonizeGitBase.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

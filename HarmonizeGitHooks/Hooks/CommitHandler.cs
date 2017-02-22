@@ -25,9 +25,11 @@ namespace HarmonizeGitHooks
             }
 
             this.harmonize.SyncConfigToParentShas();
+            this.harmonize.UpdatePathingConfig(trim: true);
             using (var repo = new Repository("."))
             {
                 Commands.Stage(repo, HarmonizeGitBase.HarmonizeConfigPath);
+                Commands.Stage(repo, HarmonizeGitBase.HarmonizePathingPath);
             }
             return true;
         }

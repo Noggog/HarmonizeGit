@@ -15,14 +15,18 @@ namespace HarmonizeGitHooks
     class HarmonizeGitBase
     {
         public EventWaitHandle configSyncer = new EventWaitHandle(true, EventResetMode.AutoReset, "GIT_HARMONIZE_CONFIG_SYNCER");
+        public EventWaitHandle pathingSyncer = new EventWaitHandle(true, EventResetMode.AutoReset, "GIT_HARMONIZE_PATHING_SYNCER");
         public const string BranchName = "GitHarmonize";
         public const string HarmonizeConfigPath = ".harmonize";
+        public const string HarmonizePathingPath = ".harmonize-pathing";
         public readonly Lazy<HarmonizeConfig> Config;
+        public readonly Lazy<PathingConfig> Pathing;
         public bool Silent;
 
         public HarmonizeGitBase()
         {
-            Config = new Lazy<HarmonizeConfig>(LoadConfig);
+            Config = new Lazy<HarmonizeConfig>(() => LoadConfig(HarmonizeConfigPath));
+            this.Pathing = new Lazy<PathingConfig>(() => LoadPathing(HarmonizePathingPath));
         }
 
         public bool Handle(string[] args)
@@ -96,7 +100,8 @@ namespace HarmonizeGitHooks
             List<RepoListing> ret = new List<RepoListing>();
             foreach (var repoListing in Config.Value.ParentRepos)
             {
-                using (var repo = new Repository(repoListing.Path))
+                var path = this.Pathing.Value.GetListing(repoListing.Nickname).Path;
+                using (var repo = new Repository(path))
                 {
                     if (repo.RetrieveStatus().IsDirty)
                     {
@@ -114,7 +119,8 @@ namespace HarmonizeGitHooks
 
             foreach (var listing in config.ParentRepos)
             {
-                using (var repo = new Repository(listing.Path))
+                var path = this.Pathing.Value.GetListing(listing.Nickname).Path;
+                using (var repo = new Repository())
                 {
                     if (object.Equals(listing.Sha, repo.Head.Tip.Sha)) continue;
                     changed.Add(listing);
@@ -155,11 +161,6 @@ namespace HarmonizeGitHooks
             }
         }
 
-        private HarmonizeConfig LoadConfig()
-        {
-            return LoadConfig(HarmonizeConfigPath);
-        }
-
         private HarmonizeConfig LoadConfig(string path)
         {
             configSyncer.WaitOne();
@@ -173,6 +174,25 @@ namespace HarmonizeGitHooks
             finally
             {
                 configSyncer.Set();
+            }
+        }
+
+        private PathingConfig LoadPathing(string path)
+        {
+            pathingSyncer.WaitOne();
+            try
+            {
+                FileInfo file = new FileInfo(path);
+                if (!file.Exists) return new PathingConfig();
+
+                using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+                {
+                    return PathingConfig.Factory(stream);
+                }
+            }
+            finally
+            {
+                pathingSyncer.Set();
             }
         }
 
@@ -191,9 +211,10 @@ namespace HarmonizeGitHooks
 
         private void SyncParentRepo(RepoListing listing)
         {
-            this.WriteLine($"Processing {listing.Nickname} at path {listing.Path}. Trying to check out an existing branch at {listing.Sha}.");
+            var path = this.Pathing.Value.GetListing(listing.Nickname).Path;
+            this.WriteLine($"Processing {listing.Nickname} at path {path}. Trying to check out an existing branch at {listing.Sha}.");
 
-            using (var repo = new Repository(listing.Path))
+            using (var repo = new Repository(path))
             {
                 var existingBranch = repo.Branches
                     .Where((b) => b.Tip.Sha.Equals(listing.Sha))
@@ -260,6 +281,45 @@ namespace HarmonizeGitHooks
                 }
             }
             SyncParentRepos(targetConfig);
+        }
+
+        public void UpdatePathingConfig(bool trim)
+        {
+            if (trim)
+            {
+                foreach (var path in this.Pathing.Value.Paths.ToList())
+                {
+                    if (!this.Config.Value.ParentRepos.Any((listing) => listing.Nickname.Equals(path.Nickname)))
+                    {
+                        this.Pathing.Value.Paths.Remove(path);
+                    }
+                }
+            }
+
+            string xmlStr;
+            XmlSerializer xsSubmit = new XmlSerializer(typeof(PathingConfig));
+            var settings = new XmlWriterSettings();
+            settings.Indent = true;
+            settings.OmitXmlDeclaration = true;
+            var emptyNs = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
+            using (var sw = new StringWriter())
+            {
+                using (XmlWriter writer = XmlWriter.Create(sw, settings))
+                {
+                    xsSubmit.Serialize(writer, this.Pathing.Value, emptyNs);
+                    xmlStr = sw.ToString();
+                }
+            }
+
+            pathingSyncer.WaitOne();
+            try
+            {
+                File.WriteAllText(HarmonizePathingPath, xmlStr);
+            }
+            finally
+            {
+                pathingSyncer.Set();
+            }
         }
 
         private bool IsLoneTip(Repository repo, Branch targetBranch, string sha)
