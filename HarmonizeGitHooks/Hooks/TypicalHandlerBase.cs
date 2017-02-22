@@ -9,6 +9,7 @@ namespace HarmonizeGitHooks
     abstract class TypicalHandlerBase
     {
         protected HarmonizeGitBase harmonize;
+        public bool Silent { get; protected set; }
 
         public TypicalHandlerBase(HarmonizeGitBase harmonize)
         {

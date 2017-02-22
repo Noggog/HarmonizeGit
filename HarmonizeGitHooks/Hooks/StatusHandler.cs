@@ -12,6 +12,7 @@ namespace HarmonizeGitHooks
         public StatusHandler(HarmonizeGitBase harmonize)
             : base(harmonize)
         {
+            this.Silent = true;
         }
 
         public override bool Handle(List<string> args)

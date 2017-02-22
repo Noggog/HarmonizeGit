@@ -18,6 +18,7 @@ namespace HarmonizeGitHooks
         public const string BranchName = "GitHarmonize";
         public const string HarmonizeConfigPath = ".harmonize";
         public readonly Lazy<HarmonizeConfig> Config;
+        public bool Silent;
 
         public HarmonizeGitBase()
         {
@@ -55,17 +56,24 @@ namespace HarmonizeGitHooks
             {
                 trimmedArgs.Add(args[i]);
             }
+            this.Silent = handler.Silent;
             return handler.Handle(trimmedArgs);
         }
 
         public void WriteLine(string line)
         {
-            System.Console.WriteLine(line);
+            if (!this.Silent)
+            {
+                System.Console.WriteLine(line);
+            }
         }
 
         public void WriteLine(object line)
         {
-            System.Console.WriteLine(line);
+            if (!this.Silent)
+            {
+                System.Console.WriteLine(line);
+            }
         }
 
         public bool CancelIfParentsHaveChanges()
