@@ -28,8 +28,8 @@ namespace HarmonizeGitHooks
                 using (Process proc = Process.Start(startInfo))
                 {
                     proc.WaitForExit();
-                    System.Console.Write(proc.StandardOutput.ReadToEnd());
-                    System.Console.Error.Write(proc.StandardError.ReadToEnd());
+                    System.Console.WriteLine(proc.StandardOutput.ReadToEnd());
+                    System.Console.Error.WriteLine(proc.StandardError.ReadToEnd());
                     return proc.ExitCode;
                 }
             }
