@@ -305,6 +305,8 @@ namespace HarmonizeGitHooks
 
         public void UpdatePathingConfig(bool trim)
         {
+            if (!Properties.Settings.Default.ExportPathingConfigUpdates) return;
+
             if (trim)
             {
                 foreach (var path in this.Pathing.Paths.ToList())
@@ -354,6 +356,7 @@ namespace HarmonizeGitHooks
 
         private void AddPathingToGitIgnore()
         {
+            if (!Properties.Settings.Default.AddPathingToGitIgnore) return;
             gitIgnoreSyncer.WaitOne();
             try
             {

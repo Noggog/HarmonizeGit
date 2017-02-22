@@ -40,5 +40,23 @@ namespace HarmonizeGitHooks.Properties {
                 return ((string)(this["RoutePath"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ExportPathingConfigUpdates {
+            get {
+                return ((bool)(this["ExportPathingConfigUpdates"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AddPathingToGitIgnore {
+            get {
+                return ((bool)(this["AddPathingToGitIgnore"]));
+            }
+        }
     }
 }
