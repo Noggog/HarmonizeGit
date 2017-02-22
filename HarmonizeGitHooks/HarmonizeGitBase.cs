@@ -16,9 +16,11 @@ namespace HarmonizeGitHooks
     {
         public EventWaitHandle configSyncer = new EventWaitHandle(true, EventResetMode.AutoReset, "GIT_HARMONIZE_CONFIG_SYNCER");
         public EventWaitHandle pathingSyncer = new EventWaitHandle(true, EventResetMode.AutoReset, "GIT_HARMONIZE_PATHING_SYNCER");
+        public EventWaitHandle gitIgnoreSyncer = new EventWaitHandle(true, EventResetMode.AutoReset, "GIT_HARMONIZE_GITIGNORE_SYNCER");
         public const string BranchName = "GitHarmonize";
         public const string HarmonizeConfigPath = ".harmonize";
         public const string HarmonizePathingPath = ".harmonize-pathing";
+        public const string GitIgnorePath = ".gitignore";
         public HarmonizeConfig OriginalConfig;
         public PathingConfig OriginalPathing;
         public HarmonizeConfig Config;
@@ -331,14 +333,49 @@ namespace HarmonizeGitHooks
                 }
             }
 
+            bool created;
             pathingSyncer.WaitOne();
             try
             {
+                FileInfo file = new FileInfo(HarmonizePathingPath);
+                created = !file.Exists;
                 File.WriteAllText(HarmonizePathingPath, xmlStr);
             }
             finally
             {
                 pathingSyncer.Set();
+            }
+
+            if (created)
+            {
+                AddPathingToGitIgnore();
+            }
+        }
+
+        private void AddPathingToGitIgnore()
+        {
+            gitIgnoreSyncer.WaitOne();
+            try
+            {
+                FileInfo file = new FileInfo(GitIgnorePath);
+                if (file.Exists)
+                {
+                    var lines = File.ReadAllLines(GitIgnorePath).ToList();
+                    foreach (var line in lines)
+                    {
+                        if (line.Trim().Equals(HarmonizePathingPath)) return;
+                    }
+                    lines.Add(HarmonizePathingPath);
+                    File.WriteAllLines(GitIgnorePath, lines);
+                }
+                else
+                {
+                    File.WriteAllText(GitIgnorePath, HarmonizePathingPath);
+                }
+            }
+            finally
+            {
+                gitIgnoreSyncer.Set();
             }
         }
 
