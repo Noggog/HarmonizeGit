@@ -15,8 +15,6 @@ namespace HarmonizeGitHooks
         public int Version = 1;
         public List<PathingListing> Paths = new List<PathingListing>();
         private Dictionary<string, PathingListing> pathsDict = new Dictionary<string, PathingListing>();
-        [XmlIgnore]
-        public string OriginalXML;
 
         public static PathingConfig Factory(Stream stream)
         {
@@ -30,7 +28,6 @@ namespace HarmonizeGitHooks
                 using (XmlReader reader = new XmlTextReader(read))
                 {
                     var ret = (PathingConfig)serializer.Deserialize(reader);
-                    ret.OriginalXML = xmlString;
                     ret.Load();
                     return ret;
                 }
@@ -59,6 +56,15 @@ namespace HarmonizeGitHooks
                 Nickname = name,
                 Path = "../" + name
             };
+        }
+
+        public override bool Equals(object obj)
+        {
+            var rhs = obj as PathingConfig;
+            if (rhs == null) return false;
+            if (this.Version != rhs.Version) return false;
+            if (this.Paths.Count != rhs.Paths.Count) return false;
+            return this.Paths.SequenceEqual(rhs.Paths);
         }
     }
 }

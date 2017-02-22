@@ -14,8 +14,6 @@ namespace HarmonizeGitHooks
         [XmlAttribute]
         public int Version = 1;
         public List<RepoListing> ParentRepos = new List<RepoListing>();
-        [XmlIgnore]
-        public string OriginalXML;
 
         public static HarmonizeConfig Factory(Stream stream)
         {
@@ -29,10 +27,18 @@ namespace HarmonizeGitHooks
                 using (XmlReader reader = new XmlTextReader(read))
                 {
                     var ret = (HarmonizeConfig)serializer.Deserialize(reader);
-                    ret.OriginalXML = xmlString;
                     return ret;
                 }
             }
+        }
+
+        public override bool Equals(object obj)
+        {
+            var rhs = obj as HarmonizeConfig;
+            if (rhs == null) return false;
+            if (this.Version != rhs.Version) return false;
+            if (this.ParentRepos.Count != rhs.ParentRepos.Count) return false;
+            return this.ParentRepos.SequenceEqual(rhs.ParentRepos);
         }
     }
 }
