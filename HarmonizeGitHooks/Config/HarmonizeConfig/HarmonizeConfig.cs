@@ -14,6 +14,8 @@ namespace HarmonizeGitHooks
         [XmlAttribute]
         public int Version = 1;
         public List<RepoListing> ParentRepos = new List<RepoListing>();
+        [NonSerialized]
+        public PathingConfig Pathing;
 
         public static HarmonizeConfig Factory(Stream stream)
         {
@@ -30,6 +32,28 @@ namespace HarmonizeGitHooks
                     return ret;
                 }
             }
+        }
+
+        public bool SetPathing(PathingConfig pathing)
+        {
+            this.Pathing = pathing;
+            bool added = false;
+            foreach (var listing in this.ParentRepos)
+            {
+                PathingListing pathListing;
+                if (!pathing.TryGetListing(listing.Nickname, out pathListing))
+                {
+                    pathing.Paths.Add(
+                        new PathingListing()
+                        {
+                            Nickname = listing.Nickname,
+                            Path = "../" + listing.Nickname
+                        });
+                    added = true;
+                }
+                listing.Path = pathListing.Path;
+            }
+            return added;
         }
 
         public override bool Equals(object obj)

@@ -1,6 +1,7 @@
 ﻿using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,19 +13,14 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace HarmonizeGitHooks
 {
-    class HarmonizeGitBase
+    public class HarmonizeGitBase
     {
-        public EventWaitHandle configSyncer = new EventWaitHandle(true, EventResetMode.AutoReset, "GIT_HARMONIZE_CONFIG_SYNCER");
-        public EventWaitHandle pathingSyncer = new EventWaitHandle(true, EventResetMode.AutoReset, "GIT_HARMONIZE_PATHING_SYNCER");
-        public EventWaitHandle gitIgnoreSyncer = new EventWaitHandle(true, EventResetMode.AutoReset, "GIT_HARMONIZE_GITIGNORE_SYNCER");
+        ConfigLoader configLoader = new ConfigLoader();
         public const string BranchName = "GitHarmonize";
         public const string HarmonizeConfigPath = ".harmonize";
         public const string HarmonizePathingPath = ".harmonize-pathing";
         public const string GitIgnorePath = ".gitignore";
-        public HarmonizeConfig OriginalConfig;
-        public PathingConfig OriginalPathing;
         public HarmonizeConfig Config;
-        public PathingConfig Pathing;
         public bool Silent;
         
         public bool Handle(string[] args)
@@ -53,11 +49,9 @@ namespace HarmonizeGitHooks
                     return true;
             }
 
-            this.OriginalConfig = LoadConfig(HarmonizeConfigPath);
-            this.Config = LoadConfig(HarmonizeConfigPath);
-            this.OriginalPathing = LoadPathing(HarmonizePathingPath);
-            this.Pathing = LoadPathing(HarmonizePathingPath);
-            this.SyncPathing();
+            configLoader.Init(this);
+            this.Config = configLoader.GetConfig(HarmonizeConfigPath);
+            if (this.CheckForCircularConfigs()) return false;
 
             List<string> trimmedArgs = new List<string>();
             for (int i = 2; i < args.Length; i++)
@@ -104,8 +98,7 @@ namespace HarmonizeGitHooks
             List<RepoListing> ret = new List<RepoListing>();
             foreach (var repoListing in Config.ParentRepos)
             {
-                var path = this.Pathing.GetListing(repoListing.Nickname).Path;
-                using (var repo = new Repository(path))
+                using (var repo = new Repository(repoListing.Path))
                 {
                     if (repo.RetrieveStatus().IsDirty)
                     {
@@ -118,86 +111,12 @@ namespace HarmonizeGitHooks
 
         public void SyncConfigToParentShas()
         {
-            List<RepoListing> changed = new List<RepoListing>();
-            foreach (var listing in this.Config.ParentRepos)
-            {
-                var path = this.Pathing.GetListing(listing.Nickname).Path;
-                using (var repo = new Repository())
-                {
-                    if (object.Equals(listing.Sha, repo.Head.Tip.Sha)) continue;
-                    changed.Add(listing);
-                    listing.SetToCommit(repo.Head.Tip);
-                }
-            }
-            
-            if (changed.Count > 0
-                || this.Config.Equals(this.OriginalConfig)) return;
-
-            this.WriteLine("Updating config as parent repos have changed: ");
-            foreach (var change in changed)
-            {
-                this.WriteLine("  " + change.Nickname);
-            }
-
-            string xmlStr;
-            XmlSerializer xsSubmit = new XmlSerializer(typeof(HarmonizeConfig));
-            var settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.OmitXmlDeclaration = true;
-            var emptyNs = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
-            using (var sw = new StringWriter())
-            {
-                using (XmlWriter writer = XmlWriter.Create(sw, settings))
-                {
-                    xsSubmit.Serialize(writer, this.Config, emptyNs);
-                    xmlStr = sw.ToString();
-                }
-            }
-
-            configSyncer.WaitOne();
-            try
-            {
-                File.WriteAllText(HarmonizeConfigPath, xmlStr);
-            }
-            finally
-            {
-                configSyncer.Set();
-            }
+            this.configLoader.WriteConfig(this.Config);
         }
 
-        private HarmonizeConfig LoadConfig(string path)
+        public void UpdatePathingConfig(bool trim)
         {
-            configSyncer.WaitOne();
-            try
-            {
-                using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
-                {
-                    return HarmonizeConfig.Factory(stream);
-                }
-            }
-            finally
-            {
-                configSyncer.Set();
-            }
-        }
-
-        private PathingConfig LoadPathing(string path)
-        {
-            pathingSyncer.WaitOne();
-            try
-            {
-                FileInfo file = new FileInfo(path);
-                if (!file.Exists) return new PathingConfig();
-
-                using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
-                {
-                    return PathingConfig.Factory(stream);
-                }
-            }
-            finally
-            {
-                pathingSyncer.Set();
-            }
+            this.configLoader.UpdatePathingConfig(trim);
         }
 
         public void SyncParentRepos()
@@ -215,10 +134,9 @@ namespace HarmonizeGitHooks
 
         private void SyncParentRepo(RepoListing listing)
         {
-            var path = this.Pathing.GetListing(listing.Nickname).Path;
-            this.WriteLine($"Processing {listing.Nickname} at path {path}. Trying to check out an existing branch at {listing.Sha}.");
+            this.WriteLine($"Processing {listing.Nickname} at path {listing.Path}. Trying to check out an existing branch at {listing.Sha}.");
 
-            using (var repo = new Repository(path))
+            using (var repo = new Repository(listing.Path))
             {
                 var existingBranch = repo.Branches
                     .Where((b) => b.Tip.Sha.Equals(listing.Sha))
@@ -287,99 +205,16 @@ namespace HarmonizeGitHooks
             SyncParentRepos(targetConfig);
         }
 
-        public void SyncPathing()
+        public bool CheckForCircularConfigs()
         {
-            foreach (var listing in this.Config.ParentRepos)
-            {
-                PathingListing pathListing;
-                if (this.Pathing.TryGetListing(listing.Nickname, out pathListing)) continue;
-                this.Pathing.Paths.Add(
-                    new PathingListing()
-                    {
-                        Nickname = listing.Nickname,
-                        Path = "../" + listing.Nickname
-                    });
-                this.UpdatePathingConfig(trim: false);
-            }
+            if (!Properties.Settings.Default.CheckForCircularConfigs) return false;
+            return IsCircular(ImmutableHashSet.Create<string>(), Directory.GetCurrentDirectory());
         }
 
-        public void UpdatePathingConfig(bool trim)
+        private bool IsCircular(ImmutableHashSet<string> paths, string targetPath)
         {
-            if (!Properties.Settings.Default.ExportPathingConfigUpdates) return;
-
-            if (trim)
-            {
-                foreach (var path in this.Pathing.Paths.ToList())
-                {
-                    if (!this.Config.ParentRepos.Any((listing) => listing.Nickname.Equals(path.Nickname)))
-                    {
-                        this.Pathing.Paths.Remove(path);
-                    }
-                }
-            }
-
-            if (this.Pathing.Equals(this.OriginalPathing)) return;
-
-            string xmlStr;
-            XmlSerializer xsSubmit = new XmlSerializer(typeof(PathingConfig));
-            var settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.OmitXmlDeclaration = true;
-            var emptyNs = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
-            using (var sw = new StringWriter())
-            {
-                using (XmlWriter writer = XmlWriter.Create(sw, settings))
-                {
-                    xsSubmit.Serialize(writer, this.Pathing, emptyNs);
-                    xmlStr = sw.ToString();
-                }
-            }
-
-            bool created;
-            pathingSyncer.WaitOne();
-            try
-            {
-                FileInfo file = new FileInfo(HarmonizePathingPath);
-                created = !file.Exists;
-                File.WriteAllText(HarmonizePathingPath, xmlStr);
-            }
-            finally
-            {
-                pathingSyncer.Set();
-            }
-
-            if (created)
-            {
-                AddPathingToGitIgnore();
-            }
-        }
-
-        private void AddPathingToGitIgnore()
-        {
-            if (!Properties.Settings.Default.AddPathingToGitIgnore) return;
-            gitIgnoreSyncer.WaitOne();
-            try
-            {
-                FileInfo file = new FileInfo(GitIgnorePath);
-                if (file.Exists)
-                {
-                    var lines = File.ReadAllLines(GitIgnorePath).ToList();
-                    foreach (var line in lines)
-                    {
-                        if (line.Trim().Equals(HarmonizePathingPath)) return;
-                    }
-                    lines.Add(HarmonizePathingPath);
-                    File.WriteAllLines(GitIgnorePath, lines);
-                }
-                else
-                {
-                    File.WriteAllText(GitIgnorePath, HarmonizePathingPath);
-                }
-            }
-            finally
-            {
-                gitIgnoreSyncer.Set();
-            }
+            if (paths.Contains(targetPath)) return true;
+            return false;
         }
 
         private bool IsLoneTip(Repository repo, Branch targetBranch, string sha)

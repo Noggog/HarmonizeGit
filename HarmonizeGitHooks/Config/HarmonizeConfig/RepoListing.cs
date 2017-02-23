@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using System.Runtime.Serialization;
 
 namespace HarmonizeGitHooks
 {
@@ -12,6 +13,8 @@ namespace HarmonizeGitHooks
     {
         public string Nickname;
         public string Sha;
+        [NonSerialized]
+        public string Path;
         public string CommitDate
         {
             get { return this.CommitDateObj.ToString("MM-dd-yyyy HH:mm:ss"); }

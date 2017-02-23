@@ -58,5 +58,14 @@ namespace HarmonizeGitHooks.Properties {
                 return ((bool)(this["AddPathingToGitIgnore"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool CheckForCircularConfigs {
+            get {
+                return ((bool)(this["CheckForCircularConfigs"]));
+            }
+        }
     }
 }
