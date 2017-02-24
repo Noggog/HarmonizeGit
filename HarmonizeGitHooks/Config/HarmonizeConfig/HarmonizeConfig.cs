@@ -34,7 +34,7 @@ namespace HarmonizeGitHooks
             }
         }
 
-        public bool SetPathing(PathingConfig pathing)
+        public bool SetPathing(PathingConfig pathing, bool addMissing = true)
         {
             this.Pathing = pathing;
             bool added = false;
@@ -43,6 +43,7 @@ namespace HarmonizeGitHooks
                 PathingListing pathListing;
                 if (!pathing.TryGetListing(listing.Nickname, out pathListing))
                 {
+                    if (!addMissing) continue;
                     pathListing = new PathingListing()
                     {
                         Nickname = listing.Nickname,

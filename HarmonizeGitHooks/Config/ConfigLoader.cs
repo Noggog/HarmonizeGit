@@ -32,12 +32,20 @@ namespace HarmonizeGitHooks
         public void Init(HarmonizeGitBase harmonize)
         {
             this.harmonize = harmonize;
-            this.Config = LoadConfig(".");
-            this.OriginalConfig = LoadConfig(".");
-            this.UpdatePathingConfig(trim: false);
+            this.OriginalConfig = LoadConfig(".", raw: true);
+            if (this.OriginalConfig == null)
+            {
+                harmonize.WriteLine("No original config found.");
+                this.Config = new HarmonizeConfig();
+            }
+            else
+            {
+                this.Config = LoadConfig(".");
+                this.UpdatePathingConfig(trim: false);
+            }
         }
 
-        private HarmonizeConfig LoadConfig(string path)
+        private HarmonizeConfig LoadConfig(string path, bool raw = false)
         {
             configSyncer.WaitOne();
             try
@@ -47,7 +55,15 @@ namespace HarmonizeGitHooks
                 using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
                 {
                     var ret = HarmonizeConfig.Factory(stream);
-                    ret.SetPathing(LoadPathing(path));
+                    PathingConfig pathing;
+                    if (!LoadPathing(path, out pathing))
+                    {
+                        if (!raw)
+                        {
+                            pathing = new PathingConfig();
+                        }
+                    }
+                    ret.SetPathing(pathing, addMissing: !raw);
                     return ret;
                 }
             }
@@ -57,14 +73,19 @@ namespace HarmonizeGitHooks
             }
         }
 
-        private PathingConfig LoadPathing(string path)
+        private bool LoadPathing(string path, out PathingConfig config)
         {
             FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizePathingPath);
-            if (!file.Exists) return new PathingConfig();
+            if (!file.Exists)
+            {
+                config = null;
+                return false;
+            }
 
             using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
             {
-                return PathingConfig.Factory(stream);
+                config = PathingConfig.Factory(stream);
+                return true;
             }
         }
 
@@ -159,8 +180,9 @@ namespace HarmonizeGitHooks
                 }
             }
 
-            if (this.Config.Pathing.Equals(this.OriginalConfig.Pathing)) return;
+            if (object.Equals(this.Config.Pathing, this.OriginalConfig?.Pathing)) return;
 
+            this.harmonize.WriteLine("Writing pathing update");
             string xmlStr;
             XmlSerializer xsSubmit = new XmlSerializer(typeof(PathingConfig));
             var settings = new XmlWriterSettings();
