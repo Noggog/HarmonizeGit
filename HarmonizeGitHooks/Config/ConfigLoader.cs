@@ -32,8 +32,8 @@ namespace HarmonizeGitHooks
         public void Init(HarmonizeGitBase harmonize)
         {
             this.harmonize = harmonize;
-            this.OriginalConfig = LoadConfig(HarmonizeGitBase.HarmonizeConfigPath);
-            this.Config = LoadConfig(HarmonizeGitBase.HarmonizeConfigPath);
+            this.Config = LoadConfig(".");
+            this.OriginalConfig = LoadConfig(".");
             this.UpdatePathingConfig(trim: false);
         }
 
@@ -42,10 +42,12 @@ namespace HarmonizeGitHooks
             configSyncer.WaitOne();
             try
             {
-                using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+                FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizeConfigPath);
+                if (!file.Exists) return null;
+                using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
                 {
                     var ret = HarmonizeConfig.Factory(stream);
-                    ret.SetPathing(LoadPathing(HarmonizeGitBase.HarmonizePathingPath));
+                    ret.SetPathing(LoadPathing(path));
                     return ret;
                 }
             }
@@ -57,10 +59,10 @@ namespace HarmonizeGitHooks
 
         private PathingConfig LoadPathing(string path)
         {
-            FileInfo file = new FileInfo(path);
+            FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizePathingPath);
             if (!file.Exists) return new PathingConfig();
 
-            using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+            using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
             {
                 return PathingConfig.Factory(stream);
             }

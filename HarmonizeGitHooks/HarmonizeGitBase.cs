@@ -52,8 +52,8 @@ namespace HarmonizeGitHooks
             this.Silent = handler.Silent;
 
             configLoader.Init(this);
-            this.Config = configLoader.GetConfig(HarmonizeConfigPath);
-            if (this.CheckForCircularConfigs()) return false;
+            this.Config = configLoader.GetConfig(".");
+            this.CheckForCircularConfigs();
 
             List<string> trimmedArgs = new List<string>();
             for (int i = 2; i < args.Length; i++)
@@ -206,16 +206,32 @@ namespace HarmonizeGitHooks
             SyncParentRepos(targetConfig);
         }
 
-        public bool CheckForCircularConfigs()
+        public void CheckForCircularConfigs()
         {
-            if (!Properties.Settings.Default.CheckForCircularConfigs) return false;
-            return IsCircular(ImmutableHashSet.Create<string>(), Directory.GetCurrentDirectory());
+            if (!Properties.Settings.Default.CheckForCircularConfigs) return;
+            this.WriteLine("Checking for circular configs.");
+            var ret = CheckCircular(ImmutableHashSet.Create<string>(), ".");
+            if (ret != null)
+            {
+                throw new ArgumentException($"Found circular configurations:" + Environment.NewLine + ret);
+            }
         }
 
-        private bool IsCircular(ImmutableHashSet<string> paths, string targetPath)
+        private string CheckCircular(ImmutableHashSet<string> paths, string targetPath)
         {
-            if (paths.Contains(targetPath)) return true;
-            return false;
+            if (paths.Contains(targetPath))
+            {
+                return targetPath;
+            }
+            paths = paths.Add(targetPath);
+            var config = this.configLoader.GetConfig(targetPath);
+            if (config == null) return null;
+            foreach (var listing in config.ParentRepos)
+            {
+                var ret = CheckCircular(paths, listing.Path);
+                if (ret != null) return targetPath + Environment.NewLine + ret;
+            }
+            return null;
         }
 
         private bool IsLoneTip(Repository repo, Branch targetBranch, string sha)
