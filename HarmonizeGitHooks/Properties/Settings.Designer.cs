@@ -67,5 +67,14 @@ namespace HarmonizeGitHooks.Properties {
                 return ((bool)(this["CheckForCircularConfigs"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool Enabled {
+            get {
+                return ((bool)(this["Enabled"]));
+            }
+        }
     }
 }

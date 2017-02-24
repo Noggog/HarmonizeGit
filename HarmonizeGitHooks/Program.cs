@@ -11,6 +11,7 @@ namespace HarmonizeGitHooks
     {
         static int Main(string[] args)
         {
+            if (!Properties.Settings.Default.Enabled) return 0;
             if (string.IsNullOrWhiteSpace(Properties.Settings.Default.RoutePath))
             {
                 HarmonizeGitBase harmonize = new HarmonizeGitBase();
