@@ -47,11 +47,6 @@ namespace HarmonizeGitHooks
             return this.pathsDict.TryGetValue(name, out listing);
         }
 
-        public PathingListing GetListing(string name)
-        {
-            return this.pathsDict[name];
-        }
-
         public override bool Equals(object obj)
         {
             var rhs = obj as PathingConfig;

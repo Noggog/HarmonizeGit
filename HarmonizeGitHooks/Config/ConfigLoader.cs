@@ -32,10 +32,11 @@ namespace HarmonizeGitHooks
         public void Init(HarmonizeGitBase harmonize)
         {
             this.harmonize = harmonize;
-            this.Config = LoadConfig(HarmonizeGitBase.HarmonizeConfigPath);
             this.OriginalConfig = LoadConfig(HarmonizeGitBase.HarmonizeConfigPath);
+            this.Config = LoadConfig(HarmonizeGitBase.HarmonizeConfigPath);
+            this.UpdatePathingConfig(trim: false);
         }
-        
+
         private HarmonizeConfig LoadConfig(string path)
         {
             configSyncer.WaitOne();
@@ -44,10 +45,7 @@ namespace HarmonizeGitHooks
                 using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
                 {
                     var ret = HarmonizeConfig.Factory(stream);
-                    if (ret.SetPathing(LoadPathing(HarmonizeGitBase.HarmonizePathingPath)))
-                    {
-                        this.UpdatePathingConfig(trim: false);
-                    }
+                    ret.SetPathing(LoadPathing(HarmonizeGitBase.HarmonizePathingPath));
                     return ret;
                 }
             }

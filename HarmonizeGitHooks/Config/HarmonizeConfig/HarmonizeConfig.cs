@@ -43,14 +43,15 @@ namespace HarmonizeGitHooks
                 PathingListing pathListing;
                 if (!pathing.TryGetListing(listing.Nickname, out pathListing))
                 {
-                    pathing.Paths.Add(
-                        new PathingListing()
-                        {
-                            Nickname = listing.Nickname,
-                            Path = "../" + listing.Nickname
-                        });
+                    pathListing = new PathingListing()
+                    {
+                        Nickname = listing.Nickname,
+                        Path = "../" + listing.Nickname
+                    };
+                    pathing.Paths.Add(pathListing);
                     added = true;
                 }
+
                 listing.Path = pathListing.Path;
             }
             return added;
