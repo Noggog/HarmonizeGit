@@ -49,6 +49,8 @@ namespace HarmonizeGitHooks
                     return true;
             }
 
+            this.Silent = handler.Silent;
+
             configLoader.Init(this);
             this.Config = configLoader.GetConfig(HarmonizeConfigPath);
             if (this.CheckForCircularConfigs()) return false;
@@ -58,7 +60,6 @@ namespace HarmonizeGitHooks
             {
                 trimmedArgs.Add(args[i]);
             }
-            this.Silent = handler.Silent;
             return handler.Handle(trimmedArgs);
         }
 
