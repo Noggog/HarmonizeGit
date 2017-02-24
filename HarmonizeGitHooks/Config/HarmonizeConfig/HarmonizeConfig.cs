@@ -14,7 +14,7 @@ namespace HarmonizeGitHooks
         [XmlAttribute]
         public int Version = 1;
         public List<RepoListing> ParentRepos = new List<RepoListing>();
-        [NonSerialized]
+        [XmlIgnore]
         public PathingConfig Pathing;
 
         public static HarmonizeConfig Factory(Stream stream)

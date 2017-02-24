@@ -112,6 +112,7 @@ namespace HarmonizeGitHooks
 
         public void SyncConfigToParentShas()
         {
+            this.WriteLine("Syncing config to parent repo shas.");
             this.configLoader.WriteConfig(this.Config);
         }
 
@@ -136,6 +137,10 @@ namespace HarmonizeGitHooks
         private void SyncParentRepo(RepoListing listing)
         {
             this.WriteLine($"Processing {listing.Nickname} at path {listing.Path}. Trying to check out an existing branch at {listing.Sha}.");
+            if (listing.Sha == null)
+            {
+                throw new ArgumentException("Listing did not have a sha.");
+            }
 
             using (var repo = new Repository(listing.Path))
             {

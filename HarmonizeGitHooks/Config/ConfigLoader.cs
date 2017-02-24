@@ -122,15 +122,18 @@ namespace HarmonizeGitHooks
             List<RepoListing> changed = new List<RepoListing>();
             foreach (var listing in this.Config.ParentRepos)
             {
+                this.harmonize.WriteLine($"Checking for sha changes {listing.Nickname} at path {listing.Path}.");
                 using (var repo = new Repository(listing.Path))
                 {
+                    this.harmonize.WriteLine($"Config sha {listing.Sha} compared to current sha {repo.Head.Tip.Sha}.");
                     if (object.Equals(listing.Sha, repo.Head.Tip.Sha)) continue;
                     changed.Add(listing);
                     listing.SetToCommit(repo.Head.Tip);
+                    this.harmonize.WriteLine($"Changed to sha {repo.Head.Tip.Sha}.");
                 }
             }
 
-            if (changed.Count > 0
+            if (changed.Count == 0
                 || this.Config.Equals(this.OriginalConfig)) return;
 
             this.harmonize.WriteLine("Updating config as parent repos have changed: ");

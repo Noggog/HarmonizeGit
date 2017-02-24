@@ -13,7 +13,7 @@ namespace HarmonizeGitHooks
     {
         public string Nickname;
         public string Sha;
-        [NonSerialized]
+        [XmlIgnore]
         public string Path;
         public string CommitDate
         {
