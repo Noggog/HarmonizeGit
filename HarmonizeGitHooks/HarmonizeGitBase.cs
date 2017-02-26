@@ -145,6 +145,7 @@ namespace HarmonizeGitHooks
             using (var repo = new Repository(listing.Path))
             {
                 var existingBranch = repo.Branches
+                    .Where((b) => !b.IsRemote)
                     .Where((b) => b.Tip.Sha.Equals(listing.Sha))
                     .OrderBy((b) => b.FriendlyName.Contains("GitHarmonize") ? 0 : 1)
                     .FirstOrDefault();
