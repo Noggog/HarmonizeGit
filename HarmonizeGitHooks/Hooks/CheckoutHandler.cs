@@ -47,6 +47,12 @@ namespace HarmonizeGitHooks
                 return true;
             }
 
+            if (this.harmonize.IsDirty())
+            {
+                this.harmonize.WriteLine("Current working directory has uncommitted changes.");
+                return false;
+            }
+
             if (this.harmonize.CancelIfParentsHaveChanges())
             {
                 return false;

@@ -212,6 +212,14 @@ namespace HarmonizeGitHooks
             SyncParentRepos(targetConfig);
         }
 
+        public bool IsDirty(bool excludeHarmonizeConfig = true)
+        {
+            using (var repo = new Repository("."))
+            {
+                return repo.RetrieveStatus().IsDirty;
+            }
+        }
+
         public void CheckForCircularConfigs()
         {
             if (!Properties.Settings.Default.CheckForCircularConfigs) return;
