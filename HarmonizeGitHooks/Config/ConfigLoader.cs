@@ -36,7 +36,7 @@ namespace HarmonizeGitHooks
             this.UpdatePathingConfig(this.Config, trim: false);
         }
 
-        private HarmonizeConfig LoadConfig(string path, bool raw = false)
+        private HarmonizeConfig LoadConfig(string path)
         {
             configSyncer.WaitOne();
             try
@@ -44,29 +44,33 @@ namespace HarmonizeGitHooks
                 this.harmonize.WriteLine($"Loading config at path {path}");
                 FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizeConfigPath);
                 if (!file.Exists) return null;
-                HarmonizeConfig ret;
+                var pathing = LoadPathing(path);
                 using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
                 {
-                    ret = HarmonizeConfig.Factory(stream);
+                    return HarmonizeConfig.Factory(
+                        this.harmonize,
+                        path,
+                        stream,
+                        pathing);
                 }
-                PathingConfig pathing;
-                if (!LoadPathing(path, out pathing))
-                {
-                    if (!raw)
-                    {
-                        pathing = new PathingConfig();
-                    }
-                }
-                ret.SetPathing(pathing, addMissing: !raw);
-                foreach (var listing in ret.ParentRepos)
-                {
-                    this.harmonize.WriteLine($"{listing.Nickname} set to path {listing.Path}.");
-                }
-                return ret;
             }
             finally
             {
                 configSyncer.Set();
+            }
+        }
+
+        public PathingConfig LoadPathing(string path)
+        {
+            FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizePathingPath);
+            if (!file.Exists)
+            {
+                return new PathingConfig();
+            }
+
+            using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
+            {
+                return PathingConfig.Factory(stream);
             }
         }
 

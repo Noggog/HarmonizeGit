@@ -19,7 +19,11 @@ namespace HarmonizeGitHooks
         [XmlIgnore]
         public string OriginalXML;
 
-        public static HarmonizeConfig Factory(Stream stream)
+        public static HarmonizeConfig Factory(
+            HarmonizeGitBase harmonize,
+            string path,
+            Stream stream,
+            PathingConfig pathing)
         {
             string originalStr;
             using (var reader = new StreamReader(stream))
@@ -30,16 +34,23 @@ namespace HarmonizeGitHooks
             xml.Load(new StringReader(originalStr));
             string xmlString = xml.OuterXml;
 
+            HarmonizeConfig ret;
             using (StringReader read = new StringReader(xmlString))
             {
                 XmlSerializer serializer = new XmlSerializer(typeof(HarmonizeConfig));
                 using (XmlReader reader = new XmlTextReader(read))
                 {
-                    var ret = (HarmonizeConfig)serializer.Deserialize(reader);
+                    ret = (HarmonizeConfig)serializer.Deserialize(reader);
                     ret.OriginalXML = originalStr;
-                    return ret;
                 }
             }
+            
+            ret.SetPathing(pathing, addMissing: true);
+            foreach (var listing in ret.ParentRepos)
+            {
+                harmonize.WriteLine($"{listing.Nickname} set to path {listing.Path}.");
+            }
+            return ret;
         }
 
         public bool SetPathing(PathingConfig pathing, bool addMissing = true)

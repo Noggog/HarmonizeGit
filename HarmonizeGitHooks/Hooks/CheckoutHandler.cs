@@ -57,7 +57,7 @@ namespace HarmonizeGitHooks
             {
                 return false;
             }
-
+            
             harmonize.SyncParentReposToSha(targetSha);
             return true;
         }

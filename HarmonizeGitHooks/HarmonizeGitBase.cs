@@ -204,8 +204,9 @@ namespace HarmonizeGitHooks
 
         public void SyncParentReposToSha(string targetCommitSha)
         {
+            var path = ".";
             HarmonizeConfig targetConfig;
-            using (var repo = new Repository("."))
+            using (var repo = new Repository(path))
             {
                 var targetCommit = repo.Lookup<Commit>(targetCommitSha);
                 if (targetCommit == null)
@@ -224,7 +225,11 @@ namespace HarmonizeGitHooks
                 var contentStream = blob.GetContentStream();
                 using (var tr = new StreamReader(contentStream, Encoding.UTF8))
                 {
-                    targetConfig = HarmonizeConfig.Factory(tr.BaseStream);
+                    targetConfig = HarmonizeConfig.Factory(
+                        this,
+                        path,
+                        tr.BaseStream,
+                        this.configLoader.LoadPathing(path));
                 }
             }
             SyncParentRepos(targetConfig);
