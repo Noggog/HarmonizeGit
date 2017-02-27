@@ -19,8 +19,9 @@ namespace HarmonizeGitHooks
         private HarmonizeGitBase harmonize;
         private Dictionary<string, HarmonizeConfig> configs = new Dictionary<string, HarmonizeConfig>();
 
-        public HarmonizeConfig GetConfig(string path, bool forceReload = false)
+        public HarmonizeConfig GetConfig(string path)
         {
+            path = path.Trim();
             HarmonizeConfig ret;
             if (configs.TryGetValue(path, out ret)) return ret;
             ret = LoadConfig(path);
@@ -31,7 +32,7 @@ namespace HarmonizeGitHooks
         public void Init(HarmonizeGitBase harmonize)
         {
             this.harmonize = harmonize;
-            this.Config = LoadConfig(".");
+            this.Config = GetConfig(".");
             this.UpdatePathingConfig(this.Config, trim: false);
         }
 
