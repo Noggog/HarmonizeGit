@@ -107,7 +107,7 @@ namespace HarmonizeGitHooks
             }
         }
 
-        public void WriteConfig(HarmonizeConfig config)
+        public void WriteConfig(HarmonizeConfig config, string path)
         {
             List<RepoListing> changed = new List<RepoListing>();
             foreach (var listing in config.ParentRepos)
@@ -141,7 +141,9 @@ namespace HarmonizeGitHooks
             if (changed.Count == 0
                 && object.Equals(config.OriginalXML, xmlStr)) return;
 
-            this.harmonize.WriteLine("Updating config");
+            path = path + "/" + HarmonizeGitBase.HarmonizeConfigPath;
+
+            this.harmonize.WriteLine($"Updating config at {path}");
             if (changed.Count > 0)
             {
                 this.harmonize.WriteLine("Parent repos have changed: ");
@@ -154,7 +156,7 @@ namespace HarmonizeGitHooks
             configSyncer.WaitOne();
             try
             {
-                File.WriteAllText(HarmonizeGitBase.HarmonizeConfigPath, xmlStr);
+                File.WriteAllText(path, xmlStr);
             }
             finally
             {

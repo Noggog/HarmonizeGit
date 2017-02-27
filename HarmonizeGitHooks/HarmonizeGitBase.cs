@@ -97,23 +97,41 @@ namespace HarmonizeGitHooks
         public List<RepoListing> GetReposWithUncommittedChanges()
         {
             List<RepoListing> ret = new List<RepoListing>();
-            foreach (var repoListing in Config.ParentRepos)
+            foreach (var repoListing in this.Config.ParentRepos)
             {
-                using (var repo = new Repository(repoListing.Path))
+                if (IsDirty(repoListing))
                 {
-                    if (repo.RetrieveStatus().IsDirty)
-                    {
-                        ret.Add(repoListing);
-                    }
+                    this.WriteLine($"{repoListing.Nickname} was dirty.");
+                    ret.Add(repoListing);
+                }
+                else
+                {
+                    this.WriteLine($"{repoListing.Nickname} was not dirty.");
                 }
             }
             return ret;
         }
 
+        private bool IsDirty(RepoListing repoListing)
+        {
+            using (var repo = new Repository(repoListing.Path))
+            {
+                if (!repo.RetrieveStatus().IsDirty) return false;
+                if (repo.RetrieveStatus(HarmonizeConfigPath) == FileStatus.Unaltered) return true;
+            }
+            this.WriteLine($"{repoListing.Nickname}'s config was dirty.  Refreshing it and trying again.");
+            var parentConfig = configLoader.GetConfig(repoListing.Path);
+            this.configLoader.WriteConfig(parentConfig, repoListing.Path);
+            using (var repo = new Repository(repoListing.Path))
+            {
+                return repo.RetrieveStatus().IsDirty;
+            }
+        }
+
         public void SyncConfigToParentShas()
         {
             this.WriteLine("Syncing config to parent repo shas.");
-            this.configLoader.WriteConfig(this.Config);
+            this.configLoader.WriteConfig(this.Config, ".");
         }
 
         public void UpdatePathingConfig(bool trim)
