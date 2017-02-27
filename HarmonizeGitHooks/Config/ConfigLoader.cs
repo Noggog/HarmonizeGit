@@ -40,22 +40,28 @@ namespace HarmonizeGitHooks
             configSyncer.WaitOne();
             try
             {
+                this.harmonize.WriteLine($"Loading config at path {path}");
                 FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizeConfigPath);
                 if (!file.Exists) return null;
+                HarmonizeConfig ret;
                 using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
                 {
-                    var ret = HarmonizeConfig.Factory(stream);
-                    PathingConfig pathing;
-                    if (!LoadPathing(path, out pathing))
-                    {
-                        if (!raw)
-                        {
-                            pathing = new PathingConfig();
-                        }
-                    }
-                    ret.SetPathing(pathing, addMissing: !raw);
-                    return ret;
+                    ret = HarmonizeConfig.Factory(stream);
                 }
+                PathingConfig pathing;
+                if (!LoadPathing(path, out pathing))
+                {
+                    if (!raw)
+                    {
+                        pathing = new PathingConfig();
+                    }
+                }
+                ret.SetPathing(pathing, addMissing: !raw);
+                foreach (var listing in ret.ParentRepos)
+                {
+                    this.harmonize.WriteLine($"{listing.Nickname} set to path {listing.Path}.");
+                }
+                return ret;
             }
             finally
             {
