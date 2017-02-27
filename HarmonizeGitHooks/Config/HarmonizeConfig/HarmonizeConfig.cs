@@ -16,11 +16,18 @@ namespace HarmonizeGitHooks
         public List<RepoListing> ParentRepos = new List<RepoListing>();
         [XmlIgnore]
         public PathingConfig Pathing;
+        [XmlIgnore]
+        public string OriginalXML;
 
         public static HarmonizeConfig Factory(Stream stream)
         {
+            string originalStr;
+            using (var reader = new StreamReader(stream))
+            {
+                originalStr = reader.ReadToEnd();
+            }
             XmlDocument xml = new XmlDocument();
-            xml.Load(stream);
+            xml.Load(new StringReader(originalStr));
             string xmlString = xml.OuterXml;
 
             using (StringReader read = new StringReader(xmlString))
@@ -29,6 +36,7 @@ namespace HarmonizeGitHooks
                 using (XmlReader reader = new XmlTextReader(read))
                 {
                     var ret = (HarmonizeConfig)serializer.Deserialize(reader);
+                    ret.OriginalXML = originalStr;
                     return ret;
                 }
             }

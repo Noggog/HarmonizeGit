@@ -118,7 +118,7 @@ namespace HarmonizeGitHooks
 
         public void UpdatePathingConfig(bool trim)
         {
-            this.configLoader.UpdatePathingConfig(trim);
+            this.configLoader.UpdatePathingConfig(this.Config, trim);
         }
 
         public void SyncParentRepos()

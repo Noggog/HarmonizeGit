@@ -15,7 +15,6 @@ namespace HarmonizeGitHooks
     {
         public EventWaitHandle configSyncer = new EventWaitHandle(true, EventResetMode.AutoReset, "GIT_HARMONIZE_CONFIG_SYNCER");
         public EventWaitHandle gitIgnoreSyncer = new EventWaitHandle(true, EventResetMode.AutoReset, "GIT_HARMONIZE_GITIGNORE_SYNCER");
-        public HarmonizeConfig OriginalConfig;
         public HarmonizeConfig Config;
         private HarmonizeGitBase harmonize;
         private Dictionary<string, HarmonizeConfig> configs = new Dictionary<string, HarmonizeConfig>();
@@ -32,17 +31,8 @@ namespace HarmonizeGitHooks
         public void Init(HarmonizeGitBase harmonize)
         {
             this.harmonize = harmonize;
-            this.OriginalConfig = LoadConfig(".", raw: true);
-            if (this.OriginalConfig == null)
-            {
-                harmonize.WriteLine("No original config found.");
-                this.Config = new HarmonizeConfig();
-            }
-            else
-            {
-                this.Config = LoadConfig(".");
-                this.UpdatePathingConfig(trim: false);
-            }
+            this.Config = LoadConfig(".");
+            this.UpdatePathingConfig(this.Config, trim: false);
         }
 
         private HarmonizeConfig LoadConfig(string path, bool raw = false)
@@ -120,7 +110,7 @@ namespace HarmonizeGitHooks
         public void WriteConfig(HarmonizeConfig config)
         {
             List<RepoListing> changed = new List<RepoListing>();
-            foreach (var listing in this.Config.ParentRepos)
+            foreach (var listing in config.ParentRepos)
             {
                 this.harmonize.WriteLine($"Checking for sha changes {listing.Nickname} at path {listing.Path}.");
                 using (var repo = new Repository(listing.Path))
@@ -133,15 +123,6 @@ namespace HarmonizeGitHooks
                 }
             }
 
-            if (changed.Count == 0
-                || this.Config.Equals(this.OriginalConfig)) return;
-
-            this.harmonize.WriteLine("Updating config as parent repos have changed: ");
-            foreach (var change in changed)
-            {
-                this.harmonize.WriteLine("  " + change.Nickname);
-            }
-
             string xmlStr;
             XmlSerializer xsSubmit = new XmlSerializer(typeof(HarmonizeConfig));
             var settings = new XmlWriterSettings();
@@ -152,8 +133,21 @@ namespace HarmonizeGitHooks
             {
                 using (XmlWriter writer = XmlWriter.Create(sw, settings))
                 {
-                    xsSubmit.Serialize(writer, this.Config, emptyNs);
+                    xsSubmit.Serialize(writer, config, emptyNs);
                     xmlStr = sw.ToString();
+                }
+            }
+
+            if (changed.Count == 0
+                && object.Equals(config.OriginalXML, xmlStr)) return;
+
+            this.harmonize.WriteLine("Updating config");
+            if (changed.Count > 0)
+            {
+                this.harmonize.WriteLine("Parent repos have changed: ");
+                foreach (var change in changed)
+                {
+                    this.harmonize.WriteLine("  " + change.Nickname);
                 }
             }
 
@@ -168,24 +162,21 @@ namespace HarmonizeGitHooks
             }
         }
 
-        public void UpdatePathingConfig(bool trim)
+        public void UpdatePathingConfig(HarmonizeConfig config, bool trim)
         {
             if (!Properties.Settings.Default.ExportPathingConfigUpdates) return;
 
             if (trim)
             {
-                foreach (var path in this.Config.Pathing.Paths.ToList())
+                foreach (var path in config.Pathing.Paths.ToList())
                 {
-                    if (!this.Config.ParentRepos.Any((listing) => listing.Nickname.Equals(path.Nickname)))
+                    if (!config.ParentRepos.Any((listing) => listing.Nickname.Equals(path.Nickname)))
                     {
-                        this.Config.Pathing.Paths.Remove(path);
+                        config.Pathing.Paths.Remove(path);
                     }
                 }
             }
 
-            if (object.Equals(this.Config.Pathing, this.OriginalConfig?.Pathing)) return;
-
-            this.harmonize.WriteLine("Writing pathing update");
             string xmlStr;
             XmlSerializer xsSubmit = new XmlSerializer(typeof(PathingConfig));
             var settings = new XmlWriterSettings();
@@ -196,10 +187,14 @@ namespace HarmonizeGitHooks
             {
                 using (XmlWriter writer = XmlWriter.Create(sw, settings))
                 {
-                    xsSubmit.Serialize(writer, this.Config.Pathing, emptyNs);
+                    xsSubmit.Serialize(writer, config.Pathing, emptyNs);
                     xmlStr = sw.ToString();
                 }
             }
+
+            if (object.Equals(config.Pathing.OriginalXML, xmlStr)) return;
+
+            this.harmonize.WriteLine("Writing pathing update");
 
             bool created;
             configSyncer.WaitOne();

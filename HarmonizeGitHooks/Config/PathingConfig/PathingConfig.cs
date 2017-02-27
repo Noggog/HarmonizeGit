@@ -15,11 +15,18 @@ namespace HarmonizeGitHooks
         public int Version = 1;
         public List<PathingListing> Paths = new List<PathingListing>();
         private Dictionary<string, PathingListing> pathsDict = new Dictionary<string, PathingListing>();
+        [XmlIgnore]
+        public string OriginalXML;
 
         public static PathingConfig Factory(Stream stream)
         {
+            string originalStr;
+            using (var reader = new StreamReader(stream))
+            {
+                originalStr = reader.ReadToEnd();
+            }
             XmlDocument xml = new XmlDocument();
-            xml.Load(stream);
+            xml.Load(new StringReader(originalStr));
             string xmlString = xml.OuterXml;
 
             using (StringReader read = new StringReader(xmlString))
@@ -28,6 +35,7 @@ namespace HarmonizeGitHooks
                 using (XmlReader reader = new XmlTextReader(read))
                 {
                     var ret = (PathingConfig)serializer.Deserialize(reader);
+                    ret.OriginalXML = originalStr;
                     ret.Load();
                     return ret;
                 }
