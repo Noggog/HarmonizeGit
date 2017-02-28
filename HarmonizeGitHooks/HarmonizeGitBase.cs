@@ -167,11 +167,18 @@ namespace HarmonizeGitHooks
 
             using (var repo = new Repository(listing.Path))
             {
-                var existingBranch = repo.Branches
-                    .Where((b) => !b.IsRemote)
+                var potentialBranches = repo.Branches
                     .Where((b) => b.Tip.Sha.Equals(listing.Sha))
-                    .OrderBy((b) => b.FriendlyName.Contains("GitHarmonize") ? 0 : 1)
+                    .OrderBy((b) => b.FriendlyName.Contains("GitHarmonize") ? 0 : 1);
+
+                var existingBranch = potentialBranches
+                    .Where((b) => !b.IsRemote)
                     .FirstOrDefault();
+                if (existingBranch == null)
+                {
+                    existingBranch = potentialBranches.FirstOrDefault();
+                }
+
                 if (existingBranch != null)
                 {
                     this.WriteLine($"Checking out existing branch {listing.Nickname}:{existingBranch.FriendlyName}.");
