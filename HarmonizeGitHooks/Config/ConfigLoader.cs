@@ -33,6 +33,7 @@ namespace HarmonizeGitHooks
         {
             this.harmonize = harmonize;
             this.Config = GetConfig(".");
+            if (this.Config == null) return;
             this.UpdatePathingConfig(this.Config, trim: false);
         }
 

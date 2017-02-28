@@ -53,6 +53,11 @@ namespace HarmonizeGitHooks
 
             configLoader.Init(this);
             this.Config = configLoader.GetConfig(".");
+            if (this.Config == null)
+            {
+                this.WriteLine("No config present.  Exiting.");
+                return true;
+            }
             this.CheckForCircularConfigs();
 
             List<string> trimmedArgs = new List<string>();
