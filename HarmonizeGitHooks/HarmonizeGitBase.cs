@@ -241,7 +241,7 @@ namespace HarmonizeGitHooks
                         this,
                         path,
                         tr.BaseStream,
-                        this.configLoader.LoadPathing(path));
+                        this.configLoader.GetPathing(path));
                 }
             }
             SyncParentRepos(targetConfig);

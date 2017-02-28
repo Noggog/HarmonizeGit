@@ -18,7 +18,17 @@ namespace HarmonizeGitHooks
         public HarmonizeConfig Config;
         private HarmonizeGitBase harmonize;
         private Dictionary<string, HarmonizeConfig> configs = new Dictionary<string, HarmonizeConfig>();
+        private Dictionary<string, PathingConfig> pathingConfigs = new Dictionary<string, PathingConfig>();
 
+        public void Init(HarmonizeGitBase harmonize)
+        {
+            this.harmonize = harmonize;
+            this.Config = GetConfig(".");
+            if (this.Config == null) return;
+            this.UpdatePathingConfig(this.Config, trim: false);
+        }
+
+        #region Config
         public HarmonizeConfig GetConfig(string path)
         {
             path = path.Trim();
@@ -27,14 +37,6 @@ namespace HarmonizeGitHooks
             ret = LoadConfig(path);
             configs[path] = ret;
             return ret;
-        }
-
-        public void Init(HarmonizeGitBase harmonize)
-        {
-            this.harmonize = harmonize;
-            this.Config = GetConfig(".");
-            if (this.Config == null) return;
-            this.UpdatePathingConfig(this.Config, trim: false);
         }
 
         private HarmonizeConfig LoadConfig(string path)
@@ -58,64 +60,6 @@ namespace HarmonizeGitHooks
             finally
             {
                 configSyncer.Set();
-            }
-        }
-
-        public PathingConfig LoadPathing(string path)
-        {
-            FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizePathingPath);
-            if (!file.Exists)
-            {
-                return new PathingConfig();
-            }
-
-            using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
-            {
-                return PathingConfig.Factory(stream);
-            }
-        }
-
-        private bool LoadPathing(string path, out PathingConfig config)
-        {
-            FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizePathingPath);
-            if (!file.Exists)
-            {
-                config = null;
-                return false;
-            }
-
-            using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
-            {
-                config = PathingConfig.Factory(stream);
-                return true;
-            }
-        }
-
-        private void AddPathingToGitIgnore()
-        {
-            if (!Properties.Settings.Default.AddPathingToGitIgnore) return;
-            gitIgnoreSyncer.WaitOne();
-            try
-            {
-                FileInfo file = new FileInfo(HarmonizeGitBase.GitIgnorePath);
-                if (file.Exists)
-                {
-                    var lines = File.ReadAllLines(HarmonizeGitBase.GitIgnorePath).ToList();
-                    foreach (var line in lines)
-                    {
-                        if (line.Trim().Equals(HarmonizeGitBase.HarmonizePathingPath)) return;
-                    }
-                    lines.Add(HarmonizeGitBase.HarmonizePathingPath);
-                    File.WriteAllLines(HarmonizeGitBase.GitIgnorePath, lines);
-                }
-                else
-                {
-                    File.WriteAllText(HarmonizeGitBase.GitIgnorePath, HarmonizeGitBase.HarmonizePathingPath);
-                }
-            }
-            finally
-            {
-                gitIgnoreSyncer.Set();
             }
         }
 
@@ -175,6 +119,76 @@ namespace HarmonizeGitHooks
                 configSyncer.Set();
             }
         }
+        #endregion
+
+        #region Pathing
+        public PathingConfig GetPathing(string path)
+        {
+            path = path.Trim();
+            PathingConfig ret;
+            if (pathingConfigs.TryGetValue(path, out ret)) return ret;
+            ret = LoadPathing(path);
+            pathingConfigs[path] = ret;
+            return ret;
+        }
+
+        private PathingConfig LoadPathing(string path)
+        {
+            FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizePathingPath);
+            if (!file.Exists)
+            {
+                return new PathingConfig();
+            }
+
+            using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
+            {
+                return PathingConfig.Factory(stream);
+            }
+        }
+
+        private bool LoadPathing(string path, out PathingConfig config)
+        {
+            FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizePathingPath);
+            if (!file.Exists)
+            {
+                config = null;
+                return false;
+            }
+
+            using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
+            {
+                config = PathingConfig.Factory(stream);
+                return true;
+            }
+        }
+
+        private void AddPathingToGitIgnore()
+        {
+            if (!Properties.Settings.Default.AddPathingToGitIgnore) return;
+            gitIgnoreSyncer.WaitOne();
+            try
+            {
+                FileInfo file = new FileInfo(HarmonizeGitBase.GitIgnorePath);
+                if (file.Exists)
+                {
+                    var lines = File.ReadAllLines(HarmonizeGitBase.GitIgnorePath).ToList();
+                    foreach (var line in lines)
+                    {
+                        if (line.Trim().Equals(HarmonizeGitBase.HarmonizePathingPath)) return;
+                    }
+                    lines.Add(HarmonizeGitBase.HarmonizePathingPath);
+                    File.WriteAllLines(HarmonizeGitBase.GitIgnorePath, lines);
+                }
+                else
+                {
+                    File.WriteAllText(HarmonizeGitBase.GitIgnorePath, HarmonizeGitBase.HarmonizePathingPath);
+                }
+            }
+            finally
+            {
+                gitIgnoreSyncer.Set();
+            }
+        }
 
         public void UpdatePathingConfig(HarmonizeConfig config, bool trim)
         {
@@ -228,5 +242,6 @@ namespace HarmonizeGitHooks
                 AddPathingToGitIgnore();
             }
         }
+        #endregion
     }
 }
