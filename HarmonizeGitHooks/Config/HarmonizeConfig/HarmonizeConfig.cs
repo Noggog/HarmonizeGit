@@ -76,14 +76,5 @@ namespace HarmonizeGitHooks
             }
             return added;
         }
-
-        public override bool Equals(object obj)
-        {
-            var rhs = obj as HarmonizeConfig;
-            if (rhs == null) return false;
-            if (this.Version != rhs.Version) return false;
-            if (this.ParentRepos.Count != rhs.ParentRepos.Count) return false;
-            return this.ParentRepos.SequenceEqual(rhs.ParentRepos);
-        }
     }
 }

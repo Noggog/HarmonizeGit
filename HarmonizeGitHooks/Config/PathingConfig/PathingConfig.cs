@@ -54,14 +54,5 @@ namespace HarmonizeGitHooks
         {
             return this.pathsDict.TryGetValue(name, out listing);
         }
-
-        public override bool Equals(object obj)
-        {
-            var rhs = obj as PathingConfig;
-            if (rhs == null) return false;
-            if (this.Version != rhs.Version) return false;
-            if (this.Paths.Count != rhs.Paths.Count) return false;
-            return this.Paths.SequenceEqual(rhs.Paths);
-        }
     }
 }
