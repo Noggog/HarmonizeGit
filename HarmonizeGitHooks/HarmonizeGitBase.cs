@@ -20,8 +20,14 @@ namespace HarmonizeGitHooks
         public const string HarmonizeConfigPath = ".harmonize";
         public const string HarmonizePathingPath = ".harmonize-pathing";
         public const string GitIgnorePath = ".gitignore";
+        public readonly string TargetPath;
         public HarmonizeConfig Config;
         public bool Silent;
+
+        public HarmonizeGitBase(string targetPath)
+        {
+            this.TargetPath = targetPath;
+        }
         
         public bool Handle(string[] args)
         {
@@ -52,7 +58,7 @@ namespace HarmonizeGitHooks
             this.Silent = handler.Silent;
 
             configLoader.Init(this);
-            this.Config = configLoader.GetConfig(".");
+            this.Config = configLoader.GetConfig(this.TargetPath);
             if (this.Config == null)
             {
                 this.WriteLine("No config present.  Exiting.");
@@ -136,7 +142,7 @@ namespace HarmonizeGitHooks
         public void SyncConfigToParentShas()
         {
             this.WriteLine("Syncing config to parent repo shas.");
-            this.configLoader.WriteConfig(this.Config, ".");
+            this.configLoader.WriteConfig(this.Config, this.TargetPath);
         }
 
         public void UpdatePathingConfig(bool trim)
@@ -216,9 +222,8 @@ namespace HarmonizeGitHooks
 
         public void SyncParentReposToSha(string targetCommitSha)
         {
-            var path = ".";
             HarmonizeConfig targetConfig;
-            using (var repo = new Repository(path))
+            using (var repo = new Repository(this.TargetPath))
             {
                 var targetCommit = repo.Lookup<Commit>(targetCommitSha);
                 if (targetCommit == null)
@@ -239,9 +244,9 @@ namespace HarmonizeGitHooks
                 {
                     targetConfig = HarmonizeConfig.Factory(
                         this,
-                        path,
+                        this.TargetPath,
                         tr.BaseStream,
-                        this.configLoader.GetPathing(path));
+                        this.configLoader.GetPathing(this.TargetPath));
                 }
             }
             SyncParentRepos(targetConfig);
@@ -249,7 +254,7 @@ namespace HarmonizeGitHooks
 
         public bool IsDirty(bool excludeHarmonizeConfig = true)
         {
-            using (var repo = new Repository("."))
+            using (var repo = new Repository(this.TargetPath))
             {
                 return repo.RetrieveStatus().IsDirty;
             }
@@ -259,7 +264,7 @@ namespace HarmonizeGitHooks
         {
             if (!Properties.Settings.Default.CheckForCircularConfigs) return;
             this.WriteLine("Checking for circular configs.");
-            var ret = CheckCircular(ImmutableHashSet.Create<string>(), ".");
+            var ret = CheckCircular(ImmutableHashSet.Create<string>(), this.TargetPath);
             if (ret != null)
             {
                 throw new ArgumentException($"Found circular configurations:" + Environment.NewLine + ret);

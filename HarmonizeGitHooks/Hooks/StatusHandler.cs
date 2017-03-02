@@ -17,7 +17,7 @@ namespace HarmonizeGitHooks
 
         public override bool Handle(List<string> args)
         {
-            using (var repo = new Repository("."))
+            using (var repo = new Repository(this.harmonize.TargetPath))
             {
                 if (repo.Info.CurrentOperation != CurrentOperation.None) return true;
             }

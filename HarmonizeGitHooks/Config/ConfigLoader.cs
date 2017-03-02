@@ -23,7 +23,7 @@ namespace HarmonizeGitHooks
         public void Init(HarmonizeGitBase harmonize)
         {
             this.harmonize = harmonize;
-            this.Config = GetConfig(".");
+            this.Config = GetConfig(harmonize.TargetPath);
             if (this.Config == null) return;
             this.UpdatePathingConfig(this.Config, trim: false);
         }
