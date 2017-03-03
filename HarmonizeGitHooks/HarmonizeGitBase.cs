@@ -18,7 +18,7 @@ namespace HarmonizeGitHooks
         ConfigLoader configLoader = new ConfigLoader();
         public const string BranchName = "GitHarmonize";
         public const string HarmonizeConfigPath = ".harmonize";
-        public const string HarmonizePathingPath = ".harmonize-pathing";
+        public const string HarmonizePathingPath = ".git/harmonize-pathing";
         public const string GitIgnorePath = ".gitignore";
         public readonly string TargetPath;
         public HarmonizeConfig Config;
@@ -132,7 +132,7 @@ namespace HarmonizeGitHooks
             }
             this.WriteLine($"{repoListing.Nickname}'s config was dirty.  Refreshing it and trying again.");
             var parentConfig = configLoader.GetConfig(repoListing.Path);
-            this.configLoader.WriteConfig(parentConfig, repoListing.Path);
+            this.configLoader.WriteSyncAndConfig(parentConfig, repoListing.Path);
             using (var repo = new Repository(repoListing.Path))
             {
                 return repo.RetrieveStatus().IsDirty;
@@ -142,7 +142,7 @@ namespace HarmonizeGitHooks
         public void SyncConfigToParentShas()
         {
             this.WriteLine("Syncing config to parent repo shas.");
-            this.configLoader.WriteConfig(this.Config, this.TargetPath);
+            this.configLoader.WriteSyncAndConfig(this.Config, this.TargetPath);
         }
 
         public void UpdatePathingConfig(bool trim)

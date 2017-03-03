@@ -14,6 +14,7 @@ namespace HarmonizeGitHooks
     public class ConfigLoader
     {
         public EventWaitHandle configSyncer = new EventWaitHandle(true, EventResetMode.AutoReset, "GIT_HARMONIZE_CONFIG_SYNCER");
+        public EventWaitHandle pathingSyncer = new EventWaitHandle(true, EventResetMode.AutoReset, "GIT_HARMONIZE_PATHING_SYNCER");
         public EventWaitHandle gitIgnoreSyncer = new EventWaitHandle(true, EventResetMode.AutoReset, "GIT_HARMONIZE_GITIGNORE_SYNCER");
         public HarmonizeConfig Config;
         private HarmonizeGitBase harmonize;
@@ -63,7 +64,7 @@ namespace HarmonizeGitHooks
             }
         }
 
-        public void WriteConfig(HarmonizeConfig config, string path)
+        public void WriteSyncAndConfig(HarmonizeConfig config, string path)
         {
             List<RepoListing> changed = new List<RepoListing>();
             foreach (var listing in config.ParentRepos)
@@ -79,6 +80,21 @@ namespace HarmonizeGitHooks
                 }
             }
 
+            if (WriteConfig(config, path))
+            {
+                if (changed.Count > 0)
+                {
+                    this.harmonize.WriteLine("Parent repos have changed: ");
+                    foreach (var change in changed)
+                    {
+                        this.harmonize.WriteLine("  " + change.Nickname);
+                    }
+                }
+            }
+        }
+
+        private bool WriteConfig(HarmonizeConfig config, string path)
+        {
             string xmlStr;
             XmlSerializer xsSubmit = new XmlSerializer(typeof(HarmonizeConfig));
             var settings = new XmlWriterSettings();
@@ -94,20 +110,11 @@ namespace HarmonizeGitHooks
                 }
             }
 
-            if (changed.Count == 0
-                && object.Equals(config.OriginalXML, xmlStr)) return;
+            if (object.Equals(config.OriginalXML, xmlStr)) return false;
 
             path = path + "/" + HarmonizeGitBase.HarmonizeConfigPath;
 
             this.harmonize.WriteLine($"Updating config at {path}");
-            if (changed.Count > 0)
-            {
-                this.harmonize.WriteLine("Parent repos have changed: ");
-                foreach (var change in changed)
-                {
-                    this.harmonize.WriteLine("  " + change.Nickname);
-                }
-            }
 
             configSyncer.WaitOne();
             try
@@ -118,6 +125,7 @@ namespace HarmonizeGitHooks
             {
                 configSyncer.Set();
             }
+            return true;
         }
         #endregion
 
@@ -134,7 +142,10 @@ namespace HarmonizeGitHooks
 
         private PathingConfig LoadPathing(string path)
         {
-            FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizePathingPath);
+            pathingSyncer.WaitOne();
+            try
+            {
+                FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizePathingPath);
             if (!file.Exists)
             {
                 return new PathingConfig();
@@ -143,6 +154,11 @@ namespace HarmonizeGitHooks
             using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
             {
                 return PathingConfig.Factory(stream);
+                }
+            }
+            finally
+            {
+                pathingSyncer.Set();
             }
         }
 
@@ -162,26 +178,28 @@ namespace HarmonizeGitHooks
             }
         }
 
-        private void AddPathingToGitIgnore()
+        private void AddToGitIgnore(
+            string path,
+            string toAdd)
         {
-            if (!Properties.Settings.Default.AddPathingToGitIgnore) return;
+            path = path + "/" + HarmonizeGitBase.GitIgnorePath;
             gitIgnoreSyncer.WaitOne();
             try
             {
-                FileInfo file = new FileInfo(HarmonizeGitBase.GitIgnorePath);
+                FileInfo file = new FileInfo(path);
                 if (file.Exists)
                 {
-                    var lines = File.ReadAllLines(HarmonizeGitBase.GitIgnorePath).ToList();
+                    var lines = File.ReadAllLines(file.FullName).ToList();
                     foreach (var line in lines)
                     {
-                        if (line.Trim().Equals(HarmonizeGitBase.HarmonizePathingPath)) return;
+                        if (line.Trim().Equals(toAdd)) return;
                     }
-                    lines.Add(HarmonizeGitBase.HarmonizePathingPath);
-                    File.WriteAllLines(HarmonizeGitBase.GitIgnorePath, lines);
+                    lines.Add(toAdd);
+                    File.WriteAllLines(path, lines);
                 }
                 else
                 {
-                    File.WriteAllText(HarmonizeGitBase.GitIgnorePath, HarmonizeGitBase.HarmonizePathingPath);
+                    File.WriteAllText(path, toAdd);
                 }
             }
             finally
@@ -223,23 +241,15 @@ namespace HarmonizeGitHooks
             if (object.Equals(config.Pathing.OriginalXML, xmlStr)) return;
 
             this.harmonize.WriteLine("Writing pathing update");
-
-            bool created;
+            
             configSyncer.WaitOne();
             try
             {
-                FileInfo file = new FileInfo(HarmonizeGitBase.HarmonizePathingPath);
-                created = !file.Exists;
                 File.WriteAllText(HarmonizeGitBase.HarmonizePathingPath, xmlStr);
             }
             finally
             {
                 configSyncer.Set();
-            }
-
-            if (created)
-            {
-                AddPathingToGitIgnore();
             }
         }
         #endregion
