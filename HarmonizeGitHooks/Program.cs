@@ -15,7 +15,7 @@ namespace HarmonizeGitHooks
             if (string.IsNullOrWhiteSpace(Properties.Settings.Default.RoutePath))
             {
                 HarmonizeGitBase harmonize = new HarmonizeGitBase(".");
-                return harmonize.Handle(args) ? 0 : 1;
+                return harmonize.Handle(args).Result ? 0 : 1;
             }
             else
             {

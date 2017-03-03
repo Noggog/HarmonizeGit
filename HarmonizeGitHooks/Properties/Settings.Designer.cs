@@ -67,5 +67,14 @@ namespace HarmonizeGitHooks.Properties {
                 return ((bool)(this["Enabled"]));
             }
         }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool TrackChildRepos {
+            get {
+                return ((bool)(this["TrackChildRepos"]));
+            }
+        }
     }
 }

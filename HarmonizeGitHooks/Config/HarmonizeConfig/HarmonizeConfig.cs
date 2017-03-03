@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LibGit2Sharp;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -44,7 +45,7 @@ namespace HarmonizeGitHooks
                     ret.OriginalXML = originalStr;
                 }
             }
-            
+
             ret.SetPathing(pathing, addMissing: true);
             foreach (var listing in ret.ParentRepos)
             {
@@ -52,6 +53,32 @@ namespace HarmonizeGitHooks
             }
             return ret;
         }
+
+        public static HarmonizeConfig Factory(
+            HarmonizeGitBase harmonize,
+            string path,
+            Commit commit,
+            PathingConfig pathing)
+        {
+            var entry = commit[HarmonizeGitBase.HarmonizeConfigPath];
+            var blob = entry?.Target as Blob;
+            if (blob == null)
+            {
+                harmonize.WriteLine("No harmonize config at target commit.  Exiting without syncing.");
+                return null;
+            }
+
+            var contentStream = blob.GetContentStream();
+            using (var tr = new StreamReader(contentStream, Encoding.UTF8))
+            {
+                return Factory(
+                    harmonize,
+                    path,
+                    tr.BaseStream,
+                    pathing);
+            }
+        }
+
 
         public bool SetPathing(PathingConfig pathing, bool addMissing = true)
         {

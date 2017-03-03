@@ -15,10 +15,12 @@ namespace HarmonizeGitHooks
 {
     public class HarmonizeGitBase
     {
-        ConfigLoader configLoader = new ConfigLoader();
+        public ConfigLoader ConfigLoader { get; } = new ConfigLoader();
+        public ChildrenLoader ChildLoader { get; private set; }
         public const string BranchName = "GitHarmonize";
         public const string HarmonizeConfigPath = ".harmonize";
-        public const string HarmonizePathingPath = ".git/harmonize-pathing";
+        public const string HarmonizeChildrenPath = ".git/.harmonize-children";
+        public const string HarmonizePathingPath = ".git/.harmonize-pathing";
         public const string GitIgnorePath = ".gitignore";
         public readonly string TargetPath;
         public HarmonizeConfig Config;
@@ -27,9 +29,10 @@ namespace HarmonizeGitHooks
         public HarmonizeGitBase(string targetPath)
         {
             this.TargetPath = targetPath;
+            ChildLoader = new ChildrenLoader(this);
         }
         
-        public bool Handle(string[] args)
+        public async Task<bool> Handle(string[] args)
         {
             if (args.Length < 2) return true;
 
@@ -57,14 +60,15 @@ namespace HarmonizeGitHooks
 
             this.Silent = handler.Silent;
 
-            configLoader.Init(this);
-            this.Config = configLoader.GetConfig(this.TargetPath);
+            ConfigLoader.Init(this);
+            this.Config = ConfigLoader.GetConfig(this.TargetPath);
             if (this.Config == null)
             {
                 this.WriteLine("No config present.  Exiting.");
                 return true;
             }
             this.CheckForCircularConfigs();
+            await ChildLoader.InitializeIntoParents();
 
             List<string> trimmedArgs = new List<string>();
             for (int i = 2; i < args.Length; i++)
@@ -131,8 +135,8 @@ namespace HarmonizeGitHooks
                 if (repo.RetrieveStatus(HarmonizeConfigPath) == FileStatus.Unaltered) return true;
             }
             this.WriteLine($"{repoListing.Nickname}'s config was dirty.  Refreshing it and trying again.");
-            var parentConfig = configLoader.GetConfig(repoListing.Path);
-            this.configLoader.WriteSyncAndConfig(parentConfig, repoListing.Path);
+            var parentConfig = ConfigLoader.GetConfig(repoListing.Path);
+            this.ConfigLoader.WriteSyncAndConfig(parentConfig, repoListing.Path);
             using (var repo = new Repository(repoListing.Path))
             {
                 return repo.RetrieveStatus().IsDirty;
@@ -142,12 +146,12 @@ namespace HarmonizeGitHooks
         public void SyncConfigToParentShas()
         {
             this.WriteLine("Syncing config to parent repo shas.");
-            this.configLoader.WriteSyncAndConfig(this.Config, this.TargetPath);
+            this.ConfigLoader.WriteSyncAndConfig(this.Config, this.TargetPath);
         }
 
         public void UpdatePathingConfig(bool trim)
         {
-            this.configLoader.UpdatePathingConfig(this.Config, trim);
+            this.ConfigLoader.UpdatePathingConfig(this.Config, trim);
         }
 
         public void SyncParentRepos()
@@ -231,23 +235,12 @@ namespace HarmonizeGitHooks
                     throw new ArgumentException("Target commit does not exist. " + targetCommitSha);
                 }
 
-                var entry = targetCommit[HarmonizeConfigPath];
-                var blob = entry?.Target as Blob;
-                if (blob == null)
-                {
-                    this.WriteLine("No harmonize config at target commit.  Exiting without syncing.");
-                    return;
-                }
-
-                var contentStream = blob.GetContentStream();
-                using (var tr = new StreamReader(contentStream, Encoding.UTF8))
-                {
-                    targetConfig = HarmonizeConfig.Factory(
-                        this,
-                        this.TargetPath,
-                        tr.BaseStream,
-                        this.configLoader.GetPathing(this.TargetPath));
-                }
+                targetConfig = HarmonizeConfig.Factory(
+                    this,
+                    this.TargetPath,
+                    targetCommit,
+                    this.ConfigLoader.GetPathing(this.TargetPath));
+                if (targetConfig == null) return;
             }
             SyncParentRepos(targetConfig);
         }
@@ -278,7 +271,7 @@ namespace HarmonizeGitHooks
                 return targetPath;
             }
             paths = paths.Add(targetPath);
-            var config = this.configLoader.GetConfig(targetPath);
+            var config = this.ConfigLoader.GetConfig(targetPath);
             if (config == null) return null;
             foreach (var listing in config.ParentRepos)
             {
