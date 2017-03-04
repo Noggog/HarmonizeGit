@@ -10,6 +10,8 @@ namespace HarmonizeGitHooks
     {
         public string Sha;
         public string ParentSha;
-        public string ChildPath;
+        public string ChildRepoPath;
+        public string ParentRepoPath;
     }
 }
+     

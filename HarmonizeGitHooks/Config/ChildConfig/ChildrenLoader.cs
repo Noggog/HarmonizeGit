@@ -12,6 +12,14 @@ namespace HarmonizeGitHooks
     public class ChildrenLoader
     {
         private HarmonizeGitBase harmonize;
+        public const string PARENT_TABLE = "ParentRef";
+        public const string CHILD_IDENTITY_TABLE = "ChildIdentity";
+        public const string USAGE_TABLE = "ChildUsage";
+        public const string SHA = "Sha";
+        public const string PATH = "Path";
+        public const string ID = "ID";
+        public const string PARENT_ID = "ParentID";
+        public const string IDENTITY_ID = "IdentityID";
 
         public ChildrenLoader(HarmonizeGitBase harmonize)
         {
@@ -42,9 +50,7 @@ namespace HarmonizeGitHooks
             var usages = await GetUsages(
                 parentRepoPath,
                 childRepoPath);
-            await InsertChildEntries(
-                parentRepoPath,
-                usages);
+            await InsertChildEntries(usages);
         }
 
         private async Task<List<ChildUsage>> GetUsages(
@@ -74,7 +80,8 @@ namespace HarmonizeGitHooks
                         {
                             Sha = commit.Sha,
                             ParentSha = parentListing.Sha,
-                            ChildPath = childRepoPath
+                            ChildRepoPath = childRepoPath,
+                            ParentRepoPath = parentRepoPath
                         });
                 }
             }
@@ -102,19 +109,81 @@ namespace HarmonizeGitHooks
         private async Task ConstructDB(SQLiteConnection conn)
         {
             await new SQLiteCommand(
-                "create table ChildIdentity (Path varchar(1000))", conn).ExecuteNonQueryAsync();
+                $@"create table {CHILD_IDENTITY_TABLE} (
+                    {ID} integer primary key AUTOINCREMENT NOT NULL,
+                    {PATH} varchar(1000) not null unique)", conn).ExecuteNonQueryAsync();
             await new SQLiteCommand(
-                "create table ParentSha (Sha varchar(1000))", conn).ExecuteNonQueryAsync();
+                $@"create table {PARENT_TABLE} (
+                    {ID} integer primary key AUTOINCREMENT NOT NULL,
+                    {SHA} varchar(1000) not null unique)", conn).ExecuteNonQueryAsync();
             await new SQLiteCommand(
-                "create table ChildUsage (Sha varchar(1000))", conn).ExecuteNonQueryAsync();
+                $@"create table {USAGE_TABLE} (
+                    {ID} integer primary key AUTOINCREMENT NOT NULL,
+                    {PARENT_ID} integer,
+                    {IDENTITY_ID} integer,
+                    {SHA} varchar(1000) not null unique,
+                    FOREIGN KEY({PARENT_ID}) REFERENCES {PARENT_TABLE}({ID}),
+                    FOREIGN KEY({IDENTITY_ID}) REFERENCES {CHILD_IDENTITY_TABLE}({ID}))", conn).ExecuteNonQueryAsync();
+        }
+
+        public Task InsertChildEntry(ChildUsage usage)
+        {
+            return InsertChildEntries(new ChildUsage[] { usage });
+        }
+
+        public Task InsertChildEntries(IEnumerable<ChildUsage> usages)
+        {
+            return Task.WhenAll(
+                usages.GroupBy((u) => u.ParentRepoPath)
+                .Select((group) => InsertChildEntries(group.Key, group)));
         }
 
         private async Task InsertChildEntries(
             string pathToRepo,
             IEnumerable<ChildUsage> usages)
         {
-            using (var db = await GetConnection(pathToRepo))
+            using (var conn = await GetConnection(pathToRepo))
             {
+                using (var transaction = conn.BeginTransaction())
+                {
+                    using (var cmd = new SQLiteCommand(conn))
+                    {
+                        // Child identity
+                        foreach (var childRepoPath in usages.Select((u) => u.ChildRepoPath).Distinct())
+                        {
+                            cmd.CommandText = $@"INSERT OR IGNORE INTO {CHILD_IDENTITY_TABLE} ({PATH}) 
+                                        VALUES ('{childRepoPath}');";
+                            await cmd.ExecuteNonQueryAsync();
+                        }
+
+                        // Parent sha table
+                        foreach (var parentRef in usages.Select((u) => u.ParentSha).Distinct())
+                        {
+                            cmd.CommandText = $@"INSERT OR IGNORE INTO {PARENT_TABLE} ({SHA}) 
+                                        VALUES ('{parentRef}');";
+                            await cmd.ExecuteNonQueryAsync();
+                        }
+                    }
+                    transaction.Commit();
+                }
+
+                using (var transaction = conn.BeginTransaction())
+                {
+                    using (var cmd = new SQLiteCommand(conn))
+                    {
+                        foreach (var usage in usages)
+                        {
+                            // Usages
+                            cmd.CommandText = $@"INSERT OR IGNORE INTO {USAGE_TABLE} ({PARENT_ID}, {IDENTITY_ID}, {SHA}) 
+                                        VALUES (
+                                            (SELECT {ID} FROM {PARENT_TABLE} WHERE {SHA} = '{usage.ParentSha}'),
+                                            (SELECT {ID} FROM {CHILD_IDENTITY_TABLE} WHERE {PATH} = '{usage.ChildRepoPath}'),
+                                            '{usage.Sha}');";
+                            await cmd.ExecuteNonQueryAsync();
+                        }
+                    }
+                    transaction.Commit();
+                }
             }
         }
     }
