@@ -75,7 +75,7 @@ namespace HarmonizeGitHooks
             {
                 trimmedArgs.Add(args[i]);
             }
-            return handler.Handle(trimmedArgs);
+            return await handler.Handle(trimmedArgs);
         }
 
         public void WriteLine(string line)

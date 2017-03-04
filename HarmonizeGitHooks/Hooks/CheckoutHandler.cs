@@ -36,7 +36,7 @@ namespace HarmonizeGitHooks
             }
         }
 
-        public override bool Handle(List<string> args)
+        public override async Task<bool> Handle(List<string> args)
         {
             ParseArgs(args);
 

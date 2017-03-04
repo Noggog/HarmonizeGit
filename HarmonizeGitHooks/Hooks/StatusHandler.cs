@@ -15,7 +15,7 @@ namespace HarmonizeGitHooks
             this.Silent = true;
         }
 
-        public override bool Handle(List<string> args)
+        public override async Task<bool> Handle(List<string> args)
         {
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
