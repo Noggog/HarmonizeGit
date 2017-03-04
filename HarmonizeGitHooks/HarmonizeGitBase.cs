@@ -46,7 +46,10 @@ namespace HarmonizeGitHooks
                     handler = new ResetHandler(this);
                     break;
                 case "pre-commit":
-                    handler = new CommitHandler(this);
+                    handler = new PreCommitHandler(this);
+                    break;
+                case "post-commit":
+                    handler = new PostCommitHandler(this);
                     break;
                 case "post-status":
                     handler = new StatusHandler(this);

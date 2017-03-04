@@ -186,5 +186,28 @@ namespace HarmonizeGitHooks
                 }
             }
         }
+
+        public async Task InsertCurrentConfig()
+        {
+            string currentSha;
+            using (var repo = new Repository(this.harmonize.TargetPath))
+            {
+                currentSha = repo.Head.Tip.Sha;
+            }
+
+            List<ChildUsage> usages = new List<ChildUsage>();
+            foreach (var parentListing in this.harmonize.Config.ParentRepos)
+            {
+                usages.Add(
+                    new ChildUsage()
+                    {
+                        ParentRepoPath = parentListing.Path,
+                        ChildRepoPath = this.harmonize.TargetPath,
+                        ParentSha = parentListing.Sha,
+                        Sha = currentSha
+                    });
+            }
+            await InsertChildEntries(usages);
+        }
     }
 }

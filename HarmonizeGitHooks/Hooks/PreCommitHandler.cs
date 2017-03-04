@@ -10,9 +10,9 @@ using System.Xml.Serialization;
 
 namespace HarmonizeGitHooks
 {
-    class CommitHandler : TypicalHandlerBase
+    class PreCommitHandler : TypicalHandlerBase
     {
-        public CommitHandler(HarmonizeGitBase harmonize)
+        public PreCommitHandler(HarmonizeGitBase harmonize)
             : base(harmonize)
         {
         }
