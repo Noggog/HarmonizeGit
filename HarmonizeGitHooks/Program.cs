@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,8 @@ namespace HarmonizeGitHooks
             if (!Properties.Settings.Default.Enabled) return 0;
             if (string.IsNullOrWhiteSpace(Properties.Settings.Default.RoutePath))
             {
-                HarmonizeGitBase harmonize = new HarmonizeGitBase(".");
+                DirectoryInfo dir = new DirectoryInfo(".");
+                HarmonizeGitBase harmonize = new HarmonizeGitBase(dir.FullName);
                 return harmonize.Handle(args).Result ? 0 : 1;
             }
             else
