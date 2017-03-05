@@ -83,6 +83,7 @@
     <Compile Include="Config\PathingConfig\PathingConfig.cs" />
     <Compile Include="Config\PathingConfig\PathingListing.cs" />
     <Compile Include="Hooks\PostCommitHandler.cs" />
+    <Compile Include="Hooks\PreResetHandler.cs" />
     <Compile Include="Hooks\TakeHandler.cs" />
     <Compile Include="Hooks\StatusHandler.cs" />
     <Compile Include="Hooks\CheckoutHandler.cs" />
@@ -91,7 +92,7 @@
     <Compile Include="HarmonizeGitBase.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Hooks\ResetHandler.cs" />
+    <Compile Include="Hooks\PostResetHandler.cs" />
     <Compile Include="Hooks\TypicalHandlerBase.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>

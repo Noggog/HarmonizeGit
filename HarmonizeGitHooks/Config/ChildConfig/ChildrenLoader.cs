@@ -121,7 +121,7 @@ namespace HarmonizeGitHooks
                     {ID} integer primary key AUTOINCREMENT NOT NULL,
                     {PARENT_ID} integer,
                     {IDENTITY_ID} integer,
-                    {SHA} varchar(1000) not null unique,
+                    {SHA} char(40) not null unique,
                     FOREIGN KEY({PARENT_ID}) REFERENCES {PARENT_TABLE}({ID}),
                     FOREIGN KEY({IDENTITY_ID}) REFERENCES {CHILD_IDENTITY_TABLE}({ID}))", conn).ExecuteNonQueryAsync();
         }
@@ -173,6 +173,10 @@ namespace HarmonizeGitHooks
                     {
                         foreach (var usage in usages)
                         {
+                            if (usage.Sha.Length != 40)
+                            {
+                                throw new ArgumentException("Sha length was not 40 characters: " + usage.Sha);
+                            }
                             // Usages
                             cmd.CommandText = $@"INSERT OR IGNORE INTO {USAGE_TABLE} ({PARENT_ID}, {IDENTITY_ID}, {SHA}) 
                                         VALUES (
@@ -187,27 +191,72 @@ namespace HarmonizeGitHooks
             }
         }
 
-        public async Task InsertCurrentConfig()
+        public Task RemoveChildEntries(IEnumerable<ChildUsage> usages)
+        {
+            return Task.WhenAll(
+                usages.GroupBy((u) => u.ParentRepoPath)
+                .Select((group) => RemoveChildEntries(group.Key, group)));
+        }
+
+        private async Task RemoveChildEntries(
+            string pathToRepo,
+            IEnumerable<ChildUsage> usages)
+        {
+            using (var conn = await GetConnection(pathToRepo))
+            {
+                using (var transaction = conn.BeginTransaction())
+                {
+                    using (var cmd = new SQLiteCommand(conn))
+                    {
+                        foreach (var usage in usages)
+                        {
+                            // Usages
+                            cmd.CommandText = $@"DELETE FROM {USAGE_TABLE}
+                                        WHERE {SHA} = '{usage.Sha}' 
+                                        AND {PARENT_ID} IN (
+                                            SELECT pt.ID FROM {USAGE_TABLE} ut
+                                            INNER JOIN {PARENT_TABLE} pt 
+                                            ON pt.{ID} = ut.{PARENT_ID})
+                                        AND {IDENTITY_ID} IN (
+                                            SELECT it.ID FROM {USAGE_TABLE} ut
+                                            INNER JOIN {CHILD_IDENTITY_TABLE} it 
+                                            ON it.{ID} = ut.{IDENTITY_ID});";
+                            await cmd.ExecuteNonQueryAsync();
+                        }
+                    }
+                    transaction.Commit();
+                }
+            }
+        }
+
+        private IEnumerable<ChildUsage> GetCurrentConfigUsages()
         {
             string currentSha;
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
                 currentSha = repo.Head.Tip.Sha;
             }
-
-            List<ChildUsage> usages = new List<ChildUsage>();
+            
             foreach (var parentListing in this.harmonize.Config.ParentRepos)
             {
-                usages.Add(
-                    new ChildUsage()
-                    {
-                        ParentRepoPath = parentListing.Path,
-                        ChildRepoPath = this.harmonize.TargetPath,
-                        ParentSha = parentListing.Sha,
-                        Sha = currentSha
-                    });
+                yield return new ChildUsage()
+                {
+                    ParentRepoPath = parentListing.Path,
+                    ChildRepoPath = this.harmonize.TargetPath,
+                    ParentSha = parentListing.Sha,
+                    Sha = currentSha
+                };
             }
-            await InsertChildEntries(usages);
+        }
+
+        public async Task InsertCurrentConfig()
+        {
+            await InsertChildEntries(GetCurrentConfigUsages());
+        }
+
+        public async Task RemoveCurrentConfig()
+        {
+            await RemoveChildEntries(GetCurrentConfigUsages());
         }
     }
 }

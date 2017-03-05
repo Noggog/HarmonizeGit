@@ -42,8 +42,11 @@ namespace HarmonizeGitHooks
                 case "pre-checkout":
                     handler = new CheckoutHandler(this);
                     break;
+                case "pre-reset":
+                    handler = new PreResetHandler(this);
+                    break;
                 case "post-reset":
-                    handler = new ResetHandler(this);
+                    handler = new PostResetHandler(this);
                     break;
                 case "pre-commit":
                     handler = new PreCommitHandler(this);

@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace HarmonizeGitHooks
 {
-    class ResetHandler : TypicalHandlerBase
+    class PreResetHandler : TypicalHandlerBase
     {
-        public ResetHandler(HarmonizeGitBase harmonize) 
+        public PreResetHandler(HarmonizeGitBase harmonize) 
             : base(harmonize)
         {
         }
 
         public override async Task<bool> Handle(List<string> args)
         {
-            harmonize.SyncParentRepos();
+            await this.harmonize.ChildLoader.RemoveCurrentConfig();
             return true;
         }
     }
