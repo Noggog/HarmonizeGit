@@ -99,6 +99,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="RepositoryExt.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

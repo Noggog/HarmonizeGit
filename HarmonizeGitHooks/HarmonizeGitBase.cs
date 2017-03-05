@@ -213,7 +213,7 @@ namespace HarmonizeGitHooks
                         Commands.Checkout(repo, branch);
                         return;
                     }
-                    else if (IsLoneTip(repo, harmonizeBranch, harmonizeBranch.Tip.Sha))
+                    else if (repo.IsLoneTip(harmonizeBranch))
                     {
                         this.WriteLine(harmonizeBranch.FriendlyName + " was unsafe to move.");
                         continue;
@@ -285,36 +285,6 @@ namespace HarmonizeGitHooks
                 if (ret != null) return targetPath + Environment.NewLine + ret;
             }
             return null;
-        }
-
-        private bool IsLoneTip(Repository repo, Branch targetBranch, string sha)
-        {
-            foreach (var branch in ListBranchesContaininingCommit(repo, sha))
-            {
-                if (branch.Equals(targetBranch)) continue;
-                return false;
-            }
-            return true;
-        }
-
-        private IEnumerable<Branch> ListBranchesContaininingCommit(Repository repo, string commitSha)
-        {
-            foreach (var branch in repo.Branches)
-            {
-                var commits = repo.Commits.QueryBy(
-                    new CommitFilter()
-                    {
-                        IncludeReachableFrom = branch.Tip.Sha
-                    })
-                    .Where(c => c.Sha == commitSha);
-
-                if (!commits.Any())
-                {
-                    continue;
-                }
-
-                yield return branch;
-            }
         }
     }
 }
