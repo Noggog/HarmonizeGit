@@ -24,19 +24,25 @@ namespace HarmonizeGitHooks
 
         public static IEnumerable<Branch> ListBranchesContainingCommit(this Repository repo, string commitSha)
         {
+            var targetCommit = repo.Lookup<Commit>(commitSha);
             foreach (var branch in repo.Branches)
             {
-                if (!repo.Commits.QueryBy(
+                foreach (var commit in repo.Commits.QueryBy(
                     new CommitFilter()
                     {
-                        IncludeReachableFrom = branch.Tip.Sha
-                    })
-                    .Any(c => object.Equals(c.Sha, commitSha)))
+                        IncludeReachableFrom = branch.Tip.Sha,
+                    }))
                 {
-                    continue;
+                    if (commit.Author.When < targetCommit.Author.When)
+                    { // Not going to be found earlier than target commit
+                        break;
+                    }
+                    if (object.Equals(commit.Sha, commitSha))
+                    {
+                        yield return branch;
+                        break;
+                    }
                 }
-
-                yield return branch;
             }
         }
     }
