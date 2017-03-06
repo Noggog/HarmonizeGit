@@ -9,9 +9,32 @@ namespace HarmonizeGitHooks
 {
     public static class RepositoryExt
     {
-        public static bool IsLoneTip(this Repository repo, Branch targetBranch, string sha)
+        public static IEnumerable<Commit> GetPotentiallyStrandedCommits(
+            this Repository repo,
+            string targetSha)
         {
-            foreach (var branch in repo.ListBranchesContaininingCommit(sha))
+            Queue<Commit> toDo = new Queue<Commit>();
+            toDo.Enqueue(repo.Head.Tip);
+            HashSet<string> processedShas = new HashSet<string>();
+            while (toDo.Count > 0)
+            {
+                var item = toDo.Dequeue();
+                // If we reached our target commit, we're done
+                if (targetSha.Equals(item.Sha)) continue;
+                // If we've already processed, short circuit
+                if (!processedShas.Add(item.Sha)) continue;
+                // If another branch contains this commit, it's safe
+                if (repo.ListBranchesContainingCommit(item.Sha).Any((b) => !object.Equals(b.CanonicalName, repo.Head.CanonicalName))) continue;
+                // Stranded commit
+                yield return item;
+                // Add and see if parents are also stranded
+                foreach (var parent in item.Parents)
+                {
+                    toDo.Enqueue(parent);
+                }
+            }
+        }
+
         public static bool IsLoneTip(this Repository repo, Branch targetBranch)
         {
             foreach (var branch in repo.ListBranchesContainingCommit(targetBranch.Tip.Sha))

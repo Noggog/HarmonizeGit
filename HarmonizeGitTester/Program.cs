@@ -1,4 +1,5 @@
 ﻿using HarmonizeGitHooks;
+using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,15 +16,27 @@ namespace HarmonizeGitTester
             //harmonize.ChildLoader.CheckAndSeed(
             //    "C:\\Users\\Noggog\\Documents\\Noggolloquy",
             //    "C:\\Users\\Noggog\\Documents\\DynamicLeveledLists").Wait();
-            var harmonize = new HarmonizeGitBase("D:\\Dropbox-Real\\Dropbox\\Harmonize-Child-Repo");
-            harmonize.ChildLoader.RemoveChildEntries(
-                new ChildUsage[] { new ChildUsage()
+
+
+            //var harmonize = new HarmonizeGitBase("D:\\Dropbox-Real\\Dropbox\\Harmonize-Child-Repo");
+            //harmonize.ChildLoader.RemoveChildEntries(
+            //    new ChildUsage[] { new ChildUsage()
+            //    {
+            //        ChildRepoPath = "D:\\Dropbox-Real\\Dropbox\\Harmonize-Child-Repo",
+            //        ParentRepoPath = "D:\\Dropbox-Real\\Dropbox\\Harmonize-Parent-Repo",
+            //        ParentSha = "39a2aadbbfde137650922d71652a70ce46c497c2",
+            //        Sha = "8191ade505b1427e16e4d795c3fe080c52fd6eba"
+            //    }});
+
+            using (var repo = new Repository("D:\\Dropbox-Real\\Dropbox\\Harmonize-Child-Repo"))
+            {
+                foreach (var commit in repo.GetPotentiallyStrandedCommits(
+                    "b73d4f77699f7a29f262c35e798cc44ef2df18f3"))
                 {
-                    ChildRepoPath = "D:\\Dropbox-Real\\Dropbox\\Harmonize-Child-Repo",
-                    ParentRepoPath = "D:\\Dropbox-Real\\Dropbox\\Harmonize-Parent-Repo",
-                    ParentSha = "39a2aadbbfde137650922d71652a70ce46c497c2",
-                    Sha = "8191ade505b1427e16e4d795c3fe080c52fd6eba"
-                }});
+                    int wer = 23;
+                    wer++;
+                }
+            }
         }
     }
 }
