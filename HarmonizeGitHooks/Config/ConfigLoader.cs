@@ -19,6 +19,7 @@ namespace HarmonizeGitHooks
         public HarmonizeConfig Config;
         private HarmonizeGitBase harmonize;
         private Dictionary<string, HarmonizeConfig> configs = new Dictionary<string, HarmonizeConfig>();
+        private Dictionary<Tuple<string, string>, HarmonizeConfig> repoConfigs = new Dictionary<Tuple<string, string>, HarmonizeConfig>();
         private Dictionary<string, PathingConfig> pathingConfigs = new Dictionary<string, PathingConfig>();
 
         public void Init(HarmonizeGitBase harmonize)
@@ -37,6 +38,24 @@ namespace HarmonizeGitHooks
             if (configs.TryGetValue(path, out ret)) return ret;
             ret = LoadConfig(path);
             configs[path] = ret;
+            return ret;
+        }
+
+        public HarmonizeConfig GetConfigFromRepo(
+            Repository repo,
+            Commit commit)
+        {
+            HarmonizeConfig ret;
+            var tuple = new Tuple<string, string>(
+                repo.Info.WorkingDirectory,
+                commit.Sha);
+            if (repoConfigs.TryGetValue(tuple, out ret)) return ret;
+            this.harmonize.WriteLine($"Loading config from repo at path {repo.Info.WorkingDirectory} at commit {commit.Sha} ");
+            ret = HarmonizeConfig.Factory(
+                this.harmonize,
+                repo.Info.WorkingDirectory,
+                commit);
+            repoConfigs[tuple] = ret;
             return ret;
         }
 

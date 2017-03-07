@@ -235,7 +235,16 @@ namespace HarmonizeGitHooks
             {
                 currentSha = repo.Head.Tip.Sha;
             }
-            
+            return GetConfigUsages(
+                this.harmonize.Config,
+                currentSha);
+        }
+
+        public IEnumerable<ChildUsage> GetConfigUsages(
+            HarmonizeConfig config,
+            string configSha)
+        {
+
             foreach (var parentListing in this.harmonize.Config.ParentRepos)
             {
                 yield return new ChildUsage()
@@ -243,7 +252,7 @@ namespace HarmonizeGitHooks
                     ParentRepoPath = parentListing.Path,
                     ChildRepoPath = this.harmonize.TargetPath,
                     ParentSha = parentListing.Sha,
-                    Sha = currentSha
+                    Sha = configSha
                 };
             }
         }
@@ -253,7 +262,7 @@ namespace HarmonizeGitHooks
             await InsertChildEntries(GetCurrentConfigUsages());
         }
 
-        public async Task RemoveCurrentConfig()
+        public async Task RemoveCurrentConfigFromParents()
         {
             await RemoveChildEntries(GetCurrentConfigUsages());
         }
