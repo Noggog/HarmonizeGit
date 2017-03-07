@@ -65,8 +65,7 @@ namespace HarmonizeGitHooks
                     var config = HarmonizeConfig.Factory(
                         harmonize,
                         childRepoPath,
-                        commit,
-                        harmonize.ConfigLoader.GetPathing(childRepoPath));
+                        commit);
                     if (config == null) continue;
                     var parentListing = config.ParentRepos.Where(
                         (listing) =>

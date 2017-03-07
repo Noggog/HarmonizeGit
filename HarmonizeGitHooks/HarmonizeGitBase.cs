@@ -244,8 +244,7 @@ namespace HarmonizeGitHooks
                 targetConfig = HarmonizeConfig.Factory(
                     this,
                     this.TargetPath,
-                    targetCommit,
-                    this.ConfigLoader.GetPathing(this.TargetPath));
+                    targetCommit);
                 if (targetConfig == null) return;
             }
             SyncParentRepos(targetConfig);

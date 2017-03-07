@@ -57,8 +57,7 @@ namespace HarmonizeGitHooks
         public static HarmonizeConfig Factory(
             HarmonizeGitBase harmonize,
             string path,
-            Commit commit,
-            PathingConfig pathing)
+            Commit commit)
         {
             var entry = commit[HarmonizeGitBase.HarmonizeConfigPath];
             var blob = entry?.Target as Blob;
@@ -75,7 +74,7 @@ namespace HarmonizeGitHooks
                     harmonize,
                     path,
                     tr.BaseStream,
-                    pathing);
+                    harmonize.ConfigLoader.GetPathing(path));
             }
         }
 
