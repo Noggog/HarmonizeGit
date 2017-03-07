@@ -26,7 +26,7 @@ namespace HarmonizeGitHooks
             this.harmonize = harmonize;
             this.Config = GetConfig(harmonize.TargetPath);
             if (this.Config == null) return;
-            this.UpdatePathingConfig(this.Config, trim: false);
+            this.UpdatePathingConfig(this.Config);
         }
 
         #region Config
@@ -208,20 +208,9 @@ namespace HarmonizeGitHooks
             }
         }
 
-        public void UpdatePathingConfig(HarmonizeConfig config, bool trim)
+        public void UpdatePathingConfig(HarmonizeConfig config)
         {
             if (!Properties.Settings.Default.ExportPathingConfigUpdates) return;
-
-            if (trim)
-            {
-                foreach (var path in config.Pathing.Paths.ToList())
-                {
-                    if (!config.ParentRepos.Any((listing) => listing.Nickname.Equals(path.Nickname)))
-                    {
-                        config.Pathing.Paths.Remove(path);
-                    }
-                }
-            }
 
             string xmlStr;
             XmlSerializer xsSubmit = new XmlSerializer(typeof(PathingConfig));
