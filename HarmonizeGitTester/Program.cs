@@ -28,15 +28,13 @@ namespace HarmonizeGitTester
             //        Sha = "8191ade505b1427e16e4d795c3fe080c52fd6eba"
             //    }});
 
-            using (var repo = new Repository("D:\\Dropbox-Real\\Dropbox\\Harmonize-Child-Repo"))
-            {
-                foreach (var commit in repo.GetPotentiallyStrandedCommits(
-                    "b73d4f77699f7a29f262c35e798cc44ef2df18f3"))
-                {
-                    int wer = 23;
-                    wer++;
-                }
-            }
+            Run().Wait();
+        }
+
+        public static async Task Run()
+        {
+            var harmonize = new HarmonizeGitBase("D:\\Dropbox-Real\\Dropbox\\Harmonize-Parent-Repo");
+            var childUsages = await harmonize.ChildLoader.GetChildUsages(new string[] { "ca1a4060309e4ec35237b6fc1501461d936f8da6" }, 10);
         }
     }
 }

@@ -12,6 +12,7 @@ namespace HarmonizeGitHooks
         public PreResetHandler(HarmonizeGitBase harmonize)
             : base(harmonize)
         {
+            this.NeedsConfig = false;
         }
 
         public override async Task<bool> Handle(List<string> args)
@@ -30,16 +31,44 @@ namespace HarmonizeGitHooks
                 }
 
                 // See if children are using stranded commits
+                var childUsages = await this.harmonize.ChildLoader.GetChildUsages(strandedCommits.Select((c) => c.Sha), 10);
+                if (childUsages.Item2.Count > 0)
+                {
+                    #region Print
+                    this.harmonize.WriteLine("Repositories:");
+                    foreach (var usage in childUsages.Item2.OrderBy((str) => str))
+                    {
+                        this.harmonize.WriteLine($"   {usage}");
+                    }
+
+                    this.harmonize.WriteLine("Some Stranded Commits:");
+                    foreach (var usage in childUsages.Item1)
+                    {
+                        this.harmonize.WriteLine($"   {usage}");
+                    }
+                    this.harmonize.WriteLine("Child repositories marked stranded commits as used.  Stopping.");
+                    #endregion
+                    return false;
+                }
+
+                throw new NotImplementedException();
 
                 // Unregister lost commits from parents
-                foreach (var commit in strandedCommits)
+                if (this.harmonize.Config != null)
                 {
-                    await this.harmonize.ChildLoader.RemoveChildEntries(
-                        this.harmonize.ChildLoader.GetConfigUsages(
-                            this.harmonize.ConfigLoader.GetConfigFromRepo(
-                                repo,
-                                commit),
-                            commit.Sha));
+                    foreach (var commit in strandedCommits)
+                    {
+                        await this.harmonize.ChildLoader.RemoveChildEntries(
+                            this.harmonize.ChildLoader.GetConfigUsages(
+                                this.harmonize.ConfigLoader.GetConfigFromRepo(
+                                    repo,
+                                    commit),
+                                commit.Sha));
+                    }
+                }
+                else
+                {
+                    this.harmonize.WriteLine("No config.  Skipping unregister step.");
                 }
             }
             return true;

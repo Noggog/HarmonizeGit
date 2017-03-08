@@ -266,5 +266,57 @@ namespace HarmonizeGitHooks
         {
             await RemoveChildEntries(GetCurrentConfigUsages());
         }
+
+        public async Task<Tuple<ICollection<string>, ICollection<string>>> GetChildUsages(
+            IEnumerable<string> commits,
+            int numCommitsToReturn)
+        {
+            HashSet<string> usedCommits = new HashSet<string>();
+            HashSet<string> childRepos = new HashSet<string>();
+            List<Tuple<string, string>>[] results;
+            using (var conn = await GetConnection(this.harmonize.TargetPath))
+            {
+                results = await Task.WhenAll(
+                    commits.Select(
+                        async (commit) =>
+                        {
+                            using (var cmd = new SQLiteCommand(conn))
+                            {
+                                cmd.CommandText = 
+$@"SELECT 
+	ParentRef.Sha,
+	ChildIdentity.Path
+FROM ChildUsage
+INNER JOIN ParentRef
+ON ParentRef.ID = ChildUsage.ParentID
+INNER JOIN ChildIdentity
+ON ChildIdentity.ID = ChildUsage.IdentityID 
+where ParentRef.Sha = '{commit}'";
+                                List<Tuple<string, string>> ret = new List<Tuple<string, string>>();
+                                using (var reader = await cmd.ExecuteReaderAsync())
+                                {
+                                    while (reader.Read())
+                                    {
+                                        ret.Add(
+                                            new Tuple<string, string>(
+                                                (string)reader[0],
+                                                (string)reader[1]));
+                                    }
+                                }
+                                return ret;
+                            }
+                        }));
+            }
+
+            foreach (var pair in results.SelectMany((x) => x))
+            {
+                usedCommits.Add(pair.Item1);
+                childRepos.Add(pair.Item2);
+            }
+
+            return new Tuple<ICollection<string>, ICollection<string>>(
+                usedCommits,
+                childRepos);
+        }
     }
 }
