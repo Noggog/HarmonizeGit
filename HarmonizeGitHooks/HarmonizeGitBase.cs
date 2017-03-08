@@ -70,11 +70,17 @@ namespace HarmonizeGitHooks
             this.Config = ConfigLoader.GetConfig(this.TargetPath);
             if (this.Config == null)
             {
-                this.WriteLine("No config present.  Exiting.");
-                return true;
+                if (handler.NeedsConfig)
+                {
+                    this.WriteLine("No config present.  Exiting.");
+                    return true;
+                }
             }
-            this.CheckForCircularConfigs();
-            await ChildLoader.InitializeIntoParents();
+            else
+            {
+                this.CheckForCircularConfigs();
+                await ChildLoader.InitializeIntoParents();
+            }
 
             List<string> trimmedArgs = new List<string>();
             for (int i = 2; i < args.Length; i++)

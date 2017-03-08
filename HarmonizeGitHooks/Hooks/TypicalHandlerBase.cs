@@ -10,6 +10,7 @@ namespace HarmonizeGitHooks
     {
         protected HarmonizeGitBase harmonize;
         public bool Silent { get; protected set; }
+        public bool NeedsConfig { get; protected set; } = true;
 
         public TypicalHandlerBase(HarmonizeGitBase harmonize)
         {
