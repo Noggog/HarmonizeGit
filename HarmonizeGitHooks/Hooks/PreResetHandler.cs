@@ -51,8 +51,6 @@ namespace HarmonizeGitHooks
                     return false;
                 }
 
-                throw new NotImplementedException();
-
                 // Unregister lost commits from parents
                 if (this.harmonize.Config != null)
                 {
