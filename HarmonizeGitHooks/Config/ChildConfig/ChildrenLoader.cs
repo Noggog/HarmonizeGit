@@ -5,6 +5,7 @@ using System.Data.SQLite;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HarmonizeGitHooks
@@ -20,6 +21,7 @@ namespace HarmonizeGitHooks
         public const string ID = "ID";
         public const string PARENT_ID = "ParentID";
         public const string IDENTITY_ID = "IdentityID";
+        public EventWaitHandle dbSyncer = new EventWaitHandle(true, EventResetMode.AutoReset, "GIT_HARMONIZE_CHILDDB_SYNCER");
 
         public ChildrenLoader(HarmonizeGitBase harmonize)
         {
@@ -35,9 +37,18 @@ namespace HarmonizeGitHooks
                     {
                         FileInfo dbPath = new FileInfo(GetDBPath(parentRepo.Path));
                         if (dbPath.Exists) return;
-                        await CheckAndSeed(
-                            parentRepo.Path,
-                            harmonize.TargetPath);
+                        dbSyncer.WaitOne();
+                        try
+                        {
+                            if (dbPath.Exists) return;
+                            await CheckAndSeed(
+                                parentRepo.Path,
+                                harmonize.TargetPath);
+                        }
+                        finally
+                        {
+                            dbSyncer.Set();
+                        }
                     }));
         }
 

@@ -33,8 +33,17 @@ namespace HarmonizeGitTester
 
         public static async Task Run()
         {
-            var harmonize = new HarmonizeGitBase("D:\\Dropbox-Real\\Dropbox\\Harmonize-Parent-Repo");
-            var childUsages = await harmonize.ChildLoader.GetChildUsages(new string[] { "ca1a4060309e4ec35237b6fc1501461d936f8da6" }, 10);
+            List<Task> t = new List<Task>();
+            for (int i = 0; i < 100; i++)
+            {
+                t.Add(Task.Run(async () =>
+                {
+                    var harmonize = new HarmonizeGitBase("C:\\Users\\Noggog\\Documents\\Noggolloquy");
+                    await harmonize.Handle(
+                       new string[] { "post-status", "status" });
+                }));
+            }
+            await Task.WhenAll(t);
         }
     }
 }
