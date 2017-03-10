@@ -89,10 +89,19 @@ namespace HarmonizeGitHooks
                 if (!pathing.TryGetListing(listing.Nickname, out pathListing))
                 {
                     if (!addMissing) continue;
+                    string missingPath;
+                    if (string.IsNullOrWhiteSpace(listing.SuggestedPath))
+                    {
+                        missingPath = "../" + listing.Nickname;
+                    }
+                    else
+                    {
+                        missingPath = listing.SuggestedPath;
+                    }
                     pathListing = new PathingListing()
                     {
                         Nickname = listing.Nickname,
-                        Path = "../" + listing.Nickname
+                        Path = missingPath
                     };
                     pathing.Paths.Add(pathListing);
                     added = true;

@@ -15,6 +15,7 @@ namespace HarmonizeGitHooks
         public string Sha;
         [XmlIgnore]
         public string Path;
+        public string SuggestedPath;
         public string CommitDate
         {
             get { return this.CommitDateObj.ToString("MM-dd-yyyy HH:mm:ss"); }
