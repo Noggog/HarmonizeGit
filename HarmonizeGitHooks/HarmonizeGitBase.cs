@@ -189,6 +189,12 @@ namespace HarmonizeGitHooks
 
             using (var repo = new Repository(listing.Path))
             {
+                if (repo.Head.Tip.Sha.Equals(listing.Sha))
+                {
+                    this.WriteLine("Repository already at desired commit.");
+                    return;
+                }
+
                 var potentialBranches = repo.Branches
                     .Where((b) => b.Tip.Sha.Equals(listing.Sha))
                     .OrderBy((b) => b.FriendlyName.Contains("GitHarmonize") ? 0 : 1);
