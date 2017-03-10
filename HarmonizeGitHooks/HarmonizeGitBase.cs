@@ -52,6 +52,7 @@ namespace HarmonizeGitHooks
                     handler = new PreCommitHandler(this);
                     break;
                 case "post-commit":
+                case "post-cherry-pick":
                     handler = new PostCommitHandler(this);
                     break;
                 case "post-status":
