@@ -30,44 +30,53 @@ namespace HarmonizeGitHooks
                     this.harmonize.WriteLine($"   {commit.Sha} -- {commit.MessageShort}");
                 }
 
-                // See if children are using stranded commits
-                var childUsages = await this.harmonize.ChildLoader.GetChildUsages(strandedCommits.Select((c) => c.Sha), 10);
-                if (childUsages.Item2.Count > 0)
-                {
-                    #region Print
-                    this.harmonize.WriteLine("Repositories:");
-                    foreach (var usage in childUsages.Item2.OrderBy((str) => str))
-                    {
-                        this.harmonize.WriteLine($"   {usage}");
-                    }
+                return await DoResetTasks(harmonize, repo, strandedCommits);
+            }
+        }
 
-                    this.harmonize.WriteLine("Some Stranded Commits:");
-                    foreach (var usage in childUsages.Item1)
-                    {
-                        this.harmonize.WriteLine($"   {usage}");
-                    }
-                    this.harmonize.WriteLine("Child repositories marked stranded commits as used.  Stopping.");
-                    #endregion
-                    return false;
+        public static async Task<bool> DoResetTasks(
+            HarmonizeGitBase harmonize,
+            Repository repo,
+            IEnumerable<Commit> strandedCommits)
+        {
+            // See if children are using stranded commits
+            var childUsages = await harmonize.ChildLoader.GetChildUsages(strandedCommits.Select((c) => c.Sha), 10);
+            if (childUsages.Item2.Count > 0)
+            {
+                #region Print
+                harmonize.WriteLine("Repositories:");
+                foreach (var usage in childUsages.Item2.OrderBy((str) => str))
+                {
+                    harmonize.WriteLine($"   {usage}");
                 }
 
-                // Unregister lost commits from parents
-                if (this.harmonize.Config != null)
+                harmonize.WriteLine("Some Stranded Commits:");
+                foreach (var usage in childUsages.Item1)
                 {
-                    foreach (var commit in strandedCommits)
-                    {
-                        await this.harmonize.ChildLoader.RemoveChildEntries(
-                            this.harmonize.ChildLoader.GetConfigUsages(
-                                this.harmonize.ConfigLoader.GetConfigFromRepo(
-                                    repo,
-                                    commit),
-                                commit.Sha));
-                    }
+                    harmonize.WriteLine($"   {usage}");
                 }
-                else
+                harmonize.WriteLine("Child repositories marked stranded commits as used.  Stopping.");
+                #endregion
+                return false;
+            }
+
+            // Unregister lost commits from parents
+            if (harmonize.Config != null)
+            {
+                harmonize.WriteLine("Removing lost commits from parent databases.");
+                foreach (var commit in strandedCommits)
                 {
-                    this.harmonize.WriteLine("No config.  Skipping unregister step.");
+                    await harmonize.ChildLoader.RemoveChildEntries(
+                        harmonize.ChildLoader.GetConfigUsages(
+                            harmonize.ConfigLoader.GetConfigFromRepo(
+                                repo,
+                                commit),
+                            commit.Sha));
                 }
+            }
+            else
+            {
+                harmonize.WriteLine("No config.  Skipping unregister step.");
             }
             return true;
         }

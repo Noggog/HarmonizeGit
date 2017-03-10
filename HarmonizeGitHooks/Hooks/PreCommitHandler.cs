@@ -24,6 +24,24 @@ namespace HarmonizeGitHooks
                 return false;
             }
 
+            if (args.Contains("--amend"))
+            {
+                this.harmonize.WriteLine("Running amending commit tasks.");
+                using (var repo = new Repository(this.harmonize.TargetPath))
+                {
+                    await PreResetHandler.DoResetTasks(
+                        this.harmonize,
+                        repo,
+                        new Commit[] { repo.Head.Tip });
+                }
+            }
+
+            DoCommitTasks();
+            return true;
+        }
+
+        private void DoCommitTasks()
+        {
             this.harmonize.SyncConfigToParentShas();
             this.harmonize.UpdatePathingConfig(trim: true);
             using (var repo = new Repository(this.harmonize.TargetPath))
@@ -31,7 +49,6 @@ namespace HarmonizeGitHooks
                 Commands.Stage(repo, HarmonizeGitBase.HarmonizeConfigPath);
                 Commands.Stage(repo, HarmonizeGitBase.HarmonizePathingPath);
             }
-            return true;
         }
     }
 }
