@@ -162,7 +162,8 @@ namespace HarmonizeGitHooks
                         foreach (var childRepoPath in usages.Select((u) => u.ChildRepoPath).Distinct())
                         {
                             cmd.CommandText = $@"INSERT OR IGNORE INTO {CHILD_IDENTITY_TABLE} ({PATH}) 
-                                        VALUES ('{childRepoPath}');";
+                                        SELECT '{childRepoPath}'
+                                        WHERE NOT EXISTS(SELECT 1 FROM {CHILD_IDENTITY_TABLE} WHERE {PATH} = '{childRepoPath}');";
                             await cmd.ExecuteNonQueryAsync();
                         }
 
@@ -170,7 +171,8 @@ namespace HarmonizeGitHooks
                         foreach (var parentRef in usages.Select((u) => u.ParentSha).Distinct())
                         {
                             cmd.CommandText = $@"INSERT OR IGNORE INTO {PARENT_TABLE} ({SHA}) 
-                                        VALUES ('{parentRef}');";
+                                        SELECT '{parentRef}'
+                                        WHERE NOT EXISTS(SELECT 1 FROM {PARENT_TABLE} WHERE {SHA} = '{parentRef}')";
                             await cmd.ExecuteNonQueryAsync();
                         }
                     }
