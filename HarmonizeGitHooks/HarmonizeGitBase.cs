@@ -53,6 +53,7 @@ namespace HarmonizeGitHooks
                     break;
                 case "post-commit":
                 case "post-cherry-pick":
+                case "post-merge":
                     handler = new PostCommitHandler(this);
                     break;
                 case "post-status":
@@ -60,6 +61,9 @@ namespace HarmonizeGitHooks
                     break;
                 case "post-take":
                     handler = new TakeHandler(this);
+                    break;
+                case "pre-rebase":
+                    handler = new PreRebaseHandler(this);
                     break;
                 default:
                     return true;
