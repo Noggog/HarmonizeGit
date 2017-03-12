@@ -11,16 +11,17 @@ namespace HarmonizeGitHooks
     {
         public static IEnumerable<Commit> GetPotentiallyStrandedCommits(
             this Repository repo,
-            string targetSha)
+            Commit tip,
+            Commit ancestor)
         {
             Queue<Commit> toDo = new Queue<Commit>();
-            toDo.Enqueue(repo.Head.Tip);
+            toDo.Enqueue(tip);
             HashSet<string> processedShas = new HashSet<string>();
             while (toDo.Count > 0)
             {
                 var item = toDo.Dequeue();
                 // If we reached our target commit, we're done
-                if (targetSha.Equals(item.Sha)) continue;
+                if (ancestor.Sha.Equals(item.Sha)) continue;
                 // If we've already processed, short circuit
                 if (!processedShas.Add(item.Sha)) continue;
                 // If another branch contains this commit, it's safe

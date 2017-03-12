@@ -23,33 +23,55 @@ namespace HarmonizeGitHooks
                 return false;
             }
 
+            List<string> strandedCommitShas;
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
                 var targetBranch = repo.Branches[args[0]];
                 if (targetBranch == null)
                 {
-                    this.harmonize.WriteLine($"Target branch {args[0]} could not be found.");
+                    harmonize.WriteLine($"Target branch {args[0]} could not be found.");
                     return false;
                 }
-                var divergence = repo.ObjectDatabase.CalculateHistoryDivergence(repo.Head.Tip, targetBranch.Tip);
-                var ancestor = divergence.CommonAncestor;
-                if (ancestor == null)
-                {
-                    this.harmonize.WriteLine("No common ancestor found.");
-                    return false;
-                }
-
-                this.harmonize.WriteLine("Getting stranded commits: ");
-                var strandedCommits = repo.GetPotentiallyStrandedCommits(ancestor.Sha);
-                foreach (var commit in strandedCommits)
-                {
-                    this.harmonize.WriteLine($"   {commit.Sha} -- {commit.MessageShort}");
-                }
-                return await PreResetHandler.DoResetTasks(
+                if (!GetStrandedCommits(
                     this.harmonize,
                     repo,
-                    strandedCommits);
+                    repo.Head.Tip,
+                    targetBranch.Tip,
+                    out IEnumerable<Commit> strandedCommits)) return false;
+
+                strandedCommitShas = strandedCommits.Select((c) => c.Sha).ToList();
             }
+
+            return await PreResetHandler.BlockIfChildrenAreUsing(
+                this.harmonize,
+                strandedCommitShas);
+        }
+
+        public static bool GetStrandedCommits(
+            HarmonizeGitBase harmonize,
+            Repository repo,
+            Commit tipCommit,
+            Commit targetCommit,
+            out IEnumerable<Commit> strandedCommits)
+        {
+            var divergence = repo.ObjectDatabase.CalculateHistoryDivergence(tipCommit, targetCommit);
+            var ancestor = divergence.CommonAncestor;
+            if (ancestor == null)
+            {
+                harmonize.WriteLine("No common ancestor found.");
+                strandedCommits = null;
+                return false;
+            }
+
+            harmonize.WriteLine($"Getting stranded commits between {tipCommit.Sha} and {ancestor.Sha}");
+            strandedCommits = repo.GetPotentiallyStrandedCommits(
+                tipCommit,
+                ancestor);
+            foreach (var commit in strandedCommits)
+            {
+                harmonize.WriteLine($"   {commit.Sha} -- {commit.MessageShort}");
+            }
+            return true;
         }
     }
 }

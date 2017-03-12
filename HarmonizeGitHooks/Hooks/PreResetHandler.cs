@@ -24,7 +24,15 @@ namespace HarmonizeGitHooks
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
                 this.harmonize.WriteLine("Getting stranded commits: ");
-                strandedCommits = repo.GetPotentiallyStrandedCommits(targetSha).ToList();
+                Commit targetCommit = repo.Lookup<Commit>(targetSha);
+                if (targetCommit == null)
+                {
+                    this.harmonize.WriteLine($"Target reset commit did not exist: {targetSha}");
+                }
+
+                strandedCommits = repo.GetPotentiallyStrandedCommits(
+                    repo.Head.Tip,
+                    targetCommit).ToList();
                 foreach (var commit in strandedCommits)
                 {
                     this.harmonize.WriteLine($"   {commit.Sha} -- {commit.MessageShort}");
@@ -34,13 +42,12 @@ namespace HarmonizeGitHooks
             }
         }
 
-        public static async Task<bool> DoResetTasks(
+        public static async Task<bool> BlockIfChildrenAreUsing(
             HarmonizeGitBase harmonize,
-            Repository repo,
-            IEnumerable<Commit> strandedCommits)
+            IEnumerable<string> strandedCommitShas)
         {
             // See if children are using stranded commits
-            var childUsages = await harmonize.ChildLoader.GetChildUsages(strandedCommits.Select((c) => c.Sha), 10);
+            var childUsages = await harmonize.ChildLoader.GetChildUsages(strandedCommitShas, 10);
             if (childUsages.Item2.Count > 0)
             {
                 #region Print
@@ -59,7 +66,14 @@ namespace HarmonizeGitHooks
                 #endregion
                 return false;
             }
+            return true;
+        }
 
+        public static async Task RemoveFromParentDatabase(
+            HarmonizeGitBase harmonize,
+            Repository repo,
+            IEnumerable<Commit> strandedCommits)
+        {
             // Unregister lost commits from parents
             if (harmonize.Config != null)
             {
@@ -78,6 +92,15 @@ namespace HarmonizeGitHooks
             {
                 harmonize.WriteLine("No config.  Skipping unregister step.");
             }
+        }
+
+        public static async Task<bool> DoResetTasks(
+            HarmonizeGitBase harmonize,
+            Repository repo,
+            IEnumerable<Commit> strandedCommits)
+        {
+            if (!(await BlockIfChildrenAreUsing(harmonize, strandedCommits.Select((c) => c.Sha)))) return false;
+            await RemoveFromParentDatabase(harmonize, repo, strandedCommits);
             return true;
         }
     }

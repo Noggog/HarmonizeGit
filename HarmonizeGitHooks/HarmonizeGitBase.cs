@@ -54,8 +54,6 @@ namespace HarmonizeGitHooks
                 case "post-commit":
                 case "post-cherry-pick":
                 case "post-merge":
-                case "post-rebase-continue":
-                case "post-rebase":
                     handler = new PostCommitHandler(this);
                     break;
                 case "post-status":
@@ -67,8 +65,9 @@ namespace HarmonizeGitHooks
                 case "pre-rebase":
                     handler = new PreRebaseHandler(this);
                     break;
-                case "post-rebase-abort":
-                    handler = new PostRebaseAbortHandler(this);
+                case "post-rebase-continue":
+                case "post-rebase":
+                    handler = new PostRebaseHandler(this);
                     break;
                 default:
                     return true;

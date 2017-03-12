@@ -73,29 +73,47 @@ namespace HarmonizeGitHooks
             {
                 foreach (var commit in childRepo.Commits)
                 {
-                    var config = HarmonizeConfig.Factory(
-                        harmonize,
-                        childRepoPath,
-                        commit);
-                    if (config == null) continue;
-                    var parentListing = config.ParentRepos.Where(
-                        (listing) =>
-                        {
-                            FileInfo listingPath = new FileInfo(listing.Path);
-                            return object.Equals(listingPath.FullName, parentRepoPath);
-                        }).FirstOrDefault();
-                    if (parentListing == null) continue;
-                    usages.Add(
-                        new ChildUsage()
-                        {
-                            Sha = commit.Sha,
-                            ParentSha = parentListing.Sha,
-                            ChildRepoPath = childRepoPath,
-                            ParentRepoPath = parentRepoPath
-                        });
+                    var parentUsage = GetUsages(
+                        childRepo,
+                        commit)
+                        .Where((usage) => usage.ParentRepoPath.Equals(parentRepoPath))
+                        .FirstOrDefault();
+                    if (parentUsage != null)
+                    {
+                        usages.Add(parentUsage);
+                    }
                 }
             }
             return usages;
+        }
+
+        public IEnumerable<ChildUsage> GetUsages(
+            Repository repo,
+            Commit commit)
+        {
+            var config = HarmonizeConfig.Factory(
+                harmonize,
+                repo.Info.WorkingDirectory,
+                commit);
+            if (config == null) yield break;
+            foreach (var parentListing in config.ParentRepos)
+            {
+                yield return new ChildUsage()
+                {
+                    Sha = commit.Sha,
+                    ParentSha = parentListing.Sha,
+                    ChildRepoPath = repo.Info.WorkingDirectory,
+                    ParentRepoPath = parentListing.Path
+                };
+            }
+        }
+
+        public IEnumerable<ChildUsage> GetUsages(
+            Repository repo,
+            IEnumerable<Commit> commits)
+        {
+            return commits.SelectMany(
+                (commit) => GetUsages(repo, commit));
         }
 
         private string GetDBPath(string pathToRepo)
@@ -152,6 +170,7 @@ namespace HarmonizeGitHooks
             string pathToRepo,
             IEnumerable<ChildUsage> usages)
         {
+            this.harmonize.WriteLine($"Inserting child usages into {pathToRepo}");
             using (var conn = await GetConnection(pathToRepo))
             {
                 using (var transaction = conn.BeginTransaction())
@@ -189,6 +208,7 @@ namespace HarmonizeGitHooks
                             {
                                 throw new ArgumentException("Sha length was not 40 characters: " + usage.Sha);
                             }
+                            this.harmonize.WriteLine($"   {usage.Sha} using {usage.ParentSha}");
                             // Usages
                             cmd.CommandText = $@"INSERT OR IGNORE INTO {USAGE_TABLE} ({PARENT_ID}, {IDENTITY_ID}, {SHA}) 
                                         VALUES (
@@ -214,6 +234,7 @@ namespace HarmonizeGitHooks
             string pathToRepo,
             IEnumerable<ChildUsage> usages)
         {
+            this.harmonize.WriteLine($"Removing child usages from {pathToRepo}");
             using (var conn = await GetConnection(pathToRepo))
             {
                 using (var transaction = conn.BeginTransaction())
@@ -222,6 +243,7 @@ namespace HarmonizeGitHooks
                     {
                         foreach (var usage in usages)
                         {
+                            this.harmonize.WriteLine($"   {usage.Sha} used {usage.ParentSha}");
                             // Usages
                             cmd.CommandText = $@"DELETE FROM {USAGE_TABLE}
                                         WHERE {SHA} = '{usage.Sha}' 

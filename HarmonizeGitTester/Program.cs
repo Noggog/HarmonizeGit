@@ -33,17 +33,9 @@ namespace HarmonizeGitTester
 
         public static async Task Run()
         {
-            List<Task> t = new List<Task>();
-            for (int i = 0; i < 100; i++)
-            {
-                t.Add(Task.Run(async () =>
-                {
-                    var harmonize = new HarmonizeGitBase("C:\\Users\\Noggog\\Documents\\Noggolloquy");
-                    await harmonize.Handle(
-                       new string[] { "post-status", "status" });
-                }));
-            }
-            await Task.WhenAll(t);
+            var harmonize = new HarmonizeGitBase("D:\\Dropbox-Real\\Dropbox\\Harmonize-Child-Repo");
+            await harmonize.Handle(
+               new string[] { "pre-rebase-abort", "rebase", "--abort" });
         }
     }
 }
