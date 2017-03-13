@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp;
+﻿using FishingWithGit;
+using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,39 +10,17 @@ namespace HarmonizeGitHooks
 {
     class CheckoutHandler : TypicalHandlerBase
     {
-        string curSha;
-        string targetSha;
-
         public CheckoutHandler(HarmonizeGitBase harmonize)
             : base(harmonize)
         {
         }
 
-        private void ParseArgs(List<string> args)
+        public override async Task<bool> Handle(string[] args)
         {
-            if (args.Count < 2)
-            {
-                throw new ArgumentException("Checkout args were shorter than expected: " + args.Count);
-            }
-
-            this.curSha = args[0];
-            this.targetSha = args[1];
-            if (curSha.Length != 40)
-            {
-                throw new ArgumentException("Checkout args for current sha was shorter than expected: " + curSha.Length);
-            }
-            if (targetSha.Length != 40)
-            {
-                throw new ArgumentException("Checkout args for target sha was shorter than expected: " + targetSha.Length);
-            }
-        }
-
-        public override async Task<bool> Handle(List<string> args)
-        {
-            ParseArgs(args);
+            var checkoutArgs = new CheckoutArgs(args);
 
             // If moving to the same commit, just exit
-            if (curSha.Equals(targetSha))
+            if (checkoutArgs.CurrentSha.Equals(checkoutArgs.TargetSha))
             {
                 this.harmonize.WriteLine("Target commit was the same as the source commit.");
                 return true;
@@ -58,7 +37,7 @@ namespace HarmonizeGitHooks
                 return false;
             }
             
-            harmonize.SyncParentReposToSha(targetSha);
+            harmonize.SyncParentReposToSha(checkoutArgs.TargetSha);
             return true;
         }
     }

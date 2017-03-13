@@ -99,7 +99,7 @@ namespace HarmonizeGitHooks
             {
                 trimmedArgs.Add(args[i]);
             }
-            return await handler.Handle(trimmedArgs);
+            return await handler.Handle(trimmedArgs.ToArray());
         }
 
         public void WriteLine(string line)

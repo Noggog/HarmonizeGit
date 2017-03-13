@@ -15,7 +15,7 @@ namespace HarmonizeGitHooks
             this.NeedsConfig = false;
         }
 
-        public override async Task<bool> Handle(List<string> args)
+        public override async Task<bool> Handle(string[] args)
         {
             var curBranch = args[0];
             var targetSha = args[1];

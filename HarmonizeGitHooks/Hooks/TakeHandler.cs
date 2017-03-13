@@ -14,7 +14,7 @@ namespace HarmonizeGitHooks
         {
         }
 
-        public override async Task<bool> Handle(List<string> args)
+        public override async Task<bool> Handle(string[] args)
         {
             this.harmonize.SyncParentRepos();
             return true;

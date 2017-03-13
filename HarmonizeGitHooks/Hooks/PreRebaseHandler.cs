@@ -15,9 +15,9 @@ namespace HarmonizeGitHooks
             this.NeedsConfig = false;
         }
 
-        public override async Task<bool> Handle(List<string> args)
+        public override async Task<bool> Handle(string[] args)
         {
-            if (args.Count < 1)
+            if (args.Length < 1)
             {
                 this.harmonize.WriteLine("No branch name argument.");
                 return false;
