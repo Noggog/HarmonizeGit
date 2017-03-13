@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp;
+﻿using FishingWithGit;
+using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,17 +18,16 @@ namespace HarmonizeGitHooks
 
         public override async Task<bool> Handle(string[] args)
         {
-            var curBranch = args[0];
-            var targetSha = args[1];
+            ResetArgs resetArgs = new ResetArgs(args);
 
             List<Commit> strandedCommits;
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
                 this.harmonize.WriteLine("Getting stranded commits: ");
-                Commit targetCommit = repo.Lookup<Commit>(targetSha);
+                Commit targetCommit = repo.Lookup<Commit>(resetArgs.TargetSha);
                 if (targetCommit == null)
                 {
-                    this.harmonize.WriteLine($"Target reset commit did not exist: {targetSha}");
+                    this.harmonize.WriteLine($"Target reset commit did not exist: {resetArgs.TargetSha}");
                 }
 
                 strandedCommits = repo.GetPotentiallyStrandedCommits(
