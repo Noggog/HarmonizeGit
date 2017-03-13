@@ -156,7 +156,9 @@ namespace HarmonizeGitHooks
             using (var repo = new Repository(repoListing.Path))
             {
                 if (!repo.RetrieveStatus().IsDirty) return false;
-                if (repo.RetrieveStatus(HarmonizeConfigPath) == FileStatus.Unaltered) return true;
+                var status = repo.RetrieveStatus(HarmonizeConfigPath);
+                if (status == FileStatus.Unaltered
+                    || status == FileStatus.Nonexistent) return true;
             }
             this.WriteLine($"{repoListing.Nickname}'s config was dirty.  Refreshing it and trying again.");
             var parentConfig = ConfigLoader.GetConfig(repoListing.Path);
