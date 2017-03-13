@@ -78,15 +78,16 @@ namespace HarmonizeGitHooks
             if (harmonize.Config != null)
             {
                 harmonize.WriteLine("Removing lost commits from parent databases.");
-                foreach (var commit in strandedCommits)
-                {
-                    await harmonize.ChildLoader.RemoveChildEntries(
-                        harmonize.ChildLoader.GetConfigUsages(
+                var usages = strandedCommits.SelectMany(
+                    (commit) =>
+                    {
+                        return harmonize.ChildLoader.GetConfigUsages(
                             harmonize.ConfigLoader.GetConfigFromRepo(
                                 repo,
                                 commit),
-                            commit.Sha));
-                }
+                            commit.Sha);
+                    });
+                await harmonize.ChildLoader.RemoveChildEntries(usages);
             }
             else
             {
