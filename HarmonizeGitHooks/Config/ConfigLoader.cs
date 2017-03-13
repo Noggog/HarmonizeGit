@@ -165,14 +165,14 @@ namespace HarmonizeGitHooks
             try
             {
                 FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizePathingPath);
-            if (!file.Exists)
-            {
-                return new PathingConfig();
-            }
+                if (!file.Exists)
+                {
+                    return new PathingConfig();
+                }
 
-            using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
-            {
-                return PathingConfig.Factory(stream);
+                using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
+                {
+                    return PathingConfig.Factory(stream);
                 }
             }
             finally
@@ -193,6 +193,10 @@ namespace HarmonizeGitHooks
             using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
             {
                 config = PathingConfig.Factory(stream);
+                foreach (var listing in config.Paths)
+                {
+                    harmonize.WriteLine($"{listing.Nickname} set to path {listing.Path}.");
+                }
                 return true;
             }
         }
@@ -249,7 +253,7 @@ namespace HarmonizeGitHooks
             if (object.Equals(config.Pathing.OriginalXML, xmlStr)) return;
 
             this.harmonize.WriteLine("Writing pathing update");
-            
+
             configSyncer.WaitOne();
             try
             {

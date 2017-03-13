@@ -47,10 +47,6 @@ namespace HarmonizeGitHooks
             }
 
             ret.SetPathing(pathing, addMissing: true);
-            foreach (var listing in ret.ParentRepos)
-            {
-                harmonize.WriteLine($"{listing.Nickname} set to path {listing.Path}.");
-            }
             return ret;
         }
 
