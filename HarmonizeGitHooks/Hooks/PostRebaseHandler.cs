@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp;
+﻿using FishingWithGit;
+using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,19 +18,20 @@ namespace HarmonizeGitHooks
 
         public override async Task<bool> Handle(string[] args)
         {
+            var rebaseArgs = new RebaseInProgressArgs(args);
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
-                var originalCommit = repo.Lookup<Commit>(args[0]);
+                var originalCommit = repo.Lookup<Commit>(rebaseArgs.OriginalSha);
                 if (originalCommit == null)
                 {
-                    harmonize.WriteLine($"Original commit {args[0]} could not be found.");
+                    harmonize.WriteLine($"Original commit {rebaseArgs.OriginalSha} could not be found.");
                     return false;
                 }
 
-                var targetCommit = repo.Lookup<Commit>(args[1]);
+                var targetCommit = repo.Lookup<Commit>(rebaseArgs.TargetSha);
                 if (targetCommit == null)
                 {
-                    harmonize.WriteLine($"Target commit {args[1]} could not be found.");
+                    harmonize.WriteLine($"Target commit {rebaseArgs.TargetSha} could not be found.");
                     return false;
                 }
 

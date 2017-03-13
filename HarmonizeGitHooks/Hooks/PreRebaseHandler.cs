@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp;
+﻿using FishingWithGit;
+using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,19 +18,15 @@ namespace HarmonizeGitHooks
 
         public override async Task<bool> Handle(string[] args)
         {
-            if (args.Length < 1)
-            {
-                this.harmonize.WriteLine("No branch name argument.");
-                return false;
-            }
+            var rebaseArgs = new RebaseArgs(args);
 
             List<string> strandedCommitShas;
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
-                var targetBranch = repo.Branches[args[0]];
+                var targetBranch = repo.Branches[rebaseArgs.TargetBranch];
                 if (targetBranch == null)
                 {
-                    harmonize.WriteLine($"Target branch {args[0]} could not be found.");
+                    harmonize.WriteLine($"Target branch {rebaseArgs.TargetBranch} could not be found.");
                     return false;
                 }
                 if (!GetStrandedCommits(

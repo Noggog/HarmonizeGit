@@ -2,10 +2,10 @@
   <ParentRepos>
     <RepoListing>
       <Nickname>FishingWithGit</Nickname>
-      <Sha>261005e03b07a2c311495a13fa03829e04ec85fa</Sha>
-      <Description>CheckoutArgs</Description>
+      <Sha>3246d2f824f11aac6324341fcfdf18f0ebc628c4</Sha>
+      <Description>Rebase args</Description>
       <Author>Justin Swanson</Author>
-      <CommitDate>03-12-2017 22:21:25</CommitDate>
+      <CommitDate>03-12-2017 23:23:24</CommitDate>
     </RepoListing>
   </ParentRepos>
 </HarmonizeConfig>
