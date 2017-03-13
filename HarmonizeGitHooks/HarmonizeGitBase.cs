@@ -288,6 +288,7 @@ namespace HarmonizeGitHooks
             {
                 throw new ArgumentException($"Found circular configurations:" + Environment.NewLine + ret);
             }
+            this.WriteLine("No circular configs detected.");
         }
 
         private string CheckCircular(ImmutableHashSet<string> paths, string targetPath)

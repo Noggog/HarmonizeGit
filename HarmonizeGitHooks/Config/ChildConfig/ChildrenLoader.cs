@@ -37,6 +37,7 @@ namespace HarmonizeGitHooks
                     {
                         FileInfo dbPath = new FileInfo(GetDBPath(parentRepo.Path));
                         if (dbPath.Exists) return;
+                        this.harmonize.WriteLine($"Initilizing into parent: {parentRepo.Path}");
                         dbSyncer.WaitOne();
                         try
                         {
@@ -49,6 +50,7 @@ namespace HarmonizeGitHooks
                         {
                             dbSyncer.Set();
                         }
+                        this.harmonize.WriteLine($"Initilized into parent: {parentRepo.Path}");
                     }));
         }
 
@@ -58,9 +60,11 @@ namespace HarmonizeGitHooks
         {
             var parentRepoFile = new FileInfo(parentRepoPath);
             parentRepoPath = parentRepoFile.FullName;
+            this.harmonize.WriteLine("Getting seed usages.");
             var usages = await GetUsages(
                 parentRepoPath,
                 childRepoPath);
+            this.harmonize.WriteLine("Got seed usages.");
             await InsertChildEntries(usages);
         }
 

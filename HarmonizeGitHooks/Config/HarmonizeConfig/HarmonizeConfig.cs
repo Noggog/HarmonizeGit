@@ -59,7 +59,6 @@ namespace HarmonizeGitHooks
             var blob = entry?.Target as Blob;
             if (blob == null)
             {
-                harmonize.WriteLine("No harmonize config at target commit.  Exiting without syncing.");
                 return null;
             }
 

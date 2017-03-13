@@ -33,9 +33,9 @@ namespace HarmonizeGitTester
 
         public static async Task Run()
         {
-            var harmonize = new HarmonizeGitBase("D:\\Dropbox-Real\\Dropbox\\Harmonize-Child-Repo");
+            var harmonize = new HarmonizeGitBase("C:\\Users\\Leviathan1753\\Documents\\HarmonizeGit");
             await harmonize.Handle(
-               new string[] { "pre-rebase-abort", "rebase", "--abort" });
+               new string[] { "post-status", "status" });
         }
     }
 }
