@@ -2,10 +2,10 @@
   <ParentRepos>
     <RepoListing>
       <Nickname>FishingWithGit</Nickname>
-      <Sha>f836ee96790d20c2d8082187d02d095e00a00fd2</Sha>
-      <Description>Missing await on delay tracker</Description>
+      <Sha>7af8810e90c247515571febe86da7d81b8b7cd4b</Sha>
+      <Description>HookType refactored to common library</Description>
       <Author>Justin Swanson</Author>
-      <CommitDate>03-12-2017 20:48:40</CommitDate>
+      <CommitDate>03-12-2017 21:47:04</CommitDate>
     </RepoListing>
   </ParentRepos>
 </HarmonizeConfig>

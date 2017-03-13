@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp;
+﻿using FishingWithGit;
+using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -36,37 +37,39 @@ namespace HarmonizeGitHooks
         {
             if (args.Length < 2) return true;
 
+            if (!HookTypeExt.TryGetHook(args[0], out HookType hookType)) return true;
+
             TypicalHandlerBase handler;
-            switch (args[0])
+            switch (hookType)
             {
-                case "pre-checkout":
+                case HookType.Pre_Checkout:
                     handler = new CheckoutHandler(this);
                     break;
-                case "pre-reset":
+                case HookType.Pre_Reset:
                     handler = new PreResetHandler(this);
                     break;
-                case "post-reset":
+                case HookType.Post_Reset:
                     handler = new PostResetHandler(this);
                     break;
-                case "pre-commit":
+                case HookType.Pre_Commit:
                     handler = new PreCommitHandler(this);
                     break;
-                case "post-commit":
-                case "post-cherry-pick":
-                case "post-merge":
+                case HookType.Post_Commit:
+                case HookType.Post_CherryPick:
+                case HookType.Post_Merge:
                     handler = new PostCommitHandler(this);
                     break;
-                case "post-status":
+                case HookType.Post_Status:
                     handler = new StatusHandler(this);
                     break;
-                case "post-take":
+                case HookType.Post_Take:
                     handler = new TakeHandler(this);
                     break;
-                case "pre-rebase":
+                case HookType.Pre_Rebase:
                     handler = new PreRebaseHandler(this);
                     break;
-                case "post-rebase-continue":
-                case "post-rebase":
+                case HookType.Post_Rebase_Continue:
+                case HookType.Post_Rebase:
                     handler = new PostRebaseHandler(this);
                     break;
                 default:

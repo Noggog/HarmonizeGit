@@ -111,6 +111,12 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\FishingWithGit\FishingWithGit.Common\FishingWithGit.Common.csproj">
+      <Project>{a99553e3-d288-482a-9bc8-ae0bf4f32acf}</Project>
+      <Name>FishingWithGit.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
