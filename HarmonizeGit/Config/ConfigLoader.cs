@@ -102,24 +102,9 @@ namespace HarmonizeGit
             }
         }
 
-        private bool WriteConfig(HarmonizeConfig config, string path)
+        public bool WriteConfig(HarmonizeConfig config, string path)
         {
-            string xmlStr;
-            XmlSerializer xsSubmit = new XmlSerializer(typeof(HarmonizeConfig));
-            var settings = new XmlWriterSettings()
-            {
-                Indent = true,
-                OmitXmlDeclaration = true
-            };
-            var emptyNs = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
-            using (var sw = new StringWriter())
-            {
-                using (XmlWriter writer = XmlWriter.Create(sw, settings))
-                {
-                    xsSubmit.Serialize(writer, config, emptyNs);
-                    xmlStr = sw.ToString();
-                }
-            }
+            var xmlStr = config.GetXmlStr();
 
             if (object.Equals(config.OriginalXML, xmlStr)) return false;
 
@@ -235,7 +220,7 @@ namespace HarmonizeGit
 
             using (this.harmonize.LockManager.GetLock(LockType.Pathing, this.harmonize.TargetPath))
             {
-                File.WriteAllText(HarmonizeGitBase.HarmonizePathingPath, xmlStr);
+                File.WriteAllText(Path.Combine(this.harmonize.TargetPath, HarmonizeGitBase.HarmonizePathingPath), xmlStr);
             }
         }
         #endregion

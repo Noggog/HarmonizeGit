@@ -73,6 +73,26 @@ namespace HarmonizeGit
             }
         }
 
+        public string GetXmlStr()
+        {
+            string xmlStr;
+            XmlSerializer xsSubmit = new XmlSerializer(typeof(HarmonizeConfig));
+            var settings = new XmlWriterSettings()
+            {
+                Indent = true,
+                OmitXmlDeclaration = true
+            };
+            var emptyNs = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
+            using (var sw = new StringWriter())
+            {
+                using (XmlWriter writer = XmlWriter.Create(sw, settings))
+                {
+                    xsSubmit.Serialize(writer, this, emptyNs);
+                    xmlStr = sw.ToString();
+                }
+            }
+            return xmlStr;
+        }
 
         public bool SetPathing(PathingConfig pathing, bool addMissing = true)
         {

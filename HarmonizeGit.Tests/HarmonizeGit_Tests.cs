@@ -18,6 +18,7 @@ namespace HarmonizeGit.Tests
             return gitBase;
         }
 
+        #region IsDirty
         [Fact]
         public void IsDirty_Normal()
         {
@@ -57,7 +58,7 @@ namespace HarmonizeGit.Tests
             }
         }
 
-       [Fact]
+        [Fact]
         public void IsDirty_OnlyConfig_Include()
         {
             using (var repo = Repository_Tools.GetStandardRepo())
@@ -82,5 +83,32 @@ namespace HarmonizeGit.Tests
                 Assert.False(gitBase.IsDirty(excludeHarmonizeConfig: true, regenerateConfig: false));
             }
         }
+        #endregion
+
+        #region GetReposWithUncommittedChanges
+        [Fact]
+        public void GetReposWithUncommittedChanges_NoChanges()
+        {
+            using (var checkout = Repository_Tools.GetStandardConfigCheckout())
+            {
+                Assert.Empty(checkout.Harmonize.GetReposWithUncommittedChanges());
+            }
+        }
+
+        [Fact]
+        public void GetReposWithUncommittedChanges()
+        {
+            using (var checkout = Repository_Tools.GetStandardConfigCheckout())
+            {
+                var parentRepo = checkout.ParentRepos[0];
+                File.WriteAllText(
+                    Path.Combine(parentRepo.Dir.FullName, Repository_Tools.STANDARD_FILE),
+                    "Dirty changes");
+                var changes = checkout.Harmonize.GetReposWithUncommittedChanges();
+                Assert.Equal(1, changes.Count);
+                Assert.Equal(changes[0].Path, parentRepo.Dir.FullName);
+            }
+        }
+        #endregion
     }
 }

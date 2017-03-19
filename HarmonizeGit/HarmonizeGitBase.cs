@@ -82,8 +82,7 @@ namespace HarmonizeGit
 
             this.Silent = handler.Silent;
 
-            this.ConfigLoader.Init(this);
-            this.Config = ConfigLoader.GetConfig(this.TargetPath);
+            Init();
             if (this.Config == null)
             {
                 if (handler.NeedsConfig)
@@ -104,6 +103,12 @@ namespace HarmonizeGit
                 trimmedArgs.Add(args[i]);
             }
             return await handler.Handle(trimmedArgs.ToArray());
+        }
+
+        public void Init()
+        {
+            this.ConfigLoader.Init(this);
+            this.Config = ConfigLoader.GetConfig(this.TargetPath);
         }
 
         public void WriteLine(string line)
@@ -155,6 +160,7 @@ namespace HarmonizeGit
             return ret;
         }
 
+        #region IsDirty
         public bool IsDirty(bool excludeHarmonizeConfig = true, bool regenerateConfig = true)
         {
             return IsDirty(this.TargetPath, excludeHarmonizeConfig, regenerateConfig);
@@ -193,6 +199,7 @@ namespace HarmonizeGit
                 return false;
             }
         }
+        #endregion
 
         public void SyncConfigToParentShas()
         {

@@ -50,6 +50,37 @@ namespace HarmonizeGit.Tests
         }
     }
 
+    public class ConfigCheckout : IDisposable
+    {
+        public List<RepoCheckout> ParentRepos = new List<RepoCheckout>();
+        public RepoCheckout Repo;
+        public HarmonizeGitBase Harmonize;
+
+        public ConfigCheckout(
+            Repository repo)
+        {
+            this.Harmonize = new HarmonizeGitBase(repo.Info.WorkingDirectory);
+            this.Harmonize.Init();
+            this.Repo = new RepoCheckout(repo, new DirectoryInfo(repo.Info.WorkingDirectory));
+            foreach (var parent in this.Harmonize.Config.ParentRepos)
+            {
+                ParentRepos.Add(
+                    new RepoCheckout(
+                        new Repository(parent.Path),
+                        new DirectoryInfo(parent.Path)));
+            }
+        }
+
+        public void Dispose()
+        {
+            this.Repo.Dispose();
+            foreach (var repo in ParentRepos)
+            {
+                repo.Dispose();
+            }
+        }
+    }
+
     class Repository_Tools
     {
         public static DirectoryInfo GetTemporaryDirectory()
@@ -59,17 +90,23 @@ namespace HarmonizeGit.Tests
             return new DirectoryInfo(tempDirectory);
         }
 
-        public const string STANDARD_MERGE_BRANCH = "Merge";
-        public const string STANDARD_DETATCHED_BRANCH = "Detached";
-        public const string STANDARD_FILE = "Test.txt";
-
-        public static RepoCheckout GetStandardRepo()
+        public static Signature GetSignature()
         {
             var date = new DateTime(2016, 03, 10);
             var signature = new Signature(
                 "Justin Swanson",
                 "justin.c.swanson@gmail.com",
                 date);
+            return signature;
+        }
+
+        public const string STANDARD_MERGE_BRANCH = "Merge";
+        public const string STANDARD_DETATCHED_BRANCH = "Detached";
+        public const string STANDARD_FILE = "Test.txt";
+
+        public static RepoCheckout GetStandardRepo()
+        {
+            var signature = GetSignature();
             var dir = GetTemporaryDirectory();
             Repository.Init(dir.FullName);
             var repo = new Repository(dir.FullName);
@@ -117,5 +154,81 @@ namespace HarmonizeGit.Tests
                 dir);
         }
 
+        public static ConfigCheckout GetStandardConfigCheckout()
+        {
+            var signature = GetSignature();
+            var parentRepoDir = GetTemporaryDirectory();
+            Repository.Init(parentRepoDir.FullName);
+            var parentRepo = new Repository(parentRepoDir.FullName);
+            var parentFile = new FileInfo(Path.Combine(parentRepoDir.FullName, STANDARD_FILE));
+            File.WriteAllText(parentFile.FullName, "Testing123\n");
+            Commands.Stage(parentRepo, parentFile.FullName);
+            var firstParentCommit = parentRepo.Commit(
+                "First Commit",
+                signature,
+                signature);
+            File.WriteAllText(parentFile.FullName, "Testing456\n");
+            Commands.Stage(parentRepo, parentFile.FullName);
+            var secondCommit = parentRepo.Commit(
+                "Second Commit",
+                signature,
+                signature);
+            File.WriteAllText(parentFile.FullName, "Testing789\n");
+            Commands.Stage(parentRepo, parentFile.FullName);
+            var thirdCommit = parentRepo.Commit(
+                "Third Commit",
+                signature,
+                signature);
+            
+            var childRepoDir = GetTemporaryDirectory();
+            Repository.Init(childRepoDir.FullName);
+            var childRepo = new Repository(childRepoDir.FullName);
+            var harmonizeFile = new FileInfo(Path.Combine(childRepoDir.FullName, HarmonizeGitBase.HarmonizeConfigPath));
+            var parentListing = new RepoListing()
+            {
+                Nickname = "ParentRepo",
+                SuggestedPath = parentRepoDir.FullName,
+                Path = parentRepoDir.FullName,
+            };
+            HarmonizeConfig config = new HarmonizeConfig();
+            config.ParentRepos.Add(parentListing);
+
+            var childFile = new FileInfo(Path.Combine(childRepoDir.FullName, STANDARD_FILE));
+            File.WriteAllText(childFile.FullName, "Child123\n");
+            Commands.Stage(childRepo, childFile.FullName);
+            parentListing.SetToCommit(firstParentCommit);
+            File.WriteAllText(harmonizeFile.FullName, config.GetXmlStr());
+            Commands.Stage(childRepo, harmonizeFile.FullName);
+            childRepo.Commit(
+                "A Commit",
+                signature,
+                signature);
+            File.WriteAllText(childFile.FullName, "Child456\n");
+            Commands.Stage(childRepo, childFile.FullName);
+            parentListing.SetToCommit(secondCommit);
+            File.WriteAllText(harmonizeFile.FullName, config.GetXmlStr());
+            Commands.Stage(childRepo, harmonizeFile.FullName);
+            childRepo.Commit(
+                "A Commit",
+                signature,
+                signature);
+            File.WriteAllText(childFile.FullName, "Child789\n");
+            Commands.Stage(childRepo, childFile.FullName);
+            childRepo.Commit(
+                "A Commit",
+                signature,
+                signature);
+            File.WriteAllText(childFile.FullName, "Child101112\n");
+            Commands.Stage(childRepo, childFile.FullName);
+            parentListing.SetToCommit(thirdCommit);
+            File.WriteAllText(harmonizeFile.FullName, config.GetXmlStr());
+            Commands.Stage(childRepo, harmonizeFile.FullName);
+            childRepo.Commit(
+                "A Commit",
+                signature,
+                signature);
+
+            return new ConfigCheckout(childRepo);
+        }
     }
 }
