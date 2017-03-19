@@ -69,5 +69,12 @@ namespace HarmonizeGit
                 }
             }
         }
+
+        public static string Name(this Branch b)
+        {
+            var index = b.FriendlyName.IndexOf("/");
+            if (index == -1) return b.FriendlyName;
+            return b.FriendlyName.Substring(index + 1);
+        }
     }
 }

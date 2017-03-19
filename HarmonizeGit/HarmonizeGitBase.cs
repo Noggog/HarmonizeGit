@@ -47,7 +47,7 @@ namespace HarmonizeGit
             switch (hookType)
             {
                 case HookType.Pre_Checkout:
-                    handler = new CheckoutHandler(this);
+                    handler = new PreCheckoutHandler(this);
                     break;
                 case HookType.Pre_Reset:
                     handler = new PreResetHandler(this);

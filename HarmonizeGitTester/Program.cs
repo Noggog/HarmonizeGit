@@ -33,9 +33,9 @@ namespace HarmonizeGitTester
 
         public static async Task Run()
         {
-            var harmonize = new HarmonizeGitBase("C:\\Users\\Leviathan1753\\Documents\\HarmonizeGit");
+            var harmonize = new HarmonizeGitBase("D:\\Repos\\BlackInkCry");
             await harmonize.Handle(
-               new string[] { "post-status", "status" });
+               new string[] { "pre-checkout", "checkout", "6c865f86289e98798dbec7ab64bd72c5e12f8333", "ebba898d1fcae54c581c6d3fcb9b53b163c1ba56" });
         }
     }
 }

@@ -93,7 +93,7 @@
     <Compile Include="Hooks\PreResetHandler.cs" />
     <Compile Include="Hooks\TakeHandler.cs" />
     <Compile Include="Hooks\StatusHandler.cs" />
-    <Compile Include="Hooks\CheckoutHandler.cs" />
+    <Compile Include="Hooks\PreCheckoutHandler.cs" />
     <Compile Include="Hooks\PreCommitHandler.cs" />
     <Compile Include="Config\HarmonizeConfig\HarmonizeConfig.cs" />
     <Compile Include="HarmonizeGitBase.cs" />

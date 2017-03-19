@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace HarmonizeGit
 {
-    class CheckoutHandler : TypicalHandlerBase
+    class PreCheckoutHandler : TypicalHandlerBase
     {
-        public CheckoutHandler(HarmonizeGitBase harmonize)
+        public PreCheckoutHandler(HarmonizeGitBase harmonize)
             : base(harmonize)
         {
         }
