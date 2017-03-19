@@ -13,9 +13,6 @@ namespace HarmonizeGit
 {
     public class ConfigLoader
     {
-        public EventWaitHandle configSyncer = new EventWaitHandle(true, EventResetMode.AutoReset, "GIT_HARMONIZE_CONFIG_SYNCER");
-        public EventWaitHandle pathingSyncer = new EventWaitHandle(true, EventResetMode.AutoReset, "GIT_HARMONIZE_PATHING_SYNCER");
-        public EventWaitHandle gitIgnoreSyncer = new EventWaitHandle(true, EventResetMode.AutoReset, "GIT_HARMONIZE_GITIGNORE_SYNCER");
         public HarmonizeConfig Config;
         private HarmonizeGitBase harmonize;
         private Dictionary<string, HarmonizeConfig> configs = new Dictionary<string, HarmonizeConfig>();
@@ -59,11 +56,7 @@ namespace HarmonizeGit
 
         private HarmonizeConfig LoadConfig(string path)
         {
-            if (this.harmonize.FileLock)
-            {
-                configSyncer.WaitOne();
-            }
-            try
+            using (this.harmonize.LockManager.GetLock(LockType.Harmonize, path))
             {
                 this.harmonize.WriteLine($"Loading config at path {path}");
                 FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizeConfigPath);
@@ -76,13 +69,6 @@ namespace HarmonizeGit
                         path,
                         stream,
                         pathing);
-                }
-            }
-            finally
-            {
-                if (this.harmonize.FileLock)
-                {
-                    configSyncer.Set();
                 }
             }
         }
@@ -141,20 +127,9 @@ namespace HarmonizeGit
 
             this.harmonize.WriteLine($"Updating config at {path}");
 
-            if (this.harmonize.FileLock)
-            {
-                configSyncer.WaitOne();
-            }
-            try
+            using (this.harmonize.LockManager.GetLock(LockType.Harmonize, path))
             {
                 File.WriteAllText(path, xmlStr);
-            }
-            finally
-            {
-                if (this.harmonize.FileLock)
-                {
-                    configSyncer.Set();
-                }
             }
             return true;
         }
@@ -172,11 +147,7 @@ namespace HarmonizeGit
 
         private PathingConfig LoadPathing(string path)
         {
-            if (this.harmonize.FileLock)
-            {
-                pathingSyncer.WaitOne();
-            }
-            try
+            using (this.harmonize.LockManager.GetLock(LockType.Pathing, path))
             {
                 FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizePathingPath);
                 if (!file.Exists)
@@ -187,13 +158,6 @@ namespace HarmonizeGit
                 using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
                 {
                     return PathingConfig.Factory(stream);
-                }
-            }
-            finally
-            {
-                if (this.harmonize.FileLock)
-                {
-                    pathingSyncer.Set();
                 }
             }
         }
@@ -223,11 +187,8 @@ namespace HarmonizeGit
             string toAdd)
         {
             path = path + "/" + HarmonizeGitBase.GitIgnorePath;
-            if (this.harmonize.FileLock)
-            {
-                gitIgnoreSyncer.WaitOne();
-            }
-            try
+
+            using (this.harmonize.LockManager.GetLock(LockType.GitIgnore, path))
             {
                 FileInfo file = new FileInfo(path);
                 if (file.Exists)
@@ -243,13 +204,6 @@ namespace HarmonizeGit
                 else
                 {
                     File.WriteAllText(path, toAdd);
-                }
-            }
-            finally
-            {
-                if (this.harmonize.FileLock)
-                {
-                    gitIgnoreSyncer.Set();
                 }
             }
         }
@@ -279,20 +233,9 @@ namespace HarmonizeGit
 
             this.harmonize.WriteLine("Writing pathing update");
 
-            if (this.harmonize.FileLock)
-            {
-                configSyncer.WaitOne();
-            }
-            try
+            using (this.harmonize.LockManager.GetLock(LockType.Pathing, this.harmonize.TargetPath))
             {
                 File.WriteAllText(HarmonizeGitBase.HarmonizePathingPath, xmlStr);
-            }
-            finally
-            {
-                if (this.harmonize.FileLock)
-                {
-                    configSyncer.Set();
-                }
             }
         }
         #endregion

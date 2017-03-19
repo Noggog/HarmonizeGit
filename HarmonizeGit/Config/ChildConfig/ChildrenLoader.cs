@@ -21,7 +21,6 @@ namespace HarmonizeGit
         public const string ID = "ID";
         public const string PARENT_ID = "ParentID";
         public const string IDENTITY_ID = "IdentityID";
-        public EventWaitHandle dbSyncer = new EventWaitHandle(true, EventResetMode.AutoReset, "GIT_HARMONIZE_CHILDDB_SYNCER");
 
         public ChildrenLoader(HarmonizeGitBase harmonize)
         {
@@ -38,23 +37,12 @@ namespace HarmonizeGit
                         FileInfo dbPath = new FileInfo(GetDBPath(parentRepo.Path));
                         if (dbPath.Exists) return;
                         this.harmonize.WriteLine($"Initilizing into parent: {parentRepo.Path}");
-                        if (this.harmonize.FileLock)
-                        {
-                            dbSyncer.WaitOne();
-                        }
-                        try
+                        using (this.harmonize.LockManager.GetLock(LockType.Child, parentRepo.Path))
                         {
                             if (dbPath.Exists) return;
                             await CheckAndSeed(
                                 parentRepo.Path,
                                 harmonize.TargetPath);
-                        }
-                        finally
-                        {
-                            if (this.harmonize.FileLock)
-                            {
-                                dbSyncer.Set();
-                            }
                         }
                         this.harmonize.WriteLine($"Initilized into parent: {parentRepo.Path}");
                     }));

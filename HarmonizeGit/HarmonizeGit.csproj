@@ -82,6 +82,9 @@
     <Compile Include="Config\ChildConfig\ChildUsage.cs" />
     <Compile Include="Config\ConfigLoader.cs" />
     <Compile Include="Config\HarmonizeConfig\RepoListing.cs" />
+    <Compile Include="Config\Locking\FileLockCheckout.cs" />
+    <Compile Include="Config\Locking\LockManager.cs" />
+    <Compile Include="Config\Locking\LockType.cs" />
     <Compile Include="Config\PathingConfig\PathingConfig.cs" />
     <Compile Include="Config\PathingConfig\PathingListing.cs" />
     <Compile Include="Hooks\PostCommitHandler.cs" />
