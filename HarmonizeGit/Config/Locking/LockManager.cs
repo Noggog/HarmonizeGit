@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -29,7 +30,8 @@ namespace HarmonizeGit
             var lower = pathToRepo.ToLower();
             if (!dict.TryGetValue(lower, out EventWaitHandle handle))
             {
-                handle = new EventWaitHandle(true, EventResetMode.AutoReset, $"GIT_HARMONIZE_{type.ToString()}");
+                DirectoryInfo dir = new DirectoryInfo(pathToRepo);
+                handle = new EventWaitHandle(true, EventResetMode.AutoReset, $"GIT_HARMONIZE_{type.ToString()}_{dir.Name}");
                 dict[lower] = handle;
             }
 
