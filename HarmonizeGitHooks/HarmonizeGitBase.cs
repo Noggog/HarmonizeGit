@@ -30,9 +30,10 @@ namespace HarmonizeGitHooks
         public HarmonizeGitBase(string targetPath)
         {
             this.TargetPath = targetPath;
-            ChildLoader = new ChildrenLoader(this);
+            this.ChildLoader = new ChildrenLoader(this);
+            this.Config = new HarmonizeConfig();
         }
-        
+
         public async Task<bool> Handle(string[] args)
         {
             if (args.Length < 2) return true;
@@ -78,7 +79,7 @@ namespace HarmonizeGitHooks
 
             this.Silent = handler.Silent;
 
-            ConfigLoader.Init(this);
+            this.ConfigLoader.Init(this);
             this.Config = ConfigLoader.GetConfig(this.TargetPath);
             if (this.Config == null)
             {
@@ -138,7 +139,7 @@ namespace HarmonizeGitHooks
             List<RepoListing> ret = new List<RepoListing>();
             foreach (var repoListing in this.Config.ParentRepos)
             {
-                if (IsDirty(repoListing))
+                if (IsDirty(repoListing.Path))
                 {
                     this.WriteLine($"{repoListing.Nickname} was dirty.");
                     ret.Add(repoListing);
@@ -151,21 +152,42 @@ namespace HarmonizeGitHooks
             return ret;
         }
 
-        private bool IsDirty(RepoListing repoListing)
+        public bool IsDirty(bool excludeHarmonizeConfig = true, bool regenerateConfig = true)
         {
-            using (var repo = new Repository(repoListing.Path))
+            return IsDirty(this.TargetPath, excludeHarmonizeConfig, regenerateConfig);
+        }
+
+        public bool IsDirty(string path, bool excludeHarmonizeConfig = true, bool regenerateConfig = true)
+        {
+            using (var repo = new Repository(path))
             {
-                if (!repo.RetrieveStatus().IsDirty) return false;
-                var status = repo.RetrieveStatus(HarmonizeConfigPath);
-                if (status == FileStatus.Unaltered
-                    || status == FileStatus.Nonexistent) return true;
-            }
-            this.WriteLine($"{repoListing.Nickname}'s config was dirty.  Refreshing it and trying again.");
-            var parentConfig = ConfigLoader.GetConfig(repoListing.Path);
-            this.ConfigLoader.WriteSyncAndConfig(parentConfig, repoListing.Path);
-            using (var repo = new Repository(repoListing.Path))
-            {
-                return repo.RetrieveStatus().IsDirty;
+                var repoStatus = repo.RetrieveStatus();
+                if (!repoStatus.IsDirty) return false;
+
+                if (regenerateConfig)
+                {
+                    // Regenerate harmonize config, see if that cleans it
+                    var status = repo.RetrieveStatus(HarmonizeConfigPath);
+                    if (status == FileStatus.Unaltered
+                        || status == FileStatus.Nonexistent) return true;
+                    var parentConfig = ConfigLoader.GetConfig(path);
+                    this.ConfigLoader.WriteSyncAndConfig(parentConfig, path);
+                    repoStatus = repo.RetrieveStatus();
+                    if (!repoStatus.IsDirty) return false;
+                }
+
+                // If not excluding harmonize, it's just dirty
+                if (!excludeHarmonizeConfig) return true;
+
+                // See if it's just the harmonize config
+                foreach (var statusEntry in repoStatus)
+                {
+                    if (!statusEntry.FilePath.Equals(HarmonizeConfigPath))
+                    { // Wasn't just harmonize config, it's dirty
+                        return true;
+                    }
+                }
+                return false;
             }
         }
 
@@ -274,14 +296,6 @@ namespace HarmonizeGitHooks
                 if (targetConfig == null) return;
             }
             SyncParentRepos(targetConfig);
-        }
-
-        public bool IsDirty(bool excludeHarmonizeConfig = true)
-        {
-            using (var repo = new Repository(this.TargetPath))
-            {
-                return repo.RetrieveStatus().IsDirty;
-            }
         }
 
         public void CheckForCircularConfigs()

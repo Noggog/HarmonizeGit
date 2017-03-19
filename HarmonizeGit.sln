@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencie
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FishingWithGit.Common", "..\FishingWithGit\FishingWithGit.Common\FishingWithGit.Common.csproj", "{A99553E3-D288-482A-9BC8-AE0BF4F32ACF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HarmonizeGit.Tests", "HarmonizeGit.Tests\HarmonizeGit.Tests.csproj", "{AC08D4EA-B582-4A4A-9EE9-C859CD372591}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,6 +31,10 @@ Global
 		{A99553E3-D288-482A-9BC8-AE0BF4F32ACF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A99553E3-D288-482A-9BC8-AE0BF4F32ACF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A99553E3-D288-482A-9BC8-AE0BF4F32ACF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC08D4EA-B582-4A4A-9EE9-C859CD372591}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC08D4EA-B582-4A4A-9EE9-C859CD372591}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC08D4EA-B582-4A4A-9EE9-C859CD372591}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC08D4EA-B582-4A4A-9EE9-C859CD372591}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

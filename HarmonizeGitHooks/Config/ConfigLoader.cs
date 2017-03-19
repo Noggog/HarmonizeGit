@@ -34,8 +34,7 @@ namespace HarmonizeGitHooks
         public HarmonizeConfig GetConfig(string path)
         {
             path = path.Trim();
-            HarmonizeConfig ret;
-            if (configs.TryGetValue(path, out ret)) return ret;
+            if (configs.TryGetValue(path, out HarmonizeConfig ret)) return ret;
             ret = LoadConfig(path);
             configs[path] = ret;
             return ret;
@@ -45,11 +44,10 @@ namespace HarmonizeGitHooks
             Repository repo,
             Commit commit)
         {
-            HarmonizeConfig ret;
             var tuple = new Tuple<string, string>(
                 repo.Info.WorkingDirectory,
                 commit.Sha);
-            if (repoConfigs.TryGetValue(tuple, out ret)) return ret;
+            if (repoConfigs.TryGetValue(tuple, out HarmonizeConfig ret)) return ret;
             this.harmonize.WriteLine($"Loading config from repo at path {repo.Info.WorkingDirectory} at commit {commit.Sha} ");
             ret = HarmonizeConfig.Factory(
                 this.harmonize,
@@ -116,9 +114,11 @@ namespace HarmonizeGitHooks
         {
             string xmlStr;
             XmlSerializer xsSubmit = new XmlSerializer(typeof(HarmonizeConfig));
-            var settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.OmitXmlDeclaration = true;
+            var settings = new XmlWriterSettings()
+            {
+                Indent = true,
+                OmitXmlDeclaration = true
+            };
             var emptyNs = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
             using (var sw = new StringWriter())
             {
@@ -152,8 +152,7 @@ namespace HarmonizeGitHooks
         public PathingConfig GetPathing(string path)
         {
             path = path.Trim();
-            PathingConfig ret;
-            if (pathingConfigs.TryGetValue(path, out ret)) return ret;
+            if (pathingConfigs.TryGetValue(path, out PathingConfig ret)) return ret;
             ret = LoadPathing(path);
             pathingConfigs[path] = ret;
             return ret;
@@ -237,9 +236,11 @@ namespace HarmonizeGitHooks
 
             string xmlStr;
             XmlSerializer xsSubmit = new XmlSerializer(typeof(PathingConfig));
-            var settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.OmitXmlDeclaration = true;
+            var settings = new XmlWriterSettings()
+            {
+                Indent = true,
+                OmitXmlDeclaration = true
+            };
             var emptyNs = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
             using (var sw = new StringWriter())
             {
