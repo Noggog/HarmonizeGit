@@ -1,4 +1,4 @@
-﻿using HarmonizeGitHooks;
+﻿using HarmonizeGit;
 using LibGit2Sharp;
 using System;
 using System.Collections.Generic;

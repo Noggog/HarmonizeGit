@@ -70,9 +70,9 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HarmonizeGitHooks\HarmonizeGitHooks.csproj">
+    <ProjectReference Include="..\HarmonizeGit\HarmonizeGit.csproj">
       <Project>{8d8330ab-b1f9-4769-846e-5a606543dcaa}</Project>
-      <Name>HarmonizeGitHooks</Name>
+      <Name>HarmonizeGit</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

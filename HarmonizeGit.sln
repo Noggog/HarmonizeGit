@@ -1,10 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HarmonizeGitHooks", "HarmonizeGitHooks\HarmonizeGitHooks.csproj", "{8D8330AB-B1F9-4769-846E-5A606543DCAA}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HarmonizeGitTester", "HarmonizeGitTester\HarmonizeGitTester.csproj", "{68905849-C9A1-4CD7-B6CC-72A7B55869E2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{53233E8C-3868-4F6A-806B-C2122B76197E}"
@@ -13,16 +11,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FishingWithGit.Common", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HarmonizeGit.Tests", "HarmonizeGit.Tests\HarmonizeGit.Tests.csproj", "{AC08D4EA-B582-4A4A-9EE9-C859CD372591}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HarmonizeGit", "HarmonizeGit\HarmonizeGit.csproj", "{8D8330AB-B1F9-4769-846E-5A606543DCAA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8D8330AB-B1F9-4769-846E-5A606543DCAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8D8330AB-B1F9-4769-846E-5A606543DCAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8D8330AB-B1F9-4769-846E-5A606543DCAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8D8330AB-B1F9-4769-846E-5A606543DCAA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{68905849-C9A1-4CD7-B6CC-72A7B55869E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{68905849-C9A1-4CD7-B6CC-72A7B55869E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68905849-C9A1-4CD7-B6CC-72A7B55869E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -35,6 +31,10 @@ Global
 		{AC08D4EA-B582-4A4A-9EE9-C859CD372591}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AC08D4EA-B582-4A4A-9EE9-C859CD372591}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AC08D4EA-B582-4A4A-9EE9-C859CD372591}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D8330AB-B1F9-4769-846E-5A606543DCAA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D8330AB-B1F9-4769-846E-5A606543DCAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D8330AB-B1F9-4769-846E-5A606543DCAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D8330AB-B1F9-4769-846E-5A606543DCAA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
