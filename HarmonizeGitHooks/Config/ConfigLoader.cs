@@ -59,7 +59,10 @@ namespace HarmonizeGitHooks
 
         private HarmonizeConfig LoadConfig(string path)
         {
-            configSyncer.WaitOne();
+            if (this.harmonize.FileLock)
+            {
+                configSyncer.WaitOne();
+            }
             try
             {
                 this.harmonize.WriteLine($"Loading config at path {path}");
@@ -77,7 +80,10 @@ namespace HarmonizeGitHooks
             }
             finally
             {
-                configSyncer.Set();
+                if (this.harmonize.FileLock)
+                {
+                    configSyncer.Set();
+                }
             }
         }
 
@@ -135,14 +141,20 @@ namespace HarmonizeGitHooks
 
             this.harmonize.WriteLine($"Updating config at {path}");
 
-            configSyncer.WaitOne();
+            if (this.harmonize.FileLock)
+            {
+                configSyncer.WaitOne();
+            }
             try
             {
                 File.WriteAllText(path, xmlStr);
             }
             finally
             {
-                configSyncer.Set();
+                if (this.harmonize.FileLock)
+                {
+                    configSyncer.Set();
+                }
             }
             return true;
         }
@@ -160,7 +172,10 @@ namespace HarmonizeGitHooks
 
         private PathingConfig LoadPathing(string path)
         {
-            pathingSyncer.WaitOne();
+            if (this.harmonize.FileLock)
+            {
+                pathingSyncer.WaitOne();
+            }
             try
             {
                 FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizePathingPath);
@@ -176,7 +191,10 @@ namespace HarmonizeGitHooks
             }
             finally
             {
-                pathingSyncer.Set();
+                if (this.harmonize.FileLock)
+                {
+                    pathingSyncer.Set();
+                }
             }
         }
 
@@ -205,7 +223,10 @@ namespace HarmonizeGitHooks
             string toAdd)
         {
             path = path + "/" + HarmonizeGitBase.GitIgnorePath;
-            gitIgnoreSyncer.WaitOne();
+            if (this.harmonize.FileLock)
+            {
+                gitIgnoreSyncer.WaitOne();
+            }
             try
             {
                 FileInfo file = new FileInfo(path);
@@ -226,7 +247,10 @@ namespace HarmonizeGitHooks
             }
             finally
             {
-                gitIgnoreSyncer.Set();
+                if (this.harmonize.FileLock)
+                {
+                    gitIgnoreSyncer.Set();
+                }
             }
         }
 
@@ -255,14 +279,20 @@ namespace HarmonizeGitHooks
 
             this.harmonize.WriteLine("Writing pathing update");
 
-            configSyncer.WaitOne();
+            if (this.harmonize.FileLock)
+            {
+                configSyncer.WaitOne();
+            }
             try
             {
                 File.WriteAllText(HarmonizeGitBase.HarmonizePathingPath, xmlStr);
             }
             finally
             {
-                configSyncer.Set();
+                if (this.harmonize.FileLock)
+                {
+                    configSyncer.Set();
+                }
             }
         }
         #endregion

@@ -38,7 +38,10 @@ namespace HarmonizeGitHooks
                         FileInfo dbPath = new FileInfo(GetDBPath(parentRepo.Path));
                         if (dbPath.Exists) return;
                         this.harmonize.WriteLine($"Initilizing into parent: {parentRepo.Path}");
-                        dbSyncer.WaitOne();
+                        if (this.harmonize.FileLock)
+                        {
+                            dbSyncer.WaitOne();
+                        }
                         try
                         {
                             if (dbPath.Exists) return;
@@ -48,7 +51,10 @@ namespace HarmonizeGitHooks
                         }
                         finally
                         {
-                            dbSyncer.Set();
+                            if (this.harmonize.FileLock)
+                            {
+                                dbSyncer.Set();
+                            }
                         }
                         this.harmonize.WriteLine($"Initilized into parent: {parentRepo.Path}");
                     }));

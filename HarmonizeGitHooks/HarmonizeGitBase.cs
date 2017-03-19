@@ -26,6 +26,7 @@ namespace HarmonizeGitHooks
         public readonly string TargetPath;
         public HarmonizeConfig Config;
         public bool Silent;
+        public bool FileLock;
 
         public HarmonizeGitBase(string targetPath)
         {

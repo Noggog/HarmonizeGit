@@ -16,7 +16,10 @@ namespace HarmonizeGitHooks
             if (string.IsNullOrWhiteSpace(Properties.Settings.Default.RoutePath))
             {
                 DirectoryInfo dir = new DirectoryInfo(".");
-                HarmonizeGitBase harmonize = new HarmonizeGitBase(dir.FullName);
+                HarmonizeGitBase harmonize = new HarmonizeGitBase(dir.FullName)
+                {
+                    FileLock = Properties.Settings.Default.Lock
+                };
                 return harmonize.Handle(args).Result ? 0 : 1;
             }
             else

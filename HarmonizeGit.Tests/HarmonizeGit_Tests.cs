@@ -12,6 +12,12 @@ namespace HarmonizeGit.Tests
 {
     public class HarmonizeGit_Tests
     {
+        public HarmonizeGitBase GetHarmonize(string path)
+        {
+            HarmonizeGitBase gitBase = new HarmonizeGitBase(path);
+            return gitBase;
+        }
+
         [Fact]
         public void IsDirty_Normal()
         {
@@ -20,7 +26,7 @@ namespace HarmonizeGit.Tests
                 File.WriteAllText(
                     Path.Combine(repo.Repo.Info.WorkingDirectory, Repository_Tools.STANDARD_FILE),
                     "dirty work");
-                HarmonizeGitBase gitBase = new HarmonizeGitBase(repo.Repo.Info.WorkingDirectory);
+                HarmonizeGitBase gitBase = GetHarmonize(repo.Repo.Info.WorkingDirectory);
                 Assert.True(gitBase.IsDirty(excludeHarmonizeConfig: false, regenerateConfig: false));
             }
         }
@@ -30,7 +36,7 @@ namespace HarmonizeGit.Tests
         {
             using (var repo = Repository_Tools.GetStandardRepo())
             {
-                HarmonizeGitBase gitBase = new HarmonizeGitBase(repo.Repo.Info.WorkingDirectory);
+                HarmonizeGitBase gitBase = GetHarmonize(repo.Repo.Info.WorkingDirectory);
                 Assert.False(gitBase.IsDirty(excludeHarmonizeConfig: false, regenerateConfig: false));
             }
         }
@@ -46,7 +52,7 @@ namespace HarmonizeGit.Tests
                 File.WriteAllText(
                     Path.Combine(repo.Repo.Info.WorkingDirectory, HarmonizeGitBase.HarmonizeConfigPath),
                     "dirty work");
-                HarmonizeGitBase gitBase = new HarmonizeGitBase(repo.Repo.Info.WorkingDirectory);
+                HarmonizeGitBase gitBase = GetHarmonize(repo.Repo.Info.WorkingDirectory);
                 Assert.True(gitBase.IsDirty(excludeHarmonizeConfig: true, regenerateConfig: false));
             }
         }
@@ -59,7 +65,7 @@ namespace HarmonizeGit.Tests
                 File.WriteAllText(
                     Path.Combine(repo.Repo.Info.WorkingDirectory, HarmonizeGitBase.HarmonizeConfigPath),
                     "dirty work");
-                HarmonizeGitBase gitBase = new HarmonizeGitBase(repo.Repo.Info.WorkingDirectory);
+                HarmonizeGitBase gitBase = GetHarmonize(repo.Repo.Info.WorkingDirectory);
                 Assert.True(gitBase.IsDirty(excludeHarmonizeConfig: false, regenerateConfig: false));
             }
         }
@@ -72,7 +78,7 @@ namespace HarmonizeGit.Tests
                 File.WriteAllText(
                     Path.Combine(repo.Repo.Info.WorkingDirectory, HarmonizeGitBase.HarmonizeConfigPath),
                     "dirty work");
-                HarmonizeGitBase gitBase = new HarmonizeGitBase(repo.Repo.Info.WorkingDirectory);
+                HarmonizeGitBase gitBase = GetHarmonize(repo.Repo.Info.WorkingDirectory);
                 Assert.False(gitBase.IsDirty(excludeHarmonizeConfig: true, regenerateConfig: false));
             }
         }
