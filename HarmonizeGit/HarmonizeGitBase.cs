@@ -234,9 +234,16 @@ namespace HarmonizeGit
                     return;
                 }
 
+                var localBranches = new HashSet<string>(
+                    repo.Branches
+                    .Where((b) => !b.IsRemote)
+                    .Select((b) => b.Name()));
+
                 var potentialBranches = repo.Branches
                     .Where((b) => b.Tip.Sha.Equals(listing.Sha))
-                    .OrderBy((b) => b.FriendlyName.Contains("GitHarmonize") ? 0 : 1);
+                    .Where((b) => !b.Name().Equals("HEAD"))
+                    .Where((b) => !b.IsRemote || !localBranches.Contains(b.Name()))
+                    .OrderBy((b) => b.FriendlyName.Contains(BranchName) ? 0 : 1);
 
                 var existingBranch = potentialBranches
                     .Where((b) => !b.IsRemote)
