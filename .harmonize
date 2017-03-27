@@ -2,10 +2,10 @@
   <ParentRepos>
     <RepoListing>
       <Nickname>FishingWithGit</Nickname>
-      <Sha>adcf1b1ad8b6e3f93940b137272487daad288a7b</Sha>
-      <Description>Bugfix for rebase factory</Description>
+      <Sha>31849f387f9bc42f7e39465044c7f8ed163b9639</Sha>
+      <Description>PullHooks</Description>
       <Author>Justin Swanson</Author>
-      <CommitDate>03-18-2017 17:59:55</CommitDate>
+      <CommitDate>03-26-2017 23:30:32</CommitDate>
     </RepoListing>
   </ParentRepos>
 </HarmonizeConfig>

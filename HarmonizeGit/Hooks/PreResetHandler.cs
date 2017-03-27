@@ -47,7 +47,7 @@ namespace HarmonizeGit
             IEnumerable<string> strandedCommitShas)
         {
             // See if children are using stranded commits
-            var childUsages = await harmonize.ChildLoader.GetChildUsages(strandedCommitShas, 10);
+            var childUsages = await harmonize.ChildLoader.GetChildUsages(strandedCommitShas);
             if (childUsages.Item2.Count > 0)
             {
                 #region Print

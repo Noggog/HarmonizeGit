@@ -277,7 +277,6 @@ namespace HarmonizeGit
             HarmonizeConfig config,
             string configSha)
         {
-
             foreach (var parentListing in this.harmonize.Config.ParentRepos)
             {
                 yield return new ChildUsage()
@@ -301,8 +300,7 @@ namespace HarmonizeGit
         }
 
         public async Task<Tuple<ICollection<string>, ICollection<string>>> GetChildUsages(
-            IEnumerable<string> commits,
-            int numCommitsToReturn)
+            IEnumerable<string> commits)
         {
             HashSet<string> usedCommits = new HashSet<string>();
             HashSet<string> childRepos = new HashSet<string>();

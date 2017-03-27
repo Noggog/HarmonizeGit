@@ -76,6 +76,9 @@ namespace HarmonizeGit
                 case HookType.Post_Rebase:
                     handler = new PostRebaseHandler(this);
                     break;
+                case HookType.Post_Pull:
+                    handler = new PostPullHandler(this);
+                    break;
                 default:
                     return true;
             }

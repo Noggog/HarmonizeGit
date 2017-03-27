@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FishingWithGit;
 
 namespace HarmonizeGit
 {
@@ -15,6 +16,10 @@ namespace HarmonizeGit
 
         public override async Task<bool> Handle(string[] args)
         {
+            ResetArgs resetArgs = new ResetArgs(args);
+            // ToDo
+            // Add any new usages to parent repos, if reset was forward, not backward
+
             harmonize.SyncParentRepos();
             return true;
         }
