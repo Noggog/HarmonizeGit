@@ -27,21 +27,11 @@ namespace HarmonizeGit
                     this.harmonize.WriteLine($"Ancestor commit did not exist: {pullArgs.AncestorSha}");
                     return false;
                 }
-                var strandedCommits = repo.GetPotentiallyStrandedCommits(
+
+                await repo.InsertStrandedCommitsIntoParent(
+                    this.harmonize,
                     repo.Head.Tip,
                     ancestorCommit);
-
-                var usages = strandedCommits.SelectMany(
-                    (commit) =>
-                    {
-                        return harmonize.ChildLoader.GetConfigUsages(
-                            harmonize.ConfigLoader.GetConfigFromRepo(
-                                repo,
-                                commit),
-                            commit.Sha);
-                    });
-
-                await this.harmonize.ChildLoader.InsertChildEntries(usages);
             }
 
             return true;

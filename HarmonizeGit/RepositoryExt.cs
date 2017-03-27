@@ -70,6 +70,29 @@ namespace HarmonizeGit
             }
         }
 
+        public static async Task InsertStrandedCommitsIntoParent(
+            this Repository repo,
+            HarmonizeGitBase harmonize,
+            Commit curTip,
+            Commit ancestorTip)
+        {
+            var strandedCommits = repo.GetPotentiallyStrandedCommits(
+                curTip,
+                ancestorTip);
+
+            var usages = strandedCommits.SelectMany(
+                (commit) =>
+                {
+                    return harmonize.ChildLoader.GetConfigUsages(
+                        harmonize.ConfigLoader.GetConfigFromRepo(
+                            repo,
+                            commit),
+                        commit.Sha);
+                });
+
+            await harmonize.ChildLoader.InsertChildEntries(usages);
+        }
+
         public static string Name(this Branch b)
         {
             var index = b.FriendlyName.IndexOf("/");
