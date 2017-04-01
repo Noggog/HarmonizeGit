@@ -81,7 +81,7 @@ namespace HarmonizeGit
                 var usages = strandedCommits.SelectMany(
                     (commit) =>
                     {
-                        return harmonize.ChildLoader.GetConfigUsages(
+                        return harmonize.ChildLoader.GetUsagesFromConfig(
                             harmonize.ConfigLoader.GetConfigFromRepo(
                                 repo,
                                 commit),

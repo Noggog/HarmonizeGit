@@ -270,19 +270,19 @@ namespace HarmonizeGit
             }
         }
 
-        private IEnumerable<ChildUsage> GetCurrentConfigUsages()
+        private IEnumerable<ChildUsage> GetCurrentConfigUsagesFromConfig()
         {
             string currentSha;
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
                 currentSha = repo.Head.Tip.Sha;
             }
-            return GetConfigUsages(
+            return GetUsagesFromConfig(
                 this.harmonize.Config,
                 currentSha);
         }
 
-        public IEnumerable<ChildUsage> GetConfigUsages(
+        public IEnumerable<ChildUsage> GetUsagesFromConfig(
             HarmonizeConfig config,
             string configSha)
         {
@@ -300,12 +300,12 @@ namespace HarmonizeGit
 
         public async Task InsertCurrentConfig()
         {
-            await InsertChildEntries(GetCurrentConfigUsages());
+            await InsertChildEntries(GetCurrentConfigUsagesFromConfig());
         }
 
         public async Task RemoveCurrentConfigFromParents()
         {
-            await RemoveChildEntries(GetCurrentConfigUsages());
+            await RemoveChildEntries(GetCurrentConfigUsagesFromConfig());
         }
 
         public async Task<(ICollection<string> UsedCommits, ICollection<string> ChildRepos)> GetChildUsages(
