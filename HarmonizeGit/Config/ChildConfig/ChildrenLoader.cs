@@ -134,22 +134,31 @@ namespace HarmonizeGit
 
         private async Task ConstructDB(SQLiteConnection conn)
         {
-            await new SQLiteCommand(
+            using (var cmd = new SQLiteCommand(
                 $@"create table {CHILD_IDENTITY_TABLE} (
                     {ID} integer primary key AUTOINCREMENT NOT NULL,
-                    {PATH} varchar(1000) not null unique)", conn).ExecuteNonQueryAsync();
-            await new SQLiteCommand(
+                    {PATH} varchar(1000) not null unique)", conn))
+            {
+                await cmd.ExecuteNonQueryAsync();
+            }
+            using (var cmd = new SQLiteCommand(
                 $@"create table {PARENT_TABLE} (
                     {ID} integer primary key AUTOINCREMENT NOT NULL,
-                    {SHA} varchar(1000) not null unique)", conn).ExecuteNonQueryAsync();
-            await new SQLiteCommand(
+                    {SHA} varchar(1000) not null unique)", conn))
+            {
+                await cmd.ExecuteNonQueryAsync();
+            }
+            using (var cmd = new SQLiteCommand(
                 $@"create table {USAGE_TABLE} (
                     {ID} integer primary key AUTOINCREMENT NOT NULL,
                     {PARENT_ID} integer,
                     {IDENTITY_ID} integer,
                     {SHA} char(40) not null unique,
                     FOREIGN KEY({PARENT_ID}) REFERENCES {PARENT_TABLE}({ID}),
-                    FOREIGN KEY({IDENTITY_ID}) REFERENCES {CHILD_IDENTITY_TABLE}({ID}))", conn).ExecuteNonQueryAsync();
+                    FOREIGN KEY({IDENTITY_ID}) REFERENCES {CHILD_IDENTITY_TABLE}({ID}))", conn))
+            {
+                await cmd.ExecuteNonQueryAsync();
+            }
         }
 
         public Task InsertChildEntry(ChildUsage usage)
