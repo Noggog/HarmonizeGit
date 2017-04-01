@@ -2,10 +2,10 @@
   <ParentRepos>
     <RepoListing>
       <Nickname>FishingWithGit</Nickname>
-      <Sha>3591b40f03c8fd0a85b62d8c315e7e16d90e7ff4</Sha>
-      <Description>ResetArgs added StartingSha</Description>
+      <Sha>4589bc6a7e43ee5f617f563a144e24363df4ed57</Sha>
+      <Description>Added public empty ctors to Args classes</Description>
       <Author>Justin Swanson</Author>
-      <CommitDate>03-27-2017 17:21:14</CommitDate>
+      <CommitDate>04-01-2017 00:00:39</CommitDate>
     </RepoListing>
   </ParentRepos>
 </HarmonizeConfig>

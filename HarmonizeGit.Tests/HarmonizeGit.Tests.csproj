@@ -80,6 +80,7 @@
   <ItemGroup>
     <Compile Include="HarmonizeGit_Tests.cs" />
     <Compile Include="PostCommit_Tests.cs" />
+    <Compile Include="PostPull_Tests.cs" />
     <Compile Include="PrePull_Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository_Tools.cs" />
@@ -92,6 +93,10 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\FishingWithGit\FishingWithGit.Common\FishingWithGit.Common.csproj">
+      <Project>{A99553E3-D288-482A-9BC8-AE0BF4F32ACF}</Project>
+      <Name>FishingWithGit.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HarmonizeGit\HarmonizeGit.csproj">
       <Project>{8d8330ab-b1f9-4769-846e-5a606543dcaa}</Project>
       <Name>HarmonizeGit</Name>
