@@ -299,12 +299,12 @@ namespace HarmonizeGit
             await RemoveChildEntries(GetCurrentConfigUsages());
         }
 
-        public async Task<Tuple<ICollection<string>, ICollection<string>>> GetChildUsages(
+        public async Task<(ICollection<string> UsedCommits, ICollection<string> ChildRepos)> GetChildUsages(
             IEnumerable<string> commits)
         {
             HashSet<string> usedCommits = new HashSet<string>();
             HashSet<string> childRepos = new HashSet<string>();
-            List<Tuple<string, string>>[] results;
+            List<(string ParentSha, string ChildPath)>[] results;
             using (var conn = await GetConnection(this.harmonize.TargetPath))
             {
                 results = await Task.WhenAll(
@@ -313,7 +313,7 @@ namespace HarmonizeGit
                         {
                             using (var cmd = new SQLiteCommand(conn))
                             {
-                                cmd.CommandText = 
+                                cmd.CommandText =
 $@"SELECT 
 	ParentRef.Sha,
 	ChildIdentity.Path
@@ -323,15 +323,14 @@ ON ParentRef.ID = ChildUsage.ParentID
 INNER JOIN ChildIdentity
 ON ChildIdentity.ID = ChildUsage.IdentityID 
 where ParentRef.Sha = '{commit}'";
-                                List<Tuple<string, string>> ret = new List<Tuple<string, string>>();
+                                List<(string, string)> ret = new List<(string, string)>();
                                 using (var reader = await cmd.ExecuteReaderAsync())
                                 {
                                     while (reader.Read())
                                     {
-                                        ret.Add(
-                                            new Tuple<string, string>(
-                                                (string)reader[0],
-                                                (string)reader[1]));
+                                        ret.Add((
+                                            (string)reader[0],
+                                            (string)reader[1]));
                                     }
                                 }
                                 return ret;
@@ -341,13 +340,11 @@ where ParentRef.Sha = '{commit}'";
 
             foreach (var pair in results.SelectMany((x) => x))
             {
-                usedCommits.Add(pair.Item1);
-                childRepos.Add(pair.Item2);
+                usedCommits.Add(pair.ParentSha);
+                childRepos.Add(pair.ChildPath);
             }
 
-            return new Tuple<ICollection<string>, ICollection<string>>(
-                usedCommits,
-                childRepos);
+            return (usedCommits, childRepos);
         }
     }
 }

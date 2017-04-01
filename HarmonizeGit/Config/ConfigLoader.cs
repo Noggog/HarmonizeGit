@@ -16,7 +16,7 @@ namespace HarmonizeGit
         public HarmonizeConfig Config;
         private HarmonizeGitBase harmonize;
         private Dictionary<string, HarmonizeConfig> configs = new Dictionary<string, HarmonizeConfig>();
-        private Dictionary<Tuple<string, string>, HarmonizeConfig> repoConfigs = new Dictionary<Tuple<string, string>, HarmonizeConfig>();
+        private Dictionary<(string WorkingDir, string CommitSha), HarmonizeConfig> repoConfigs = new Dictionary<(string, string), HarmonizeConfig>();
         private Dictionary<string, PathingConfig> pathingConfigs = new Dictionary<string, PathingConfig>();
 
         public void Init(HarmonizeGitBase harmonize)
@@ -41,7 +41,7 @@ namespace HarmonizeGit
             Repository repo,
             Commit commit)
         {
-            var tuple = new Tuple<string, string>(
+            var tuple = (
                 repo.Info.WorkingDirectory,
                 commit.Sha);
             if (repoConfigs.TryGetValue(tuple, out HarmonizeConfig ret)) return ret;

@@ -48,17 +48,17 @@ namespace HarmonizeGit
         {
             // See if children are using stranded commits
             var childUsages = await harmonize.ChildLoader.GetChildUsages(strandedCommitShas);
-            if (childUsages.Item2.Count > 0)
+            if (childUsages.ChildRepos.Count > 0)
             {
                 #region Print
                 harmonize.WriteLine("Repositories:");
-                foreach (var usage in childUsages.Item2.OrderBy((str) => str))
+                foreach (var usage in childUsages.ChildRepos.OrderBy((str) => str))
                 {
                     harmonize.WriteLine($"   {usage}");
                 }
 
                 harmonize.WriteLine("Some Stranded Commits:");
-                foreach (var usage in childUsages.Item1)
+                foreach (var usage in childUsages.UsedCommits)
                 {
                     harmonize.WriteLine($"   {usage}");
                 }
