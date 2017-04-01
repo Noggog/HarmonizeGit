@@ -298,6 +298,42 @@ namespace HarmonizeGit
             }
         }
 
+        public async Task<(ChildUsage Usage, bool Succeeded)> RetrieveChildUsage(string childSha)
+        {
+            using (var conn = await GetConnection(this.harmonize.TargetPath))
+            {
+                using (var cmd = new SQLiteCommand(conn))
+                {
+                    cmd.CommandText =
+$@"SELECT 
+	ParentRef.Sha,
+	ChildIdentity.Path
+FROM ChildUsage
+INNER JOIN ParentRef
+ON ParentRef.ID = ChildUsage.ParentID
+INNER JOIN ChildIdentity
+ON ChildIdentity.ID = ChildUsage.IdentityID 
+where ChildUsage.Sha = '{childSha}'";
+                    List<(string, string)> ret = new List<(string, string)>();
+                    using (var reader = await cmd.ExecuteReaderAsync())
+                    {
+                        while (reader.Read())
+                        {
+                            return (new ChildUsage()
+                            {
+                                Sha = childSha,
+                                ParentSha = (string)reader[0],
+                                ChildRepoPath = (string)reader[1],
+                                ParentRepoPath = this.harmonize.TargetPath
+                            },
+                            true);
+                        }
+                    }
+                    return (null, false);
+                }
+            }
+        }
+
         public async Task InsertCurrentConfig()
         {
             await InsertChildEntries(GetCurrentConfigUsagesFromConfig());

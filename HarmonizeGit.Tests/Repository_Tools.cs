@@ -56,6 +56,7 @@ namespace HarmonizeGit.Tests
         public RepoCheckout ParentRepo;
         public RepoCheckout Repo;
         public HarmonizeGitBase Harmonize;
+        public HarmonizeGitBase ParentHarmonize;
         public HarmonizeConfig Config => Harmonize.Config;
         public RepoListing ParentListing;
 
@@ -65,6 +66,8 @@ namespace HarmonizeGit.Tests
         {
             this.Harmonize = new HarmonizeGitBase(repo.Info.WorkingDirectory);
             this.Harmonize.Init();
+            this.ParentHarmonize = new HarmonizeGitBase(parentRepo.Info.WorkingDirectory);
+            this.ParentHarmonize.Init();
             this.ParentRepo = new RepoCheckout(parentRepo, new DirectoryInfo(parentRepo.Info.WorkingDirectory));
             this.Repo = new RepoCheckout(repo, new DirectoryInfo(repo.Info.WorkingDirectory));
             foreach (var parent in this.Harmonize.Config.ParentRepos)
