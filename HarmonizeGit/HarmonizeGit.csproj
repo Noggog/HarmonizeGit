@@ -90,6 +90,7 @@
     <Compile Include="Hooks\PostCommitHandler.cs" />
     <Compile Include="Hooks\PostPullHandler.cs" />
     <Compile Include="Hooks\PostRebaseHandler.cs" />
+    <Compile Include="Hooks\PrePullHandler.cs" />
     <Compile Include="Hooks\PreRebaseHandler.cs" />
     <Compile Include="Hooks\PreResetHandler.cs" />
     <Compile Include="Hooks\TakeHandler.cs" />

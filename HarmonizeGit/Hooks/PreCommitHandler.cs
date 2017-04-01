@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 
 namespace HarmonizeGit
 {
-    class PreCommitHandler : TypicalHandlerBase
+    public class PreCommitHandler : TypicalHandlerBase
     {
         public PreCommitHandler(HarmonizeGitBase harmonize)
             : base(harmonize)

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HarmonizeGit
 {
-    class PostCommitHandler : TypicalHandlerBase
+    public class PostCommitHandler : TypicalHandlerBase
     {
         public PostCommitHandler(HarmonizeGitBase harmonize)
             : base(harmonize)

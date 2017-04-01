@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace HarmonizeGit
 {
-    class TakeHandler : TypicalHandlerBase
+    public class TakeHandler : TypicalHandlerBase
     {
         public TakeHandler(HarmonizeGitBase harmonize)
             : base(harmonize)

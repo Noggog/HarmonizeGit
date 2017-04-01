@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace HarmonizeGit
 {
-    class PreRebaseHandler : TypicalHandlerBase
+    public class PreRebaseHandler : TypicalHandlerBase
     {
         public PreRebaseHandler(HarmonizeGitBase harmonize)
             : base(harmonize)

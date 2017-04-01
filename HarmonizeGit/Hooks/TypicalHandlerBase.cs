@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HarmonizeGit
 {
-    abstract class TypicalHandlerBase
+    public abstract class TypicalHandlerBase
     {
         protected HarmonizeGitBase harmonize;
         public bool Silent { get; protected set; }

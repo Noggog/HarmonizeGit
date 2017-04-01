@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace HarmonizeGit
 {
-    class PostPullHandler : TypicalHandlerBase
+    public class PostPullHandler : TypicalHandlerBase
     {
         public PostPullHandler(HarmonizeGitBase harmonize)
             : base(harmonize)

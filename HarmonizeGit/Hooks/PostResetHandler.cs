@@ -8,7 +8,7 @@ using LibGit2Sharp;
 
 namespace HarmonizeGit
 {
-    class PostResetHandler : TypicalHandlerBase
+    public class PostResetHandler : TypicalHandlerBase
     {
         public PostResetHandler(HarmonizeGitBase harmonize) 
             : base(harmonize)

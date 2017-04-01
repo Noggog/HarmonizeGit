@@ -53,14 +53,19 @@ namespace HarmonizeGit.Tests
     public class ConfigCheckout : IDisposable
     {
         public List<RepoCheckout> ParentRepos = new List<RepoCheckout>();
+        public RepoCheckout ParentRepo;
         public RepoCheckout Repo;
         public HarmonizeGitBase Harmonize;
+        public HarmonizeConfig Config => Harmonize.Config;
+        public RepoListing ParentListing;
 
         public ConfigCheckout(
+            Repository parentRepo,
             Repository repo)
         {
             this.Harmonize = new HarmonizeGitBase(repo.Info.WorkingDirectory);
             this.Harmonize.Init();
+            this.ParentRepo = new RepoCheckout(parentRepo, new DirectoryInfo(parentRepo.Info.WorkingDirectory));
             this.Repo = new RepoCheckout(repo, new DirectoryInfo(repo.Info.WorkingDirectory));
             foreach (var parent in this.Harmonize.Config.ParentRepos)
             {
@@ -69,6 +74,7 @@ namespace HarmonizeGit.Tests
                         new Repository(parent.Path),
                         new DirectoryInfo(parent.Path)));
             }
+            this.ParentListing = this.Config.ParentRepos[0];
         }
 
         public void Dispose()
@@ -154,6 +160,10 @@ namespace HarmonizeGit.Tests
                 dir);
         }
 
+        public const string STANDARD_CONFIG_PARENT_FIRST_COMMIT = "00c373cc3f28fa4bb071e83f5caa7e50676d9431";
+        public const string STANDARD_CONFIG_PARENT_SECOND_COMMIT = "2fe948514dee61fd1a164cc7ac5abdc99b6f9bff";
+        public const string STANDARD_CONFIG_PARENT_THIRD_COMMIT = "89283a3ff57915fe1856b8bf106eac1aca36a910";
+
         public static ConfigCheckout GetStandardConfigCheckout()
         {
             var signature = GetSignature();
@@ -228,7 +238,7 @@ namespace HarmonizeGit.Tests
                 signature,
                 signature);
 
-            return new ConfigCheckout(childRepo);
+            return new ConfigCheckout(parentRepo, childRepo);
         }
     }
 }
