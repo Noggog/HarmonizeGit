@@ -25,7 +25,7 @@ namespace HarmonizeGit.Tests
                     Repository_Tools.GetSignature());
                 var handler = new PostCommitHandler(checkout.Harmonize);
                 await handler.Handle(null);
-                var childGet = await checkout.ParentHarmonize.ChildLoader.RetrieveChildUsage(commit.Sha);
+                var childGet = await checkout.ParentHarmonize.ChildLoader.LookupChildUsage(commit.Sha);
                 Assert.True(childGet.Succeeded);
                 Assert.Equal(commit.Sha, childGet.Usage.Sha);
                 Assert.Equal(checkout.Repo.Dir.FullName, childGet.Usage.ChildRepoPath);

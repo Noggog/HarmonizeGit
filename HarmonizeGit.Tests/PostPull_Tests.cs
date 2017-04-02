@@ -39,13 +39,13 @@ namespace HarmonizeGit.Tests
                     TargetSha = checkout.Repo.Repo.Head.Tip.Sha
                 };
                 await handler.Handle(args.ToArray());
-                var childGet = await checkout.ParentHarmonize.ChildLoader.RetrieveChildUsage(commit.Sha);
+                var childGet = await checkout.ParentHarmonize.ChildLoader.LookupChildUsage(commit.Sha);
                 Assert.True(childGet.Succeeded);
                 Assert.Equal(commit.Sha, childGet.Usage.Sha);
                 Assert.Equal(checkout.Repo.Dir.FullName, childGet.Usage.ChildRepoPath);
                 Assert.Equal(checkout.ParentRepo.Repo.Head.Tip.Sha, childGet.Usage.ParentSha);
                 Assert.Equal(checkout.ParentRepo.Dir.FullName, childGet.Usage.ParentRepoPath);
-                childGet = await checkout.ParentHarmonize.ChildLoader.RetrieveChildUsage(commit2.Sha);
+                childGet = await checkout.ParentHarmonize.ChildLoader.LookupChildUsage(commit2.Sha);
                 Assert.True(childGet.Succeeded);
                 Assert.Equal(commit2.Sha, childGet.Usage.Sha);
                 Assert.Equal(checkout.Repo.Dir.FullName, childGet.Usage.ChildRepoPath);

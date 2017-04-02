@@ -47,11 +47,11 @@ namespace HarmonizeGit
         public static bool GetStrandedCommits(
             HarmonizeGitBase harmonize,
             Repository repo,
-            Commit tipCommit,
             Commit targetCommit,
+            Commit referenceCommit,
             out IEnumerable<Commit> strandedCommits)
         {
-            var divergence = repo.ObjectDatabase.CalculateHistoryDivergence(tipCommit, targetCommit);
+            var divergence = repo.ObjectDatabase.CalculateHistoryDivergence(targetCommit, referenceCommit);
             var ancestor = divergence.CommonAncestor;
             if (ancestor == null)
             {
@@ -60,9 +60,9 @@ namespace HarmonizeGit
                 return false;
             }
 
-            harmonize.WriteLine($"Getting stranded commits between {tipCommit.Sha} and {ancestor.Sha}");
+            harmonize.WriteLine($"Getting stranded commits between {targetCommit.Sha} and {ancestor.Sha}");
             strandedCommits = repo.GetPotentiallyStrandedCommits(
-                tipCommit,
+                targetCommit,
                 ancestor);
             foreach (var commit in strandedCommits)
             {

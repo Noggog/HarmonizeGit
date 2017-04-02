@@ -298,7 +298,7 @@ namespace HarmonizeGit
             }
         }
 
-        public async Task<(ChildUsage Usage, bool Succeeded)> RetrieveChildUsage(string childSha)
+        public async Task<(ChildUsage Usage, bool Succeeded)> LookupChildUsage(string childSha)
         {
             using (var conn = await GetConnection(this.harmonize.TargetPath))
             {

@@ -81,6 +81,7 @@
     <Compile Include="HarmonizeGit_Tests.cs" />
     <Compile Include="PostCommit_Tests.cs" />
     <Compile Include="PostPull_Tests.cs" />
+    <Compile Include="PostRebase_Tests.cs" />
     <Compile Include="PrePull_Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository_Tools.cs" />

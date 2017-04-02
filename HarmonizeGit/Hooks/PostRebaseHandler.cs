@@ -21,17 +21,17 @@ namespace HarmonizeGit
             var rebaseArgs = new RebaseInProgressArgs(args);
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
-                var originalCommit = repo.Lookup<Commit>(rebaseArgs.OriginalSha);
+                var originalCommit = repo.Lookup<Commit>(rebaseArgs.OriginalTipSha);
                 if (originalCommit == null)
                 {
-                    harmonize.WriteLine($"Original commit {rebaseArgs.OriginalSha} could not be found.");
+                    harmonize.WriteLine($"Original commit {rebaseArgs.OriginalTipSha} could not be found.");
                     return false;
                 }
 
-                var targetCommit = repo.Lookup<Commit>(rebaseArgs.TargetSha);
-                if (targetCommit == null)
+                var landingCommit = repo.Lookup<Commit>(rebaseArgs.LandingSha);
+                if (landingCommit == null)
                 {
-                    harmonize.WriteLine($"Target commit {rebaseArgs.TargetSha} could not be found.");
+                    harmonize.WriteLine($"Target commit {rebaseArgs.LandingSha} could not be found.");
                     return false;
                 }
 
@@ -40,7 +40,7 @@ namespace HarmonizeGit
                     this.harmonize,
                     repo,
                     originalCommit,
-                    targetCommit,
+                    landingCommit,
                     out IEnumerable<Commit> strandedCommits))
                 {
                     return false;
@@ -56,7 +56,7 @@ namespace HarmonizeGit
                     this.harmonize,
                     repo,
                     repo.Head.Tip,
-                    targetCommit,
+                    landingCommit,
                     out IEnumerable<Commit> newCommits))
                 {
                     return false;
