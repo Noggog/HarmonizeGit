@@ -20,7 +20,8 @@ namespace HarmonizeGit.Tests
         public ConfigCheckout GetCheckout()
         {
             var checkout = Repository_Tools.GetStandardConfigCheckout();
-            var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(Repository_Tools.STANDARD_CONFIG_PARENT_SECOND_COMMIT);
+            checkout.Init();
+            var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(checkout.Parent_SecondSha);
             this.AncestorSha = checkout.Repo.Repo.Head.Tip.Sha;
             var signature = Repository_Tools.GetSignature();
 

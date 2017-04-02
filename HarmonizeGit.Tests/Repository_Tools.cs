@@ -58,18 +58,30 @@ namespace HarmonizeGit.Tests
         public HarmonizeGitBase Harmonize;
         public HarmonizeGitBase ParentHarmonize;
         public HarmonizeConfig Config => Harmonize.Config;
-        public RepoListing ParentListing;
+
+        public string Parent_FirstSha;
+        public string Parent_SecondSha;
+        public string Parent_ThirdSha;
+
+        public string Child_FirstSha;
+        public string Child_SecondSha;
+        public string Child_ThirdSha;
+        public string Child_FourthSha;
 
         public ConfigCheckout(
             Repository parentRepo,
             Repository repo)
         {
             this.Harmonize = new HarmonizeGitBase(repo.Info.WorkingDirectory);
-            this.Harmonize.Init();
             this.ParentHarmonize = new HarmonizeGitBase(parentRepo.Info.WorkingDirectory);
-            this.ParentHarmonize.Init();
             this.ParentRepo = new RepoCheckout(parentRepo, new DirectoryInfo(parentRepo.Info.WorkingDirectory));
             this.Repo = new RepoCheckout(repo, new DirectoryInfo(repo.Info.WorkingDirectory));
+        }
+
+        public void Init()
+        {
+            this.Harmonize.Init();
+            this.ParentHarmonize.Init();
             foreach (var parent in this.Harmonize.Config.ParentRepos)
             {
                 ParentRepos.Add(
@@ -77,7 +89,6 @@ namespace HarmonizeGit.Tests
                         new Repository(parent.Path),
                         new DirectoryInfo(parent.Path)));
             }
-            this.ParentListing = this.Config.ParentRepos[0];
         }
 
         public void Dispose()
@@ -163,10 +174,6 @@ namespace HarmonizeGit.Tests
                 dir);
         }
 
-        public const string STANDARD_CONFIG_PARENT_FIRST_COMMIT = "00c373cc3f28fa4bb071e83f5caa7e50676d9431";
-        public const string STANDARD_CONFIG_PARENT_SECOND_COMMIT = "2fe948514dee61fd1a164cc7ac5abdc99b6f9bff";
-        public const string STANDARD_CONFIG_PARENT_THIRD_COMMIT = "89283a3ff57915fe1856b8bf106eac1aca36a910";
-
         public static ConfigCheckout GetStandardConfigCheckout()
         {
             var signature = GetSignature();
@@ -212,7 +219,7 @@ namespace HarmonizeGit.Tests
             parentListing.SetToCommit(firstParentCommit);
             File.WriteAllText(harmonizeFile.FullName, config.GetXmlStr());
             Commands.Stage(childRepo, harmonizeFile.FullName);
-            childRepo.Commit(
+            var commit1 = childRepo.Commit(
                 "A Commit",
                 signature,
                 signature);
@@ -221,13 +228,13 @@ namespace HarmonizeGit.Tests
             parentListing.SetToCommit(secondCommit);
             File.WriteAllText(harmonizeFile.FullName, config.GetXmlStr());
             Commands.Stage(childRepo, harmonizeFile.FullName);
-            childRepo.Commit(
+            var commit2 = childRepo.Commit(
                 "A Commit",
                 signature,
                 signature);
             File.WriteAllText(childFile.FullName, "Child789\n");
             Commands.Stage(childRepo, childFile.FullName);
-            childRepo.Commit(
+            var commit3 = childRepo.Commit(
                 "A Commit",
                 signature,
                 signature);
@@ -236,12 +243,21 @@ namespace HarmonizeGit.Tests
             parentListing.SetToCommit(thirdCommit);
             File.WriteAllText(harmonizeFile.FullName, config.GetXmlStr());
             Commands.Stage(childRepo, harmonizeFile.FullName);
-            childRepo.Commit(
+            var commit4 = childRepo.Commit(
                 "A Commit",
                 signature,
                 signature);
 
-            return new ConfigCheckout(parentRepo, childRepo);
+            return new ConfigCheckout(parentRepo, childRepo)
+            {
+                Parent_FirstSha = firstParentCommit.Sha,
+                Parent_SecondSha = secondCommit.Sha,
+                Parent_ThirdSha = thirdCommit.Sha,
+                Child_FirstSha = commit1.Sha,
+                Child_SecondSha = commit2.Sha,
+                Child_ThirdSha = commit3.Sha,
+                Child_FourthSha = commit4.Sha,
+            };
         }
     }
 }

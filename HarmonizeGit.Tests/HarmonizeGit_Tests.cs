@@ -100,6 +100,7 @@ namespace HarmonizeGit.Tests
         {
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
+                checkout.Init();
                 var parentRepo = checkout.ParentRepos[0];
                 File.WriteAllText(
                     Path.Combine(parentRepo.Dir.FullName, Repository_Tools.STANDARD_FILE),

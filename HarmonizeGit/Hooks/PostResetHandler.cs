@@ -10,7 +10,7 @@ namespace HarmonizeGit
 {
     public class PostResetHandler : TypicalHandlerBase
     {
-        public PostResetHandler(HarmonizeGitBase harmonize) 
+        public PostResetHandler(HarmonizeGitBase harmonize)
             : base(harmonize)
         {
         }
@@ -18,7 +18,7 @@ namespace HarmonizeGit
         public override async Task<bool> Handle(string[] args)
         {
             ResetArgs resetArgs = new ResetArgs(args);
-                harmonize.SyncParentRepos();
+            harmonize.SyncParentRepos();
 
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
@@ -28,7 +28,7 @@ namespace HarmonizeGit
                     this.harmonize.WriteLine($"Starting commit did not exist {resetArgs.StartingSha}");
                     return false;
                 }
-                
+
                 await repo.InsertStrandedCommitsIntoParent(
                     this.harmonize,
                     repo.Head.Tip,

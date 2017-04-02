@@ -16,7 +16,8 @@ namespace HarmonizeGit.Tests
         {
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
-                var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(Repository_Tools.STANDARD_CONFIG_PARENT_SECOND_COMMIT);
+                checkout.Init();
+                var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(checkout.Parent_SecondSha);
                 Assert.False(checkout.Repo.Repo.RetrieveStatus().IsDirty);
                 var pull = new PrePullHandler(checkout.Harmonize);
                 await pull.Handle(null);
@@ -29,8 +30,9 @@ namespace HarmonizeGit.Tests
         {
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
-                var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(Repository_Tools.STANDARD_CONFIG_PARENT_SECOND_COMMIT);
-                checkout.ParentListing.SetToCommit(parentCommit);
+                checkout.Init();
+                var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(checkout.Parent_SecondSha);
+                checkout.Config.ParentRepos[0].SetToCommit(parentCommit);
                 File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath, checkout.Config.GetXmlStr());
                 Assert.True(checkout.Repo.Repo.RetrieveStatus().IsDirty);
                 var pull = new PrePullHandler(checkout.Harmonize);
@@ -44,8 +46,9 @@ namespace HarmonizeGit.Tests
         {
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
-                var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(Repository_Tools.STANDARD_CONFIG_PARENT_SECOND_COMMIT);
-                checkout.ParentListing.SetToCommit(parentCommit);
+                checkout.Init();
+                var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(checkout.Parent_SecondSha);
+                checkout.Config.ParentRepos[0].SetToCommit(parentCommit);
                 File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath, checkout.Config.GetXmlStr());
                 File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + Repository_Tools.STANDARD_FILE, "Dirty");
                 Assert.True(checkout.Repo.Repo.RetrieveStatus().IsDirty);
