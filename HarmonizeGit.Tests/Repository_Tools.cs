@@ -52,12 +52,16 @@ namespace HarmonizeGit.Tests
 
     public class ConfigCheckout : IDisposable
     {
-        public List<RepoCheckout> ParentRepos = new List<RepoCheckout>();
+        public RepoCheckout SuperParentRepo;
         public RepoCheckout ParentRepo;
         public RepoCheckout Repo;
         public HarmonizeGitBase Harmonize;
         public HarmonizeGitBase ParentHarmonize;
+        public HarmonizeGitBase SuperParentHarmonize;
         public HarmonizeConfig Config => Harmonize.Config;
+
+        public string SuperParent_FirstSha;
+        public string SuperParent_SecondSha;
 
         public string Parent_FirstSha;
         public string Parent_SecondSha;
@@ -69,35 +73,30 @@ namespace HarmonizeGit.Tests
         public string Child_FourthSha;
 
         public ConfigCheckout(
+            Repository superParentRepo,
             Repository parentRepo,
             Repository repo)
         {
             this.Harmonize = new HarmonizeGitBase(repo.Info.WorkingDirectory);
             this.ParentHarmonize = new HarmonizeGitBase(parentRepo.Info.WorkingDirectory);
+            this.SuperParentHarmonize = new HarmonizeGitBase(superParentRepo.Info.WorkingDirectory);
             this.ParentRepo = new RepoCheckout(parentRepo, new DirectoryInfo(parentRepo.Info.WorkingDirectory));
             this.Repo = new RepoCheckout(repo, new DirectoryInfo(repo.Info.WorkingDirectory));
+            this.SuperParentRepo = new RepoCheckout(superParentRepo, new DirectoryInfo(superParentRepo.Info.WorkingDirectory));
         }
 
         public void Init()
         {
             this.Harmonize.Init();
             this.ParentHarmonize.Init();
-            foreach (var parent in this.Harmonize.Config.ParentRepos)
-            {
-                ParentRepos.Add(
-                    new RepoCheckout(
-                        new Repository(parent.Path),
-                        new DirectoryInfo(parent.Path)));
-            }
+            this.SuperParentHarmonize.Init();
         }
 
         public void Dispose()
         {
             this.Repo.Dispose();
-            foreach (var repo in ParentRepos)
-            {
-                repo.Dispose();
-            }
+            this.ParentRepo.Dispose();
+            this.SuperParentRepo.Dispose();
         }
     }
 
@@ -105,7 +104,7 @@ namespace HarmonizeGit.Tests
     {
         public static DirectoryInfo GetTemporaryDirectory()
         {
-            string tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+            string tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()) + "\\";
             Directory.CreateDirectory(tempDirectory);
             return new DirectoryInfo(tempDirectory);
         }
@@ -177,10 +176,40 @@ namespace HarmonizeGit.Tests
         public static ConfigCheckout GetStandardConfigCheckout()
         {
             var signature = GetSignature();
+
+            var superParentRepoDir = GetTemporaryDirectory();
+            Repository.Init(superParentRepoDir.FullName);
+            var superParentRepo = new Repository(superParentRepoDir.FullName);
+            var superParentFile = new FileInfo(Path.Combine(superParentRepoDir.FullName, STANDARD_FILE));
+            File.WriteAllText(superParentFile.FullName, "Testing123\n");
+            Commands.Stage(superParentRepo, superParentFile.FullName);
+            var firstSuperParentCommit = superParentRepo.Commit(
+                "First Commit",
+                signature,
+                signature);
+            File.WriteAllText(superParentFile.FullName, "Testing456\n");
+            Commands.Stage(superParentRepo, superParentFile.FullName);
+            var secondSuperParentCommit = superParentRepo.Commit(
+                "Second Commit",
+                signature,
+                signature);
+
+            var superParentListing = new RepoListing()
+            {
+                Nickname = "SuperParentRepo",
+                SuggestedPath = superParentRepoDir.FullName,
+                Path = superParentRepoDir.FullName,
+            };
+            superParentListing.SetToCommit(secondSuperParentCommit);
+            HarmonizeConfig parentConfig = new HarmonizeConfig();
+            parentConfig.ParentRepos.Add(superParentListing);
             var parentRepoDir = GetTemporaryDirectory();
             Repository.Init(parentRepoDir.FullName);
             var parentRepo = new Repository(parentRepoDir.FullName);
             var parentFile = new FileInfo(Path.Combine(parentRepoDir.FullName, STANDARD_FILE));
+            var parentHarmonizeFile = new FileInfo(Path.Combine(parentRepoDir.FullName, HarmonizeGitBase.HarmonizeConfigPath));
+            File.WriteAllText(parentHarmonizeFile.FullName, parentConfig.GetXmlStr());
+            Commands.Stage(parentRepo, parentHarmonizeFile.FullName);
             File.WriteAllText(parentFile.FullName, "Testing123\n");
             Commands.Stage(parentRepo, parentFile.FullName);
             var firstParentCommit = parentRepo.Commit(
@@ -203,22 +232,23 @@ namespace HarmonizeGit.Tests
             var childRepoDir = GetTemporaryDirectory();
             Repository.Init(childRepoDir.FullName);
             var childRepo = new Repository(childRepoDir.FullName);
-            var harmonizeFile = new FileInfo(Path.Combine(childRepoDir.FullName, HarmonizeGitBase.HarmonizeConfigPath));
+            var childHarmonizeFile = new FileInfo(Path.Combine(childRepoDir.FullName, HarmonizeGitBase.HarmonizeConfigPath));
             var parentListing = new RepoListing()
             {
                 Nickname = "ParentRepo",
                 SuggestedPath = parentRepoDir.FullName,
                 Path = parentRepoDir.FullName,
             };
-            HarmonizeConfig config = new HarmonizeConfig();
-            config.ParentRepos.Add(parentListing);
+            HarmonizeConfig childConfig = new HarmonizeConfig();
+            childConfig.ParentRepos.Add(superParentListing);
+            childConfig.ParentRepos.Add(parentListing);
 
             var childFile = new FileInfo(Path.Combine(childRepoDir.FullName, STANDARD_FILE));
             File.WriteAllText(childFile.FullName, "Child123\n");
             Commands.Stage(childRepo, childFile.FullName);
             parentListing.SetToCommit(firstParentCommit);
-            File.WriteAllText(harmonizeFile.FullName, config.GetXmlStr());
-            Commands.Stage(childRepo, harmonizeFile.FullName);
+            File.WriteAllText(childHarmonizeFile.FullName, childConfig.GetXmlStr());
+            Commands.Stage(childRepo, childHarmonizeFile.FullName);
             var commit1 = childRepo.Commit(
                 "A Commit",
                 signature,
@@ -226,8 +256,8 @@ namespace HarmonizeGit.Tests
             File.WriteAllText(childFile.FullName, "Child456\n");
             Commands.Stage(childRepo, childFile.FullName);
             parentListing.SetToCommit(secondCommit);
-            File.WriteAllText(harmonizeFile.FullName, config.GetXmlStr());
-            Commands.Stage(childRepo, harmonizeFile.FullName);
+            File.WriteAllText(childHarmonizeFile.FullName, childConfig.GetXmlStr());
+            Commands.Stage(childRepo, childHarmonizeFile.FullName);
             var commit2 = childRepo.Commit(
                 "A Commit",
                 signature,
@@ -241,15 +271,17 @@ namespace HarmonizeGit.Tests
             File.WriteAllText(childFile.FullName, "Child101112\n");
             Commands.Stage(childRepo, childFile.FullName);
             parentListing.SetToCommit(thirdCommit);
-            File.WriteAllText(harmonizeFile.FullName, config.GetXmlStr());
-            Commands.Stage(childRepo, harmonizeFile.FullName);
+            File.WriteAllText(childHarmonizeFile.FullName, childConfig.GetXmlStr());
+            Commands.Stage(childRepo, childHarmonizeFile.FullName);
             var commit4 = childRepo.Commit(
                 "A Commit",
                 signature,
                 signature);
 
-            return new ConfigCheckout(parentRepo, childRepo)
+            return new ConfigCheckout(superParentRepo, parentRepo, childRepo)
             {
+                SuperParent_FirstSha = firstSuperParentCommit.Sha,
+                SuperParent_SecondSha = secondSuperParentCommit.Sha,
                 Parent_FirstSha = firstParentCommit.Sha,
                 Parent_SecondSha = secondCommit.Sha,
                 Parent_ThirdSha = thirdCommit.Sha,
