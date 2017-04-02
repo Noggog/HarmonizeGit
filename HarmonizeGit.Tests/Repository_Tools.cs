@@ -58,7 +58,6 @@ namespace HarmonizeGit.Tests
         public HarmonizeGitBase Harmonize;
         public HarmonizeGitBase ParentHarmonize;
         public HarmonizeGitBase SuperParentHarmonize;
-        public HarmonizeConfig Config => Harmonize.Config;
 
         public string SuperParent_FirstSha;
         public string SuperParent_SecondSha;

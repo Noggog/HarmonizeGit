@@ -117,7 +117,12 @@ namespace HarmonizeGit.Tests
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
                 checkout.Init();
-                Assert.True(false);
+                var superParentCommit = checkout.SuperParentRepo.Repo.Lookup<Commit>(checkout.SuperParent_FirstSha);
+                checkout.ParentHarmonize.Config.ParentRepos[0].SetToCommit(superParentCommit);
+                File.WriteAllText(checkout.ParentRepo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath, checkout.ParentHarmonize.Config.GetXmlStr());
+                Assert.True(checkout.ParentRepo.Repo.RetrieveStatus().IsDirty);
+                var changes = checkout.Harmonize.GetReposWithUncommittedChanges();
+                Assert.Equal(0, changes.Count);
             }
         }
         #endregion

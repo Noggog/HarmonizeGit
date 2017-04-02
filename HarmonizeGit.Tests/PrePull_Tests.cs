@@ -32,8 +32,8 @@ namespace HarmonizeGit.Tests
             {
                 checkout.Init();
                 var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(checkout.Parent_SecondSha);
-                checkout.Config.ParentRepos[0].SetToCommit(parentCommit);
-                File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath, checkout.Config.GetXmlStr());
+                checkout.Harmonize.Config.ParentRepos[0].SetToCommit(parentCommit);
+                File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath, checkout.Harmonize.Config.GetXmlStr());
                 Assert.True(checkout.Repo.Repo.RetrieveStatus().IsDirty);
                 var pull = new PrePullHandler(checkout.Harmonize);
                 await pull.Handle(null);
@@ -48,8 +48,8 @@ namespace HarmonizeGit.Tests
             {
                 checkout.Init();
                 var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(checkout.Parent_SecondSha);
-                checkout.Config.ParentRepos[0].SetToCommit(parentCommit);
-                File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath, checkout.Config.GetXmlStr());
+                checkout.Harmonize.Config.ParentRepos[0].SetToCommit(parentCommit);
+                File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath, checkout.Harmonize.Config.GetXmlStr());
                 File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + Repository_Tools.STANDARD_FILE, "Dirty");
                 Assert.True(checkout.Repo.Repo.RetrieveStatus().IsDirty);
                 var pull = new PrePullHandler(checkout.Harmonize);

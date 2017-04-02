@@ -19,8 +19,8 @@ namespace HarmonizeGit.Tests
             {
                 checkout.Init();
                 var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(checkout.Parent_SecondSha);
-                checkout.Config.ParentRepos[0].SetToCommit(parentCommit);
-                File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath, checkout.Config.GetXmlStr());
+                checkout.Harmonize.Config.ParentRepos[0].SetToCommit(parentCommit);
+                File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath, checkout.Harmonize.Config.GetXmlStr());
                 Assert.True(checkout.Repo.Repo.RetrieveStatus().IsDirty);
                 CheckoutArgs args = new CheckoutArgs()
                 {
@@ -34,13 +34,29 @@ namespace HarmonizeGit.Tests
         }
 
         [Fact]
-        public void DirtyParentConfig()
+        public async Task DirtyParentConfig()
         {
-            Assert.False(true);
+            using (var checkout = Repository_Tools.GetStandardConfigCheckout())
+            {
+                checkout.Init();
+                var superParentCommit = checkout.SuperParentRepo.Repo.Lookup<Commit>(checkout.SuperParent_FirstSha);
+                checkout.ParentHarmonize.Config.ParentRepos[0].SetToCommit(superParentCommit);
+                File.WriteAllText(checkout.ParentRepo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath, checkout.ParentHarmonize.Config.GetXmlStr());
+                Assert.True(checkout.ParentRepo.Repo.RetrieveStatus().IsDirty);
+                CheckoutArgs args = new CheckoutArgs()
+                {
+                    CurrentSha = checkout.Repo.Repo.Head.Tip.Sha,
+                    TargetSha = checkout.Child_SecondSha
+                };
+                PreCheckoutHandler handler = new PreCheckoutHandler(checkout.Harmonize);
+                var ret = await handler.Handle(args.ToArray());
+                Assert.True(ret);
+                Assert.False(checkout.ParentRepo.Repo.RetrieveStatus().IsDirty);
+            }
         }
 
         [Fact]
-        public async Task Dirty()
+        public async Task DirtyParent()
         {
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
