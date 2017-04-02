@@ -110,6 +110,16 @@ namespace HarmonizeGit.Tests
                 Assert.Equal(changes[0].Path, parentRepo.Dir.FullName);
             }
         }
+
+        [Fact]
+        public void GetReposWithUncommittedChanges_JustConfig()
+        {
+            using (var checkout = Repository_Tools.GetStandardConfigCheckout())
+            {
+                checkout.Init();
+                Assert.True(false);
+            }
+        }
         #endregion
     }
 }

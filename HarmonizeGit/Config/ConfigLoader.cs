@@ -73,7 +73,7 @@ namespace HarmonizeGit
             }
         }
 
-        public void WriteSyncAndConfig(HarmonizeConfig config, string path)
+        public void SyncAndWriteConfig(HarmonizeConfig config, string path)
         {
             List<RepoListing> changed = new List<RepoListing>();
             foreach (var listing in config.ParentRepos)

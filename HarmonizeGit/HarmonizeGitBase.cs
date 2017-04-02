@@ -183,7 +183,7 @@ namespace HarmonizeGit
                     if (status == FileStatus.Unaltered
                         || status == FileStatus.Nonexistent) return true;
                     var parentConfig = ConfigLoader.GetConfig(path);
-                    this.ConfigLoader.WriteSyncAndConfig(parentConfig, path);
+                    this.ConfigLoader.SyncAndWriteConfig(parentConfig, path);
                     repoStatus = repo.RetrieveStatus();
                     if (!repoStatus.IsDirty) return false;
                 }
@@ -207,7 +207,7 @@ namespace HarmonizeGit
         public void SyncConfigToParentShas()
         {
             this.WriteLine("Syncing config to parent repo shas.");
-            this.ConfigLoader.WriteSyncAndConfig(this.Config, this.TargetPath);
+            this.ConfigLoader.SyncAndWriteConfig(this.Config, this.TargetPath);
         }
 
         public void UpdatePathingConfig(bool trim)
