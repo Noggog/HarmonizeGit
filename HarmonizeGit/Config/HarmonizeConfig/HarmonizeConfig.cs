@@ -93,15 +93,14 @@ namespace HarmonizeGit
             }
             return xmlStr;
         }
-
+        
         public bool SetPathing(PathingConfig pathing, bool addMissing = true)
         {
             this.Pathing = pathing;
             bool added = false;
             foreach (var listing in this.ParentRepos)
             {
-                PathingListing pathListing;
-                if (!pathing.TryGetListing(listing.Nickname, out pathListing))
+                if (!pathing.TryGetListing(listing.Nickname, out PathingListing pathListing))
                 {
                     if (!addMissing) continue;
                     string missingPath;

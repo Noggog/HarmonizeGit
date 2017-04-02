@@ -59,6 +59,10 @@ namespace HarmonizeGit.Tests
         public HarmonizeGitBase ParentHarmonize;
         public HarmonizeGitBase SuperParentHarmonize;
 
+        public RepoListing ChildToParentListing;
+        public RepoListing ChildToSuperParentListing;
+        public RepoListing ParentToSuperParentListing;
+
         public string SuperParent_FirstSha;
         public string SuperParent_SecondSha;
 
@@ -89,6 +93,9 @@ namespace HarmonizeGit.Tests
             this.Harmonize.Init();
             this.ParentHarmonize.Init();
             this.SuperParentHarmonize.Init();
+            this.ChildToParentListing = this.Harmonize.Config.ParentRepos.Where((l) => l.Path.Equals(ParentRepo.Dir.FullName)).First();
+            this.ChildToSuperParentListing = this.Harmonize.Config.ParentRepos.Where((l) => l.Path.Equals(SuperParentRepo.Dir.FullName)).First();
+            this.ParentToSuperParentListing = this.ParentHarmonize.Config.ParentRepos.Where((l) => l.Path.Equals(SuperParentRepo.Dir.FullName)).First();
         }
 
         public void Dispose()
@@ -103,7 +110,7 @@ namespace HarmonizeGit.Tests
     {
         public static DirectoryInfo GetTemporaryDirectory()
         {
-            string tempDirectory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName()) + "\\";
+            string tempDirectory = Path.Combine(Path.GetTempPath(), "HarmonizeUnitTests", Path.GetRandomFileName()) + "\\";
             Directory.CreateDirectory(tempDirectory);
             return new DirectoryInfo(tempDirectory);
         }
@@ -193,15 +200,15 @@ namespace HarmonizeGit.Tests
                 signature,
                 signature);
 
-            var superParentListing = new RepoListing()
+            var parentToSuperParentListing = new RepoListing()
             {
                 Nickname = "SuperParentRepo",
                 SuggestedPath = superParentRepoDir.FullName,
                 Path = superParentRepoDir.FullName,
             };
-            superParentListing.SetToCommit(secondSuperParentCommit);
+            parentToSuperParentListing.SetToCommit(secondSuperParentCommit);
             HarmonizeConfig parentConfig = new HarmonizeConfig();
-            parentConfig.ParentRepos.Add(superParentListing);
+            parentConfig.ParentRepos.Add(parentToSuperParentListing);
             var parentRepoDir = GetTemporaryDirectory();
             Repository.Init(parentRepoDir.FullName);
             var parentRepo = new Repository(parentRepoDir.FullName);
@@ -238,6 +245,13 @@ namespace HarmonizeGit.Tests
                 SuggestedPath = parentRepoDir.FullName,
                 Path = parentRepoDir.FullName,
             };
+            var superParentListing = new RepoListing()
+            {
+                Nickname = "SuperParentRepo",
+                SuggestedPath = superParentRepoDir.FullName,
+                Path = superParentRepoDir.FullName,
+            };
+            superParentListing.SetToCommit(secondSuperParentCommit);
             HarmonizeConfig childConfig = new HarmonizeConfig();
             childConfig.ParentRepos.Add(superParentListing);
             childConfig.ParentRepos.Add(parentListing);

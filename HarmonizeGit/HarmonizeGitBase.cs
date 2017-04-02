@@ -210,7 +210,7 @@ namespace HarmonizeGit
             this.ConfigLoader.SyncAndWriteConfig(this.Config, this.TargetPath);
         }
 
-        public void UpdatePathingConfig(bool trim)
+        public void UpdatePathingConfig()
         {
             this.ConfigLoader.UpdatePathingConfig(this.Config);
         }

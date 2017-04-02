@@ -28,10 +28,10 @@ namespace HarmonizeGit
         }
 
         #region Config
-        public HarmonizeConfig GetConfig(string path)
+        public HarmonizeConfig GetConfig(string path, bool force = false)
         {
             path = path.Trim();
-            if (configs.TryGetValue(path, out HarmonizeConfig ret)) return ret;
+            if (!force && configs.TryGetValue(path, out HarmonizeConfig ret)) return ret;
             ret = LoadConfig(path);
             configs[path] = ret;
             return ret;

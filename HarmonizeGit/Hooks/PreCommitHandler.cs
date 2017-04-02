@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp;
+﻿using FishingWithGit;
+using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,12 +20,14 @@ namespace HarmonizeGit
 
         public override async Task<bool> Handle(string[] args)
         {
+            CommitArgs commitArgs = new CommitArgs(args);
+
             if (this.harmonize.CancelIfParentsHaveChanges())
             {
                 return false;
             }
 
-            if (args.Contains("--amend"))
+            if (commitArgs.Amending)
             {
                 this.harmonize.WriteLine("Running amending commit tasks.");
                 using (var repo = new Repository(this.harmonize.TargetPath))
@@ -43,11 +46,9 @@ namespace HarmonizeGit
         private void DoCommitTasks()
         {
             this.harmonize.SyncConfigToParentShas();
-            this.harmonize.UpdatePathingConfig(trim: true);
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
                 Commands.Stage(repo, HarmonizeGitBase.HarmonizeConfigPath);
-                Commands.Stage(repo, HarmonizeGitBase.HarmonizePathingPath);
             }
         }
     }
