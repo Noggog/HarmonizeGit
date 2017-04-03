@@ -16,7 +16,7 @@ namespace HarmonizeGit.Tests
         {
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
-                checkout.Init();
+                await checkout.Init();
                 var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(checkout.Parent_SecondSha);
                 File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + Repository_Tools.STANDARD_FILE, "Dirty");
                 Commands.Stage(checkout.Repo.Repo, Repository_Tools.STANDARD_FILE);

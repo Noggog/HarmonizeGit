@@ -17,10 +17,10 @@ namespace HarmonizeGit.Tests
         public string OldSha;
         public string FillerSha;
 
-        public ConfigCheckout GetCheckout()
+        public async Task<ConfigCheckout> GetCheckout()
         {
             var checkout = Repository_Tools.GetStandardConfigCheckout();
-            checkout.Init();
+            await checkout.Init();
             var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(checkout.Parent_SecondSha);
             this.AncestorSha = checkout.Repo.Repo.Head.Tip.Sha;
             var signature = Repository_Tools.GetSignature();
@@ -33,7 +33,7 @@ namespace HarmonizeGit.Tests
                 signature);
             this.OldSha = oldCommit.Sha;
 
-            checkout.Harmonize.ChildLoader.InsertChildEntry(
+            await checkout.Harmonize.ChildLoader.InsertChildEntry(
                 new ChildUsage()
                 {
                     Sha = this.OldSha,
@@ -66,7 +66,7 @@ namespace HarmonizeGit.Tests
         [Fact]
         public async Task RemoveUsagesFromParent()
         {
-            using (var checkout = GetCheckout())
+            using (var checkout = await GetCheckout())
             {
                 var childGet = await checkout.ParentHarmonize.ChildLoader.LookupChildUsage(this.OldSha);
                 Assert.True(childGet.Succeeded);
@@ -85,7 +85,7 @@ namespace HarmonizeGit.Tests
         [Fact]
         public async Task InsertNewCommitsIntoParents()
         {
-            using (var checkout = GetCheckout())
+            using (var checkout = await GetCheckout())
             {
                 var childGet = await checkout.ParentHarmonize.ChildLoader.LookupChildUsage(this.RebasedSha);
                 Assert.False(childGet.Succeeded);

@@ -96,11 +96,11 @@ namespace HarmonizeGit.Tests
         }
 
         [Fact]
-        public void GetReposWithUncommittedChanges()
+        public async Task GetReposWithUncommittedChanges()
         {
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
-                checkout.Init();
+                await checkout.Init();
                 var parentRepo = checkout.ParentRepo;
                 File.WriteAllText(
                     Path.Combine(parentRepo.Dir.FullName, Repository_Tools.STANDARD_FILE),
@@ -112,11 +112,11 @@ namespace HarmonizeGit.Tests
         }
 
         [Fact]
-        public void GetReposWithUncommittedChanges_JustConfig()
+        public async Task GetReposWithUncommittedChanges_JustConfig()
         {
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
-                checkout.Init();
+                await checkout.Init();
                 var superParentCommit = checkout.SuperParentRepo.Repo.Lookup<Commit>(checkout.SuperParent_FirstSha);
                 checkout.ParentHarmonize.Config.ParentRepos[0].SetToCommit(superParentCommit);
                 File.WriteAllText(checkout.ParentRepo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath, checkout.ParentHarmonize.Config.GetXmlStr());

@@ -18,7 +18,7 @@ namespace HarmonizeGit.Tests
         {
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
-                checkout.Init();
+                await checkout.Init();
                 var superParentCommit = checkout.SuperParentRepo.Repo.Lookup<Commit>(checkout.SuperParent_FirstSha);
                 checkout.ParentHarmonize.Config.ParentRepos[0].SetToCommit(superParentCommit);
                 File.WriteAllText(checkout.ParentRepo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath, checkout.ParentHarmonize.Config.GetXmlStr());
@@ -36,7 +36,7 @@ namespace HarmonizeGit.Tests
         {
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
-                checkout.Init();
+                await checkout.Init();
                 File.WriteAllText(checkout.ParentRepo.Repo.Info.WorkingDirectory + Repository_Tools.STANDARD_FILE, "Prep");
                 CommitArgs args = new CommitArgs();
                 PreCommitHandler handler = new PreCommitHandler(checkout.Harmonize);
@@ -50,7 +50,7 @@ namespace HarmonizeGit.Tests
         {
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
-                checkout.Init();
+                await checkout.Init();
                 Commands.Checkout(checkout.ParentRepo.Repo, checkout.Parent_SecondSha);
                 CommitArgs args = new CommitArgs();
                 PreCommitHandler handler = new PreCommitHandler(checkout.Harmonize);
@@ -69,7 +69,7 @@ namespace HarmonizeGit.Tests
         {
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
-                checkout.Init();
+                await checkout.Init();
 
                 var stat = checkout.Repo.Repo.RetrieveStatus(HarmonizeGitBase.HarmonizeConfigPath);
                 Assert.Equal(FileStatus.Unaltered, stat);

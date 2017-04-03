@@ -88,7 +88,7 @@ namespace HarmonizeGit.Tests
             this.SuperParentRepo = new RepoCheckout(superParentRepo, new DirectoryInfo(superParentRepo.Info.WorkingDirectory));
         }
 
-        public void Init()
+        public async Task Init()
         {
             this.Harmonize.Init();
             this.ParentHarmonize.Init();
@@ -96,6 +96,9 @@ namespace HarmonizeGit.Tests
             this.ChildToParentListing = this.Harmonize.Config.ParentRepos.Where((l) => l.Path.Equals(ParentRepo.Dir.FullName)).First();
             this.ChildToSuperParentListing = this.Harmonize.Config.ParentRepos.Where((l) => l.Path.Equals(SuperParentRepo.Dir.FullName)).First();
             this.ParentToSuperParentListing = this.ParentHarmonize.Config.ParentRepos.Where((l) => l.Path.Equals(SuperParentRepo.Dir.FullName)).First();
+            await Task.WhenAll(
+                this.Harmonize.ChildLoader.InitializeIntoParents(),
+                this.ParentHarmonize.ChildLoader.InitializeIntoParents());
         }
 
         public void Dispose()

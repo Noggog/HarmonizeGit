@@ -18,7 +18,7 @@ namespace HarmonizeGit.Tests
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
                 Commands.Checkout(checkout.Repo.Repo, checkout.Child_ThirdSha, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
-                checkout.Init();
+                await checkout.Init();
                 ResetArgs args = new ResetArgs()
                 {
                     StartingSha = checkout.Child_FourthSha,
@@ -39,7 +39,7 @@ namespace HarmonizeGit.Tests
         {
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
-                checkout.Init();
+                await checkout.Init();
                 File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + Repository_Tools.STANDARD_FILE, "Prep");
                 Commands.Stage(checkout.Repo.Repo, Repository_Tools.STANDARD_FILE);
                 var commit = checkout.Repo.Repo.Commit(
