@@ -93,27 +93,37 @@ namespace HarmonizeGit.Tests
         [Fact]
         public async Task Amending_BlockIfChildrenAreUsing()
         {
-            throw new NotImplementedException();
+            using (var checkout = Repository_Tools.GetStandardConfigCheckout())
+            {
+                await checkout.Init();
+
+                CommitArgs args = new CommitArgs()
+                {
+                    Amending = true
+                };
+                PreCommitHandler handler = new PreCommitHandler(checkout.ParentHarmonize);
+                var ret = await handler.Handle(args.ToArray());
+                Assert.False(ret);
+            }
         }
 
         [Fact]
         public async Task Amending_RemoveUsagesFromParent()
         {
-            throw new NotImplementedException();
-            //using (var checkout = GetCheckout())
-            //{
-            //    var childGet = await checkout.ParentHarmonize.ChildLoader.LookupChildUsage(this.OldSha);
-            //    Assert.True(childGet.Succeeded);
-            //    var handler = new PostRebaseHandler(checkout.Harmonize);
-            //    var args = new RebaseInProgressArgs()
-            //    {
-            //        OriginalTipSha = this.OldSha,
-            //        LandingSha = this.AncestorSha
-            //    };
-            //    await handler.Handle(args.ToArray());
-            //    childGet = await checkout.ParentHarmonize.ChildLoader.LookupChildUsage(this.OldSha);
-            //    Assert.False(childGet.Succeeded);
-            //}
+            using (var checkout = Repository_Tools.GetStandardConfigCheckout())
+            {
+                await checkout.Init();
+
+                CommitArgs args = new CommitArgs()
+                {
+                    Amending = true
+                };
+                PreCommitHandler handler = new PreCommitHandler(checkout.Harmonize);
+                var ret = await handler.Handle(args.ToArray());
+                Assert.True(ret);
+                var usage = await checkout.Harmonize.ChildLoader.LookupChildUsage(checkout.Child_FourthSha);
+                Assert.False(usage.Succeeded);
+            }
         }
     }
 }

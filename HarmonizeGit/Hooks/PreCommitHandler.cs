@@ -32,10 +32,11 @@ namespace HarmonizeGit
                 this.harmonize.WriteLine("Running amending commit tasks.");
                 using (var repo = new Repository(this.harmonize.TargetPath))
                 {
-                    await PreResetHandler.DoResetTasks(
+                    var resetRet = await PreResetHandler.DoResetTasks(
                         this.harmonize,
                         repo,
                         new Commit[] { repo.Head.Tip });
+                    if (!resetRet) return false;
                 }
             }
 

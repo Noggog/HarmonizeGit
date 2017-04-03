@@ -89,6 +89,7 @@
     <Compile Include="PreCommit_Tests.cs" />
     <Compile Include="PrePull_Tests.cs" />
     <Compile Include="PreRebase_Tests.cs" />
+    <Compile Include="PreReset_Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repository_Tools.cs" />
   </ItemGroup>
