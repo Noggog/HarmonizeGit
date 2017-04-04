@@ -12,7 +12,7 @@ namespace HarmonizeGit
         public static IEnumerable<Commit> GetPotentiallyStrandedCommits(
             this Repository repo,
             Commit tip,
-            Commit ancestor)
+            Commit ancestor = null)
         {
             Queue<Commit> toDo = new Queue<Commit>();
             toDo.Enqueue(tip);
@@ -21,7 +21,7 @@ namespace HarmonizeGit
             {
                 var item = toDo.Dequeue();
                 // If we reached our target commit, we're done
-                if (ancestor.Sha.Equals(item.Sha)) continue;
+                if (ancestor?.Sha.Equals(item.Sha) ?? false) continue;
                 // If we've already processed, short circuit
                 if (!processedShas.Add(item.Sha)) continue;
                 // If another branch contains this commit, it's safe

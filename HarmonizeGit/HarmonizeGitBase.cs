@@ -79,6 +79,9 @@ namespace HarmonizeGit
                 case HookType.Post_Pull:
                     handler = new PostPullHandler(this);
                     break;
+                case HookType.Pre_Branch:
+                    handler = new PreBranchHandler(this);
+                    break;
                 default:
                     return true;
             }
