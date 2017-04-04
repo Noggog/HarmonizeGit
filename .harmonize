@@ -2,10 +2,10 @@
   <ParentRepos>
     <RepoListing>
       <Nickname>FishingWithGit</Nickname>
-      <Sha>fff79a995f906dab26a23eee386d27cfac34a47a</Sha>
-      <Description>Args naming tweaks</Description>
+      <Sha>516bedb6dd9928884cf4b329d6d3caae6bed51f6</Sha>
+      <Description>Bugfix for TakeArgs Items enumeration</Description>
       <Author>Justin Swanson</Author>
-      <CommitDate>04-02-2017 22:55:28</CommitDate>
+      <CommitDate>04-03-2017 19:34:45</CommitDate>
     </RepoListing>
   </ParentRepos>
 </HarmonizeConfig>
