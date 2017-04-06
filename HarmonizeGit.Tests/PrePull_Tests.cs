@@ -1,4 +1,5 @@
-﻿using FishingWithGit.Tests.Common;
+﻿using FishingWithGit;
+using FishingWithGit.Tests.Common;
 using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
@@ -20,8 +21,8 @@ namespace HarmonizeGit.Tests
                 await checkout.Init();
                 var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(checkout.Parent_SecondSha);
                 Assert.False(checkout.Repo.Repo.RetrieveStatus().IsDirty);
-                var pull = new PrePullHandler(checkout.Harmonize);
-                await pull.Handle(null);
+                var pull = new PrePullHandler(checkout.Harmonize, new PullArgs());
+                await pull.Handle();
                 Assert.False(checkout.Repo.Repo.RetrieveStatus().IsDirty);
             }
         }
@@ -36,8 +37,8 @@ namespace HarmonizeGit.Tests
                 checkout.Harmonize.Config.ParentRepos[0].SetToCommit(parentCommit);
                 File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath, checkout.Harmonize.Config.GetXmlStr());
                 Assert.True(checkout.Repo.Repo.RetrieveStatus().IsDirty);
-                var pull = new PrePullHandler(checkout.Harmonize);
-                await pull.Handle(null);
+                var pull = new PrePullHandler(checkout.Harmonize, new PullArgs());
+                await pull.Handle();
                 Assert.False(checkout.Repo.Repo.RetrieveStatus().IsDirty);
             }
         }
@@ -53,8 +54,8 @@ namespace HarmonizeGit.Tests
                 File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath, checkout.Harmonize.Config.GetXmlStr());
                 File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + Utility.STANDARD_FILE, "Dirty");
                 Assert.True(checkout.Repo.Repo.RetrieveStatus().IsDirty);
-                var pull = new PrePullHandler(checkout.Harmonize);
-                await pull.Handle(null);
+                var pull = new PrePullHandler(checkout.Harmonize, new PullArgs());
+                await pull.Handle();
                 Assert.True(checkout.Repo.Repo.RetrieveStatus().IsDirty);
             }
         }

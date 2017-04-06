@@ -34,13 +34,13 @@ namespace HarmonizeGit.Tests
                     "A Commit",
                     Utility.GetSignature(),
                     Utility.GetSignature());
-                var handler = new PostPullHandler(checkout.Harmonize);
                 var args = new PullArgs()
                 {
                     AncestorSha = ancestorSha,
                     TargetSha = checkout.Repo.Repo.Head.Tip.Sha
                 };
-                await handler.Handle(args.ToArray());
+                var handler = new PostPullHandler(checkout.Harmonize, args);
+                await handler.Handle();
                 var childGet = await checkout.ParentHarmonize.ChildLoader.LookupChildUsage(commit.Sha);
                 Assert.True(childGet.Succeeded);
                 Assert.Equal(commit.Sha, childGet.Usage.Sha);

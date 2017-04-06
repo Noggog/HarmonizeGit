@@ -28,8 +28,8 @@ namespace HarmonizeGit.Tests
                     CurrentSha = checkout.Repo.Repo.Head.Tip.Sha,
                     TargetSha = checkout.Child_SecondSha
                 };
-                PreCheckoutHandler handler = new PreCheckoutHandler(checkout.Harmonize);
-                var ret = await handler.Handle(args.ToArray());
+                PreCheckoutHandler handler = new PreCheckoutHandler(checkout.Harmonize, args);
+                var ret = await handler.Handle();
                 Assert.True(ret);
             }
         }
@@ -49,8 +49,8 @@ namespace HarmonizeGit.Tests
                     CurrentSha = checkout.Repo.Repo.Head.Tip.Sha,
                     TargetSha = checkout.Child_SecondSha
                 };
-                PreCheckoutHandler handler = new PreCheckoutHandler(checkout.Harmonize);
-                var ret = await handler.Handle(args.ToArray());
+                PreCheckoutHandler handler = new PreCheckoutHandler(checkout.Harmonize, args);
+                var ret = await handler.Handle();
                 Assert.True(ret);
                 Assert.False(checkout.ParentRepo.Repo.RetrieveStatus().IsDirty);
             }
@@ -68,8 +68,8 @@ namespace HarmonizeGit.Tests
                     CurrentSha = checkout.Repo.Repo.Head.Tip.Sha,
                     TargetSha = checkout.Child_SecondSha
                 };
-                PreCheckoutHandler handler = new PreCheckoutHandler(checkout.Harmonize);
-                var ret = await handler.Handle(args.ToArray());
+                PreCheckoutHandler handler = new PreCheckoutHandler(checkout.Harmonize, args);
+                var ret = await handler.Handle();
                 Assert.False(ret);
             }
         }
@@ -85,8 +85,8 @@ namespace HarmonizeGit.Tests
                     CurrentSha = checkout.Repo.Repo.Head.Tip.Sha,
                     TargetSha = checkout.Child_SecondSha
                 };
-                PreCheckoutHandler handler = new PreCheckoutHandler(checkout.Harmonize);
-                var ret = await handler.Handle(args.ToArray());
+                PreCheckoutHandler handler = new PreCheckoutHandler(checkout.Harmonize, args);
+                var ret = await handler.Handle();
                 Assert.True(ret);
                 Assert.Equal(checkout.Parent_SecondSha, checkout.ParentRepo.Repo.Head.Tip.Sha);
             }

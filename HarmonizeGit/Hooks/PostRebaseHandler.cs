@@ -10,28 +10,31 @@ namespace HarmonizeGit
 {
     public class PostRebaseHandler : TypicalHandlerBase
     {
-        public PostRebaseHandler(HarmonizeGitBase harmonize)
+        RebaseInProgressArgs args;
+        public override IGitHookArgs Args => args;
+
+        public PostRebaseHandler(HarmonizeGitBase harmonize, RebaseInProgressArgs args)
             : base(harmonize)
         {
             this.NeedsConfig = false;
+            this.args = args;
         }
 
-        public override async Task<bool> Handle(string[] args)
+        public override async Task<bool> Handle()
         {
-            var rebaseArgs = new RebaseInProgressArgs(args);
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
-                var originalCommit = repo.Lookup<Commit>(rebaseArgs.OriginalTipSha);
+                var originalCommit = repo.Lookup<Commit>(args.OriginalTipSha);
                 if (originalCommit == null)
                 {
-                    harmonize.WriteLine($"Original commit {rebaseArgs.OriginalTipSha} could not be found.");
+                    harmonize.WriteLine($"Original commit {args.OriginalTipSha} could not be found.");
                     return false;
                 }
 
-                var landingCommit = repo.Lookup<Commit>(rebaseArgs.LandingSha);
+                var landingCommit = repo.Lookup<Commit>(args.LandingSha);
                 if (landingCommit == null)
                 {
-                    harmonize.WriteLine($"Target commit {rebaseArgs.LandingSha} could not be found.");
+                    harmonize.WriteLine($"Target commit {args.LandingSha} could not be found.");
                     return false;
                 }
 

@@ -4,17 +4,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FishingWithGit;
 
 namespace HarmonizeGit
 {
     public class PrePullHandler : TypicalHandlerBase
     {
-        public PrePullHandler(HarmonizeGitBase harmonize)
+        PullArgs args;
+        public override IGitHookArgs Args => args;
+
+        public PrePullHandler(HarmonizeGitBase harmonize, PullArgs args)
             : base(harmonize)
         {
+            this.args = args;
         }
 
-        public override async Task<bool> Handle(string[] args)
+        public override async Task<bool> Handle()
         {
             using (var repo = new Repository(this.harmonize.TargetPath))
             {

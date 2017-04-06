@@ -10,16 +10,18 @@ namespace HarmonizeGit
 {
     public class PreBranchHandler : TypicalHandlerBase
     {
-        public PreBranchHandler(HarmonizeGitBase harmonize)
+        BranchArgs args;
+        public override IGitHookArgs Args => args;
+
+        public PreBranchHandler(HarmonizeGitBase harmonize, BranchArgs args)
             : base(harmonize)
         {
+            this.args = args;
         }
 
-        public override async Task<bool> Handle(string[] args)
+        public override async Task<bool> Handle()
         {
-            BranchArgs branchArgs = new BranchArgs(args);
-
-            if (!branchArgs.Deleting) return true;
+            if (!args.Deleting) return true;
 
             using (var repo = new Repository(this.harmonize.TargetPath))
             {

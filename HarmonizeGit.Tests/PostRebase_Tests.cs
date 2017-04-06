@@ -71,13 +71,13 @@ namespace HarmonizeGit.Tests
             {
                 var childGet = await checkout.ParentHarmonize.ChildLoader.LookupChildUsage(this.OldSha);
                 Assert.True(childGet.Succeeded);
-                var handler = new PostRebaseHandler(checkout.Harmonize);
                 var args = new RebaseInProgressArgs()
                 {
                     OriginalTipSha = this.OldSha,
                     LandingSha = this.AncestorSha
                 };
-                await handler.Handle(args.ToArray());
+                var handler = new PostRebaseHandler(checkout.Harmonize, args);
+                await handler.Handle();
                 childGet = await checkout.ParentHarmonize.ChildLoader.LookupChildUsage(this.OldSha);
                 Assert.False(childGet.Succeeded);
             }
@@ -90,13 +90,13 @@ namespace HarmonizeGit.Tests
             {
                 var childGet = await checkout.ParentHarmonize.ChildLoader.LookupChildUsage(this.RebasedSha);
                 Assert.False(childGet.Succeeded);
-                var handler = new PostRebaseHandler(checkout.Harmonize);
                 var args = new RebaseInProgressArgs()
                 {
                     OriginalTipSha = this.OldSha,
                     LandingSha = this.AncestorSha
                 };
-                await handler.Handle(args.ToArray());
+                var handler = new PostRebaseHandler(checkout.Harmonize, args);
+                await handler.Handle();
                 childGet = await checkout.ParentHarmonize.ChildLoader.LookupChildUsage(this.RebasedSha);
                 Assert.True(childGet.Succeeded);
                 Assert.Equal(this.RebasedSha, childGet.Usage.Sha);

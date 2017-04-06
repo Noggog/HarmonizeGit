@@ -10,22 +10,25 @@ namespace HarmonizeGit
 {
     public class PostResetHandler : TypicalHandlerBase
     {
-        public PostResetHandler(HarmonizeGitBase harmonize)
+        ResetArgs args;
+        public override IGitHookArgs Args => args;
+
+        public PostResetHandler(HarmonizeGitBase harmonize, ResetArgs args)
             : base(harmonize)
         {
+            this.args = args;
         }
 
-        public override async Task<bool> Handle(string[] args)
+        public override async Task<bool> Handle()
         {
-            ResetArgs resetArgs = new ResetArgs(args);
             harmonize.SyncParentRepos();
 
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
-                var startingCommit = repo.Lookup<Commit>(resetArgs.StartingSha);
+                var startingCommit = repo.Lookup<Commit>(args.StartingSha);
                 if (startingCommit == null)
                 {
-                    this.harmonize.WriteLine($"Starting commit did not exist {resetArgs.StartingSha}");
+                    this.harmonize.WriteLine($"Starting commit did not exist {args.StartingSha}");
                     return false;
                 }
 

@@ -1,4 +1,5 @@
-﻿using FishingWithGit.Tests.Common;
+﻿using FishingWithGit;
+using FishingWithGit.Tests.Common;
 using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
@@ -34,9 +35,9 @@ namespace HarmonizeGit.Tests
                 checkout.Repo.Repo.Commit("Breakoff commit", Utility.GetSignature(), Utility.GetSignature());
                 var mergeResult = checkout.Repo.Repo.Merge(checkout.Child_ThirdSha, Utility.GetSignature());
                 Assert.Equal(MergeStatus.Conflicts, mergeResult.Status);
-                
-                StatusHandler handler = new StatusHandler(checkout.Harmonize);
-                var result = await handler.Handle(new string[] { });
+
+                StatusHandler handler = new StatusHandler(checkout.Harmonize, new StatusArgs());
+                var result = await handler.Handle();
                 Assert.True(result);
                 var configStatus = checkout.Repo.Repo.RetrieveStatus(HarmonizeGitBase.HarmonizeConfigPath);
                 Assert.Equal(FileStatus.Unaltered, configStatus);
@@ -50,8 +51,8 @@ namespace HarmonizeGit.Tests
             {
                 await checkout.Init();
                 Commands.Checkout(checkout.ParentRepo.Repo, checkout.Parent_SecondSha);
-                StatusHandler handler = new StatusHandler(checkout.Harmonize);
-                var result = await handler.Handle(new string[] { });
+                StatusHandler handler = new StatusHandler(checkout.Harmonize, new StatusArgs());
+                var result = await handler.Handle();
                 Assert.True(result);
                 var configStatus = checkout.Repo.Repo.RetrieveStatus(HarmonizeGitBase.HarmonizeConfigPath);
                 Assert.Equal(FileStatus.ModifiedInWorkdir, configStatus);

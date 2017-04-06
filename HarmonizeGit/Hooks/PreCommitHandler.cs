@@ -13,21 +13,23 @@ namespace HarmonizeGit
 {
     public class PreCommitHandler : TypicalHandlerBase
     {
-        public PreCommitHandler(HarmonizeGitBase harmonize)
+        CommitArgs args;
+        public override IGitHookArgs Args => args;
+
+        public PreCommitHandler(HarmonizeGitBase harmonize, CommitArgs args)
             : base(harmonize)
         {
+            this.args = args;
         }
 
-        public override async Task<bool> Handle(string[] args)
+        public override async Task<bool> Handle()
         {
-            CommitArgs commitArgs = new CommitArgs(args);
-
             if (this.harmonize.CancelIfParentsHaveChanges())
             {
                 return false;
             }
 
-            if (commitArgs.Amending)
+            if (args.Amending)
             {
                 this.harmonize.WriteLine("Running amending commit tasks.");
                 using (var repo = new Repository(this.harmonize.TargetPath))

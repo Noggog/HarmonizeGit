@@ -10,24 +10,26 @@ namespace HarmonizeGit
 {
     public class PreResetHandler : TypicalHandlerBase
     {
-        public PreResetHandler(HarmonizeGitBase harmonize)
+        ResetArgs args;
+        public override IGitHookArgs Args => args;
+
+        public PreResetHandler(HarmonizeGitBase harmonize,ResetArgs args)
             : base(harmonize)
         {
             this.NeedsConfig = false;
+            this.args = args;
         }
 
-        public override async Task<bool> Handle(string[] args)
+        public override async Task<bool> Handle()
         {
-            ResetArgs resetArgs = new ResetArgs(args);
-
             List<Commit> strandedCommits;
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
                 this.harmonize.WriteLine("Getting stranded commits: ");
-                Commit targetCommit = repo.Lookup<Commit>(resetArgs.TargetSha);
+                Commit targetCommit = repo.Lookup<Commit>(args.TargetSha);
                 if (targetCommit == null)
                 {
-                    this.harmonize.WriteLine($"Target reset commit did not exist: {resetArgs.TargetSha}");
+                    this.harmonize.WriteLine($"Target reset commit did not exist: {args.TargetSha}");
                 }
 
                 strandedCommits = repo.GetPotentiallyStrandedCommits(

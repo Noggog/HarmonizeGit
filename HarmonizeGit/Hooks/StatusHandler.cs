@@ -4,18 +4,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using FishingWithGit;
 
 namespace HarmonizeGit
 {
     public class StatusHandler : TypicalHandlerBase
     {
-        public StatusHandler(HarmonizeGitBase harmonize)
+        StatusArgs args;
+        public override IGitHookArgs Args => args;
+
+        public StatusHandler(HarmonizeGitBase harmonize, StatusArgs args)
             : base(harmonize)
         {
-            this.Silent = true;
+            this.args = args;
         }
 
-        public override async Task<bool> Handle(string[] args)
+        public override async Task<bool> Handle()
         {
             using (var repo = new Repository(this.harmonize.TargetPath))
             {

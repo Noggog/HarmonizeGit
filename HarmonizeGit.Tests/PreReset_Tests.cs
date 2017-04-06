@@ -23,8 +23,8 @@ namespace HarmonizeGit.Tests
                     TargetSha = checkout.Parent_SecondSha,
                     Type = ResetType.hard
                 };
-                PreResetHandler handler = new PreResetHandler(checkout.ParentHarmonize);
-                var ret = await handler.Handle(args.ToArray());
+                PreResetHandler handler = new PreResetHandler(checkout.ParentHarmonize, args);
+                var ret = await handler.Handle();
                 Assert.False(ret);
             }
         }
@@ -42,8 +42,8 @@ namespace HarmonizeGit.Tests
                     TargetSha = checkout.Child_ThirdSha,
                     Type = ResetType.hard
                 };
-                PreResetHandler handler = new PreResetHandler(checkout.Harmonize);
-                var ret = await handler.Handle(args.ToArray());
+                PreResetHandler handler = new PreResetHandler(checkout.Harmonize, args);
+                var ret = await handler.Handle();
                 Assert.True(ret);
                 var usage = await checkout.Harmonize.ChildLoader.LookupChildUsage(checkout.Child_FourthSha);
                 Assert.False(usage.Succeeded);

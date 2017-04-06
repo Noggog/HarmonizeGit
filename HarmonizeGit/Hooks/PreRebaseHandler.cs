@@ -10,23 +10,25 @@ namespace HarmonizeGit
 {
     public class PreRebaseHandler : TypicalHandlerBase
     {
-        public PreRebaseHandler(HarmonizeGitBase harmonize)
+        RebaseArgs args;
+        public override IGitHookArgs Args => args;
+
+        public PreRebaseHandler(HarmonizeGitBase harmonize, RebaseArgs args)
             : base(harmonize)
         {
             this.NeedsConfig = false;
+            this.args = args;
         }
 
-        public override async Task<bool> Handle(string[] args)
+        public override async Task<bool> Handle()
         {
-            var rebaseArgs = new RebaseArgs(args);
-
             List<string> strandedCommitShas;
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
-                var targetBranch = repo.Branches[rebaseArgs.TargetBranch];
+                var targetBranch = repo.Branches[args.TargetBranch];
                 if (targetBranch == null)
                 {
-                    harmonize.WriteLine($"Target branch {rebaseArgs.TargetBranch} could not be found.");
+                    harmonize.WriteLine($"Target branch {args.TargetBranch} could not be found.");
                     return false;
                 }
                 if (!GetStrandedCommits(

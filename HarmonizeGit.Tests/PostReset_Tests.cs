@@ -26,8 +26,8 @@ namespace HarmonizeGit.Tests
                     TargetSha = checkout.Child_ThirdSha,
                     Type = ResetType.hard
                 };
-                PostResetHandler handler = new PostResetHandler(checkout.Harmonize);
-                await handler.Handle(args.ToArray());
+                PostResetHandler handler = new PostResetHandler(checkout.Harmonize, args);
+                await handler.Handle();
                 var parentSha = checkout.ParentRepo.Repo.Head.Tip.Sha;
                 Assert.Equal(
                     checkout.Parent_SecondSha,
@@ -53,8 +53,8 @@ namespace HarmonizeGit.Tests
                     TargetSha = checkout.Child_ThirdSha,
                     Type = ResetType.hard
                 };
-                PostResetHandler handler = new PostResetHandler(checkout.Harmonize);
-                await handler.Handle(args.ToArray());
+                PostResetHandler handler = new PostResetHandler(checkout.Harmonize, args);
+                await handler.Handle();
                 var get = await checkout.ParentHarmonize.ChildLoader.LookupChildUsage(commit.Sha);
                 Assert.True(get.Succeeded);
             }

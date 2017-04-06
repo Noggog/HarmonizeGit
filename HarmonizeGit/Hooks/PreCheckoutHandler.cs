@@ -10,17 +10,19 @@ namespace HarmonizeGit
 {
     public class PreCheckoutHandler : TypicalHandlerBase
     {
-        public PreCheckoutHandler(HarmonizeGitBase harmonize)
+        CheckoutArgs args;
+        public override IGitHookArgs Args => args;
+
+        public PreCheckoutHandler(HarmonizeGitBase harmonize, CheckoutArgs args)
             : base(harmonize)
         {
+            this.args = args;
         }
 
-        public override async Task<bool> Handle(string[] args)
+        public override async Task<bool> Handle()
         {
-            var checkoutArgs = new CheckoutArgs(args);
-
             // If moving to the same commit, just exit
-            if (checkoutArgs.CurrentSha.Equals(checkoutArgs.TargetSha))
+            if (args.CurrentSha.Equals(args.TargetSha))
             {
                 this.harmonize.WriteLine("Target commit was the same as the source commit.");
                 return true;
@@ -37,7 +39,7 @@ namespace HarmonizeGit
                 return false;
             }
             
-            harmonize.SyncParentReposToSha(checkoutArgs.TargetSha);
+            harmonize.SyncParentReposToSha(args.TargetSha);
             return true;
         }
     }

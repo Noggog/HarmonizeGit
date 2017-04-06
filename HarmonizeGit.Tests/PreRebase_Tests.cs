@@ -61,8 +61,8 @@ namespace HarmonizeGit.Tests
                 {
                     TargetBranch = "Nothing"
                 };
-                PreRebaseHandler handler = new PreRebaseHandler(checkout.Harmonize);
-                var ret = await handler.Handle(args.ToArray());
+                PreRebaseHandler handler = new PreRebaseHandler(checkout.Harmonize, args);
+                var ret = await handler.Handle();
                 Assert.False(ret);
             }
         }
@@ -77,8 +77,8 @@ namespace HarmonizeGit.Tests
                 {
                     TargetBranch = TARGET_BRANCH_NAME
                 };
-                PreRebaseHandler handler = new PreRebaseHandler(checkout.Harmonize);
-                var ret = await handler.Handle(args.ToArray());
+                PreRebaseHandler handler = new PreRebaseHandler(checkout.Harmonize, args);
+                var ret = await handler.Handle();
                 Assert.True(ret);
             }
         }
@@ -94,8 +94,8 @@ namespace HarmonizeGit.Tests
                 {
                     TargetBranch = TARGET_BRANCH_NAME
                 };
-                PreRebaseHandler handler = new PreRebaseHandler(checkout.ParentHarmonize);
-                var ret = await handler.Handle(args.ToArray());
+                PreRebaseHandler handler = new PreRebaseHandler(checkout.ParentHarmonize, args);
+                var ret = await handler.Handle();
                 Assert.False(ret);
             }
         }

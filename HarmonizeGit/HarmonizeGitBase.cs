@@ -43,50 +43,57 @@ namespace HarmonizeGit
 
             if (!HookTypeExt.TryGetHook(args[0], out HookType hookType)) return true;
 
+            List<string> trimmedArgs = new List<string>();
+            for (int i = 2; i < args.Length; i++)
+            {
+                trimmedArgs.Add(args[i]);
+            }
+            args = trimmedArgs.ToArray();
+
             TypicalHandlerBase handler;
             switch (hookType)
             {
                 case HookType.Pre_Checkout:
-                    handler = new PreCheckoutHandler(this);
+                    handler = new PreCheckoutHandler(this, new CheckoutArgs(args));
                     break;
                 case HookType.Pre_Reset:
-                    handler = new PreResetHandler(this);
+                    handler = new PreResetHandler(this, new ResetArgs(args));
                     break;
                 case HookType.Post_Reset:
-                    handler = new PostResetHandler(this);
+                    handler = new PostResetHandler(this, new ResetArgs(args));
                     break;
                 case HookType.Pre_Commit:
-                    handler = new PreCommitHandler(this);
+                    handler = new PreCommitHandler(this, new CommitArgs(args));
                     break;
                 case HookType.Post_Commit:
                 case HookType.Post_CherryPick:
                 case HookType.Post_Merge:
-                    handler = new PostCommitHandler(this);
+                    handler = new PostCommitHandler(this, new CommitArgs(args));
                     break;
                 case HookType.Post_Status:
-                    handler = new StatusHandler(this);
+                    handler = new StatusHandler(this, new StatusArgs(args));
                     break;
                 case HookType.Post_Take:
-                    handler = new TakeHandler(this);
+                    handler = new TakeHandler(this, new TakeArgs(args));
                     break;
                 case HookType.Pre_Rebase:
-                    handler = new PreRebaseHandler(this);
+                    handler = new PreRebaseHandler(this, new RebaseArgs(args));
                     break;
                 case HookType.Post_Rebase_Continue:
                 case HookType.Post_Rebase:
-                    handler = new PostRebaseHandler(this);
+                    handler = new PostRebaseHandler(this, new RebaseInProgressArgs(args));
                     break;
                 case HookType.Post_Pull:
-                    handler = new PostPullHandler(this);
+                    handler = new PostPullHandler(this, new PullArgs(args));
                     break;
                 case HookType.Pre_Branch:
-                    handler = new PreBranchHandler(this);
+                    handler = new PreBranchHandler(this, new BranchArgs(args));
                     break;
                 default:
                     return true;
             }
 
-            this.Silent = handler.Silent;
+            this.Silent = handler.Args.Silent;
 
             Init();
             if (this.Config == null)
@@ -103,12 +110,7 @@ namespace HarmonizeGit
                 await ChildLoader.InitializeIntoParents();
             }
 
-            List<string> trimmedArgs = new List<string>();
-            for (int i = 2; i < args.Length; i++)
-            {
-                trimmedArgs.Add(args[i]);
-            }
-            return await handler.Handle(trimmedArgs.ToArray());
+            return await handler.Handle();
         }
 
         public void Init()

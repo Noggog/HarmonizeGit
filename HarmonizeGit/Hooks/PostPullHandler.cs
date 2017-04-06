@@ -10,21 +10,23 @@ namespace HarmonizeGit
 {
     public class PostPullHandler : TypicalHandlerBase
     {
-        public PostPullHandler(HarmonizeGitBase harmonize)
+        PullArgs args;
+        public override IGitHookArgs Args => args;
+
+        public PostPullHandler(HarmonizeGitBase harmonize, PullArgs args)
             : base(harmonize)
         {
+            this.args = args;
         }
 
-        public override async Task<bool> Handle(string[] args)
+        public override async Task<bool> Handle()
         {
-            PullArgs pullArgs = new PullArgs(args);
-
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
-                var ancestorCommit = repo.Lookup<Commit>(pullArgs.AncestorSha);
+                var ancestorCommit = repo.Lookup<Commit>(args.AncestorSha);
                 if (ancestorCommit == null)
                 {
-                    this.harmonize.WriteLine($"Ancestor commit did not exist: {pullArgs.AncestorSha}");
+                    this.harmonize.WriteLine($"Ancestor commit did not exist: {args.AncestorSha}");
                     return false;
                 }
 

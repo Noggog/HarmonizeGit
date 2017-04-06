@@ -25,8 +25,8 @@ namespace HarmonizeGit.Tests
                 File.WriteAllText(checkout.ParentRepo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath, checkout.ParentHarmonize.Config.GetXmlStr());
                 Assert.True(checkout.ParentRepo.Repo.RetrieveStatus().IsDirty);
                 CommitArgs args = new CommitArgs();
-                PreCommitHandler handler = new PreCommitHandler(checkout.Harmonize);
-                var ret = await handler.Handle(args.ToArray());
+                PreCommitHandler handler = new PreCommitHandler(checkout.Harmonize, args);
+                var ret = await handler.Handle();
                 Assert.True(ret);
                 Assert.False(checkout.ParentRepo.Repo.RetrieveStatus().IsDirty);
             }
@@ -40,8 +40,8 @@ namespace HarmonizeGit.Tests
                 await checkout.Init();
                 File.WriteAllText(checkout.ParentRepo.Repo.Info.WorkingDirectory + Utility.STANDARD_FILE, "Prep");
                 CommitArgs args = new CommitArgs();
-                PreCommitHandler handler = new PreCommitHandler(checkout.Harmonize);
-                var ret = await handler.Handle(args.ToArray());
+                PreCommitHandler handler = new PreCommitHandler(checkout.Harmonize, args);
+                var ret = await handler.Handle();
                 Assert.False(ret);
             }
         }
@@ -54,8 +54,8 @@ namespace HarmonizeGit.Tests
                 await checkout.Init();
                 Commands.Checkout(checkout.ParentRepo.Repo, checkout.Parent_SecondSha);
                 CommitArgs args = new CommitArgs();
-                PreCommitHandler handler = new PreCommitHandler(checkout.Harmonize);
-                var ret = await handler.Handle(args.ToArray());
+                PreCommitHandler handler = new PreCommitHandler(checkout.Harmonize, args);
+                var ret = await handler.Handle();
                 Assert.True(ret);
                 HarmonizeConfig config = checkout.Harmonize.ConfigLoader.GetConfig(
                     checkout.Repo.Dir.FullName,
@@ -83,8 +83,8 @@ namespace HarmonizeGit.Tests
                 stat = checkout.Repo.Repo.RetrieveStatus(HarmonizeGitBase.HarmonizeConfigPath);
                 Assert.Equal(FileStatus.ModifiedInWorkdir, stat);
                 CommitArgs args = new CommitArgs();
-                PreCommitHandler handler = new PreCommitHandler(checkout.Harmonize);
-                var ret = await handler.Handle(args.ToArray());
+                PreCommitHandler handler = new PreCommitHandler(checkout.Harmonize, args);
+                var ret = await handler.Handle();
                 Assert.True(ret);
                 stat = checkout.Repo.Repo.RetrieveStatus(HarmonizeGitBase.HarmonizeConfigPath);
                 Assert.Equal(FileStatus.ModifiedInIndex, stat);
@@ -102,8 +102,8 @@ namespace HarmonizeGit.Tests
                 {
                     Amending = true
                 };
-                PreCommitHandler handler = new PreCommitHandler(checkout.ParentHarmonize);
-                var ret = await handler.Handle(args.ToArray());
+                PreCommitHandler handler = new PreCommitHandler(checkout.ParentHarmonize, args);
+                var ret = await handler.Handle();
                 Assert.False(ret);
             }
         }
@@ -119,8 +119,8 @@ namespace HarmonizeGit.Tests
                 {
                     Amending = true
                 };
-                PreCommitHandler handler = new PreCommitHandler(checkout.Harmonize);
-                var ret = await handler.Handle(args.ToArray());
+                PreCommitHandler handler = new PreCommitHandler(checkout.Harmonize, args);
+                var ret = await handler.Handle();
                 Assert.True(ret);
                 var usage = await checkout.Harmonize.ChildLoader.LookupChildUsage(checkout.Child_FourthSha);
                 Assert.False(usage.Succeeded);
