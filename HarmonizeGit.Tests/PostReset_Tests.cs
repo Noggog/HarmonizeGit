@@ -1,4 +1,5 @@
 ﻿using FishingWithGit;
+using FishingWithGit.Tests.Common;
 using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
@@ -40,12 +41,12 @@ namespace HarmonizeGit.Tests
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
                 await checkout.Init();
-                File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + Repository_Tools.STANDARD_FILE, "Prep");
-                Commands.Stage(checkout.Repo.Repo, Repository_Tools.STANDARD_FILE);
+                File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + Utility.STANDARD_FILE, "Prep");
+                Commands.Stage(checkout.Repo.Repo, Utility.STANDARD_FILE);
                 var commit = checkout.Repo.Repo.Commit(
                     "I'm just a commit",
-                    Repository_Tools.GetSignature(),
-                    Repository_Tools.GetSignature());
+                    Utility.GetSignature(),
+                    Utility.GetSignature());
                 ResetArgs args = new ResetArgs()
                 {
                     StartingSha = checkout.Child_FourthSha,

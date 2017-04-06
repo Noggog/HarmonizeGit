@@ -1,4 +1,5 @@
-﻿using HarmonizeGit;
+﻿using FishingWithGit.Tests.Common;
+using HarmonizeGit;
 using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
@@ -25,7 +26,7 @@ namespace HarmonizeGit.Tests
             using (var repo = Repository_Tools.GetStandardRepo())
             {
                 File.WriteAllText(
-                    Path.Combine(repo.Repo.Info.WorkingDirectory, Repository_Tools.STANDARD_FILE),
+                    Path.Combine(repo.Repo.Info.WorkingDirectory, Utility.STANDARD_FILE),
                     "dirty work");
                 HarmonizeGitBase gitBase = GetHarmonize(repo.Repo.Info.WorkingDirectory);
                 Assert.True(gitBase.IsDirty(excludeHarmonizeConfig: false, regenerateConfig: false));
@@ -48,7 +49,7 @@ namespace HarmonizeGit.Tests
             using (var repo = Repository_Tools.GetStandardRepo())
             {
                 File.WriteAllText(
-                    Path.Combine(repo.Repo.Info.WorkingDirectory, Repository_Tools.STANDARD_FILE),
+                    Path.Combine(repo.Repo.Info.WorkingDirectory, Utility.STANDARD_FILE),
                     "dirty work");
                 File.WriteAllText(
                     Path.Combine(repo.Repo.Info.WorkingDirectory, HarmonizeGitBase.HarmonizeConfigPath),
@@ -103,7 +104,7 @@ namespace HarmonizeGit.Tests
                 await checkout.Init();
                 var parentRepo = checkout.ParentRepo;
                 File.WriteAllText(
-                    Path.Combine(parentRepo.Dir.FullName, Repository_Tools.STANDARD_FILE),
+                    Path.Combine(parentRepo.Dir.FullName, Utility.STANDARD_FILE),
                     "Dirty changes");
                 var changes = checkout.Harmonize.GetReposWithUncommittedChanges();
                 Assert.Equal(1, changes.Count);

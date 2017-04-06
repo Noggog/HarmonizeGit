@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp;
+﻿using FishingWithGit.Tests.Common;
+using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -50,7 +51,7 @@ namespace HarmonizeGit.Tests
                 var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(checkout.Parent_SecondSha);
                 checkout.Harmonize.Config.ParentRepos[0].SetToCommit(parentCommit);
                 File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath, checkout.Harmonize.Config.GetXmlStr());
-                File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + Repository_Tools.STANDARD_FILE, "Dirty");
+                File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + Utility.STANDARD_FILE, "Dirty");
                 Assert.True(checkout.Repo.Repo.RetrieveStatus().IsDirty);
                 var pull = new PrePullHandler(checkout.Harmonize);
                 await pull.Handle(null);

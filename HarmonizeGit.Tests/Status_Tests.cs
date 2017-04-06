@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp;
+﻿using FishingWithGit.Tests.Common;
+using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,11 +28,11 @@ namespace HarmonizeGit.Tests
                 Commands.Checkout(checkout.ParentRepo.Repo, checkout.Parent_SecondSha);
                 var backBranch = checkout.Repo.Repo.CreateBranch("BackBranch", checkout.Child_SecondSha);
                 Commands.Checkout(checkout.Repo.Repo, backBranch);
-                var filePath = Path.Combine(checkout.Repo.Dir.FullName, Repository_Tools.STANDARD_FILE);
+                var filePath = Path.Combine(checkout.Repo.Dir.FullName, Utility.STANDARD_FILE);
                 File.WriteAllText(filePath, "Dirty\n");
                 Commands.Stage(checkout.Repo.Repo, filePath);
-                checkout.Repo.Repo.Commit("Breakoff commit", Repository_Tools.GetSignature(), Repository_Tools.GetSignature());
-                var mergeResult = checkout.Repo.Repo.Merge(checkout.Child_ThirdSha, Repository_Tools.GetSignature());
+                checkout.Repo.Repo.Commit("Breakoff commit", Utility.GetSignature(), Utility.GetSignature());
+                var mergeResult = checkout.Repo.Repo.Merge(checkout.Child_ThirdSha, Utility.GetSignature());
                 Assert.Equal(MergeStatus.Conflicts, mergeResult.Status);
                 
                 StatusHandler handler = new StatusHandler(checkout.Harmonize);

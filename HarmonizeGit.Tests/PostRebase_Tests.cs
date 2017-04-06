@@ -1,4 +1,5 @@
 ﻿using FishingWithGit;
+using FishingWithGit.Tests.Common;
 using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
@@ -23,10 +24,10 @@ namespace HarmonizeGit.Tests
             await checkout.Init();
             var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(checkout.Parent_SecondSha);
             this.AncestorSha = checkout.Repo.Repo.Head.Tip.Sha;
-            var signature = Repository_Tools.GetSignature();
+            var signature = Utility.GetSignature();
 
-            File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + Repository_Tools.STANDARD_FILE, "Dirty");
-            Commands.Stage(checkout.Repo.Repo, Repository_Tools.STANDARD_FILE);
+            File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + Utility.STANDARD_FILE, "Dirty");
+            Commands.Stage(checkout.Repo.Repo, Utility.STANDARD_FILE);
             var oldCommit = checkout.Repo.Repo.Commit(
                 "Commit to rebase",
                 signature,
@@ -45,16 +46,16 @@ namespace HarmonizeGit.Tests
             signature = new Signature(signature.Name, signature.Email, DateTime.Now);
             checkout.Repo.Repo.Reset(ResetMode.Hard, this.AncestorSha);
 
-            File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + Repository_Tools.STANDARD_FILE, "Prep");
-            Commands.Stage(checkout.Repo.Repo, Repository_Tools.STANDARD_FILE);
+            File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + Utility.STANDARD_FILE, "Prep");
+            Commands.Stage(checkout.Repo.Repo, Utility.STANDARD_FILE);
             var fillerCommit = checkout.Repo.Repo.Commit(
                 "I'm just a commit",
                 signature,
                 signature);
             this.FillerSha = fillerCommit.Sha;
 
-            File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + Repository_Tools.STANDARD_FILE, "Dirty");
-            Commands.Stage(checkout.Repo.Repo, Repository_Tools.STANDARD_FILE);
+            File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + Utility.STANDARD_FILE, "Dirty");
+            Commands.Stage(checkout.Repo.Repo, Utility.STANDARD_FILE);
             var rebased = checkout.Repo.Repo.Commit(
                 "Commit to rebase",
                 signature,

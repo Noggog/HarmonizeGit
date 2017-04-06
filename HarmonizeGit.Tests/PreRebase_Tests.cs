@@ -1,4 +1,5 @@
 ﻿using FishingWithGit;
+using FishingWithGit.Tests.Common;
 using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
@@ -27,11 +28,11 @@ namespace HarmonizeGit.Tests
             await checkout.Init();
             var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(checkout.Parent_SecondSha);
             this.AncestorSha = checkout.Repo.Repo.Head.Tip.Sha;
-            var signature = Repository_Tools.GetSignature();
+            var signature = Utility.GetSignature();
             this.AncestorBranch = checkout.Repo.Repo.CreateBranch("AncestorBranch");
 
-            File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + Repository_Tools.STANDARD_FILE, "Prep");
-            Commands.Stage(checkout.Repo.Repo, Repository_Tools.STANDARD_FILE);
+            File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + Utility.STANDARD_FILE, "Prep");
+            Commands.Stage(checkout.Repo.Repo, Utility.STANDARD_FILE);
             var fillerCommit = checkout.Repo.Repo.Commit(
                 "I'm just a commit",
                 signature,
@@ -40,8 +41,8 @@ namespace HarmonizeGit.Tests
             this.TargetBranch = checkout.Repo.Repo.CreateBranch(TARGET_BRANCH_NAME);
 
             Commands.Checkout(checkout.Repo.Repo, this.AncestorBranch, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
-            File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + Repository_Tools.STANDARD_FILE, "Dirty");
-            Commands.Stage(checkout.Repo.Repo, Repository_Tools.STANDARD_FILE);
+            File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + Utility.STANDARD_FILE, "Dirty");
+            Commands.Stage(checkout.Repo.Repo, Utility.STANDARD_FILE);
             var oldCommit = checkout.Repo.Repo.Commit(
                 "Commit to rebase",
                 signature,

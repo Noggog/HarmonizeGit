@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp;
+﻿using FishingWithGit.Tests.Common;
+using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,47 +10,6 @@ using Xunit;
 
 namespace HarmonizeGit.Tests
 {
-    public class RepoCheckout : IDisposable
-    {
-        public readonly Repository Repo;
-        public readonly DirectoryInfo Dir;
-
-        public RepoCheckout(
-            Repository repo,
-            DirectoryInfo dir)
-        {
-            this.Repo = repo;
-            this.Dir = dir;
-        }
-
-        private void DeleteDirectory(string targetDir)
-        {
-            File.SetAttributes(targetDir, FileAttributes.Normal);
-
-            string[] files = Directory.GetFiles(targetDir);
-            string[] dirs = Directory.GetDirectories(targetDir);
-
-            foreach (string file in files)
-            {
-                File.SetAttributes(file, FileAttributes.Normal);
-                File.Delete(file);
-            }
-
-            foreach (string dir in dirs)
-            {
-                DeleteDirectory(dir);
-            }
-
-            Directory.Delete(targetDir, false);
-        }
-
-        public void Dispose()
-        {
-            this.Repo.Dispose();
-            DeleteDirectory(this.Dir.FullName);
-        }
-    }
-
     public class ConfigCheckout : IDisposable
     {
         public RepoCheckout SuperParentRepo;
@@ -83,9 +43,9 @@ namespace HarmonizeGit.Tests
             this.Harmonize = new HarmonizeGitBase(repo.Info.WorkingDirectory);
             this.ParentHarmonize = new HarmonizeGitBase(parentRepo.Info.WorkingDirectory);
             this.SuperParentHarmonize = new HarmonizeGitBase(superParentRepo.Info.WorkingDirectory);
-            this.ParentRepo = new RepoCheckout(parentRepo, new DirectoryInfo(parentRepo.Info.WorkingDirectory));
-            this.Repo = new RepoCheckout(repo, new DirectoryInfo(repo.Info.WorkingDirectory));
-            this.SuperParentRepo = new RepoCheckout(superParentRepo, new DirectoryInfo(superParentRepo.Info.WorkingDirectory));
+            this.ParentRepo = new RepoCheckout(parentRepo);
+            this.Repo = new RepoCheckout(repo);
+            this.SuperParentRepo = new RepoCheckout(superParentRepo);
         }
 
         public async Task Init()
@@ -111,34 +71,16 @@ namespace HarmonizeGit.Tests
 
     class Repository_Tools
     {
-        public static DirectoryInfo GetTemporaryDirectory()
-        {
-            string tempDirectory = Path.Combine(Path.GetTempPath(), "HarmonizeUnitTests", Path.GetRandomFileName()) + "\\";
-            Directory.CreateDirectory(tempDirectory);
-            return new DirectoryInfo(tempDirectory);
-        }
-
-        public static Signature GetSignature()
-        {
-            var date = new DateTime(2016, 03, 10);
-            var signature = new Signature(
-                "Justin Swanson",
-                "justin.c.swanson@gmail.com",
-                date);
-            return signature;
-        }
-
         public const string STANDARD_MERGE_BRANCH = "Merge";
         public const string STANDARD_DETATCHED_BRANCH = "Detached";
-        public const string STANDARD_FILE = "Test.txt";
 
         public static RepoCheckout GetStandardRepo()
         {
-            var signature = GetSignature();
-            var dir = GetTemporaryDirectory();
+            var signature = Utility.GetSignature();
+            var dir = Utility.GetTemporaryDirectory();
             Repository.Init(dir.FullName);
             var repo = new Repository(dir.FullName);
-            var aFile = new FileInfo(Path.Combine(dir.FullName, STANDARD_FILE));
+            var aFile = new FileInfo(Path.Combine(dir.FullName, Utility.STANDARD_FILE));
             File.WriteAllText(aFile.FullName, "Testing123\n");
             Commands.Stage(repo, aFile.FullName);
             var firstCommit = repo.Commit(
@@ -177,19 +119,17 @@ namespace HarmonizeGit.Tests
                 signature,
                 signature);
             repo.CreateBranch(STANDARD_DETATCHED_BRANCH);
-            return new RepoCheckout(
-                repo,
-                dir);
+            return new RepoCheckout(repo);
         }
 
         public static ConfigCheckout GetStandardConfigCheckout()
         {
-            var signature = GetSignature();
+            var signature = Utility.GetSignature();
 
-            var superParentRepoDir = GetTemporaryDirectory();
+            var superParentRepoDir = Utility.GetTemporaryDirectory();
             Repository.Init(superParentRepoDir.FullName);
             var superParentRepo = new Repository(superParentRepoDir.FullName);
-            var superParentFile = new FileInfo(Path.Combine(superParentRepoDir.FullName, STANDARD_FILE));
+            var superParentFile = new FileInfo(Path.Combine(superParentRepoDir.FullName, Utility.STANDARD_FILE));
             File.WriteAllText(superParentFile.FullName, "Testing123\n");
             Commands.Stage(superParentRepo, superParentFile.FullName);
             var firstSuperParentCommit = superParentRepo.Commit(
@@ -212,10 +152,10 @@ namespace HarmonizeGit.Tests
             parentToSuperParentListing.SetToCommit(secondSuperParentCommit);
             HarmonizeConfig parentConfig = new HarmonizeConfig();
             parentConfig.ParentRepos.Add(parentToSuperParentListing);
-            var parentRepoDir = GetTemporaryDirectory();
+            var parentRepoDir = Utility.GetTemporaryDirectory();
             Repository.Init(parentRepoDir.FullName);
             var parentRepo = new Repository(parentRepoDir.FullName);
-            var parentFile = new FileInfo(Path.Combine(parentRepoDir.FullName, STANDARD_FILE));
+            var parentFile = new FileInfo(Path.Combine(parentRepoDir.FullName, Utility.STANDARD_FILE));
             var parentHarmonizeFile = new FileInfo(Path.Combine(parentRepoDir.FullName, HarmonizeGitBase.HarmonizeConfigPath));
             File.WriteAllText(parentHarmonizeFile.FullName, parentConfig.GetXmlStr());
             Commands.Stage(parentRepo, parentHarmonizeFile.FullName);
@@ -238,7 +178,7 @@ namespace HarmonizeGit.Tests
                 signature,
                 signature);
             
-            var childRepoDir = GetTemporaryDirectory();
+            var childRepoDir = Utility.GetTemporaryDirectory();
             Repository.Init(childRepoDir.FullName);
             var childRepo = new Repository(childRepoDir.FullName);
             var childHarmonizeFile = new FileInfo(Path.Combine(childRepoDir.FullName, HarmonizeGitBase.HarmonizeConfigPath));
@@ -259,7 +199,7 @@ namespace HarmonizeGit.Tests
             childConfig.ParentRepos.Add(superParentListing);
             childConfig.ParentRepos.Add(parentListing);
 
-            var childFile = new FileInfo(Path.Combine(childRepoDir.FullName, STANDARD_FILE));
+            var childFile = new FileInfo(Path.Combine(childRepoDir.FullName, Utility.STANDARD_FILE));
             File.WriteAllText(childFile.FullName, "Child123\n");
             Commands.Stage(childRepo, childFile.FullName);
             parentListing.SetToCommit(firstParentCommit);

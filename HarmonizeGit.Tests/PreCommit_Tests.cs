@@ -1,4 +1,5 @@
 ﻿using FishingWithGit;
+using FishingWithGit.Tests.Common;
 using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
@@ -37,7 +38,7 @@ namespace HarmonizeGit.Tests
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
                 await checkout.Init();
-                File.WriteAllText(checkout.ParentRepo.Repo.Info.WorkingDirectory + Repository_Tools.STANDARD_FILE, "Prep");
+                File.WriteAllText(checkout.ParentRepo.Repo.Info.WorkingDirectory + Utility.STANDARD_FILE, "Prep");
                 CommitArgs args = new CommitArgs();
                 PreCommitHandler handler = new PreCommitHandler(checkout.Harmonize);
                 var ret = await handler.Handle(args.ToArray());

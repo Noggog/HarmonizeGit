@@ -2,10 +2,10 @@
   <ParentRepos>
     <RepoListing>
       <Nickname>FishingWithGit</Nickname>
-      <Sha>4ec5e1b0bfeb7034124f6c82b4476726726d8d6e</Sha>
-      <Description>Branch hooks</Description>
+      <Sha>b8936c7e0d122473b8f806d04e6d8fe1a28cdbc0</Sha>
+      <Description>FishingWithGit.Tests.Common library.  Unit tests all pass.  Repository tests implemented for required hook types</Description>
       <Author>Justin Swanson</Author>
-      <CommitDate>04-03-2017 20:26:28</CommitDate>
+      <CommitDate>04-05-2017 19:58:05</CommitDate>
     </RepoListing>
   </ParentRepos>
 </HarmonizeConfig>

@@ -107,6 +107,10 @@
       <Project>{A99553E3-D288-482A-9BC8-AE0BF4F32ACF}</Project>
       <Name>FishingWithGit.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\FishingWithGit\FishingWithGit.Tests.Common\FishingWithGit.Tests.Common.csproj">
+      <Project>{9ddb652b-de28-4e8e-b65b-ac2bfc0ddb43}</Project>
+      <Name>FishingWithGit.Tests.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\HarmonizeGit\HarmonizeGit.csproj">
       <Project>{8d8330ab-b1f9-4769-846e-5a606543dcaa}</Project>
       <Name>HarmonizeGit</Name>
