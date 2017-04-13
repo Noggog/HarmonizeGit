@@ -2,10 +2,10 @@
   <ParentRepos>
     <RepoListing>
       <Nickname>FishingWithGit</Nickname>
-      <Sha>17101b361b6e96ba4a8566d41a236149e5273c61</Sha>
-      <Description>BranchArgs now silent if just querying</Description>
+      <Sha>925dd42db9a45f00433d9b6ff5115895b08132f4</Sha>
+      <Description>Extra reset handling if no sha is defined.  Constants file with SHA_LENGTH</Description>
       <Author>Justin Swanson</Author>
-      <CommitDate>04-05-2017 21:46:29</CommitDate>
+      <CommitDate>04-11-2017 22:53:33</CommitDate>
     </RepoListing>
   </ParentRepos>
 </HarmonizeConfig>
