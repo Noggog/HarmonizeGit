@@ -5,8 +5,8 @@
     <Setting Name="AddMetadataToConfig" Type="System.Boolean" Scope="Application">
       <Value Profile="(Default)">True</Value>
     </Setting>
-    <Setting Name="RoutePath" Type="System.String" Scope="Application">
-      <Value Profile="(Default)" />
+    <Setting Name="Reroute" Type="System.Boolean" Scope="Application">
+      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="ExportPathingConfigUpdates" Type="System.Boolean" Scope="Application">
       <Value Profile="(Default)">True</Value>

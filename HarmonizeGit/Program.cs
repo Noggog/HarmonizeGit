@@ -13,24 +13,31 @@ namespace HarmonizeGit
         static int Main(string[] args)
         {
             if (!Properties.Settings.Default.Enabled) return 0;
-            if (string.IsNullOrWhiteSpace(Properties.Settings.Default.RoutePath))
+            if (!Properties.Settings.Default.Reroute)
             {
                 DirectoryInfo dir = new DirectoryInfo(".");
-                HarmonizeGitBase harmonize = new HarmonizeGitBase(dir.FullName)
-                {
-                    FileLock = Properties.Settings.Default.Lock
-                };
+                HarmonizeGitBase harmonize = new HarmonizeGitBase(dir.FullName);
                 return harmonize.Handle(args).Result ? 0 : 1;
             }
             else
             {
+                var pathing = PathingConfig.Factory(".");
+                if (string.IsNullOrWhiteSpace(pathing.ReroutePathing))
+                {
+                    FileInfo info = new FileInfo("./" + HarmonizeGitBase.HarmonizePathingPath);
+                    pathing.Write(".");
+                    System.Console.Error.WriteLine($"No routing path specified.  Add it here: {info.FullName}");
+                    return -1;
+                }
                 ProcessStartInfo startInfo = new ProcessStartInfo(
-                    Properties.Settings.Default.RoutePath,
-                    string.Join(" ", args));
-                startInfo.CreateNoWindow = true;
-                startInfo.RedirectStandardError = true;
-                startInfo.RedirectStandardOutput = true;
-                startInfo.UseShellExecute = false;
+                    pathing.ReroutePathing,
+                    string.Join(" ", args))
+                {
+                    CreateNoWindow = true,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false
+                };
                 using (Process proc = Process.Start(startInfo))
                 {
                     proc.WaitForExit();

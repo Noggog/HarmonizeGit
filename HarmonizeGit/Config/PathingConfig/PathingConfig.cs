@@ -11,6 +11,7 @@ namespace HarmonizeGit
 {
     public class PathingConfig
     {
+        public string ReroutePathing = " ";
         [XmlAttribute]
         public int Version = 1;
         public List<PathingListing> Paths = new List<PathingListing>();
@@ -42,6 +43,23 @@ namespace HarmonizeGit
             }
         }
 
+        public static PathingConfig Factory(string path)
+        {
+            using (LockManager.GetLock(LockType.Pathing, path))
+            {
+                FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizePathingPath);
+                if (!file.Exists)
+                {
+                    return new PathingConfig();
+                }
+
+                using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
+                {
+                    return PathingConfig.Factory(stream);
+                }
+            }
+        }
+
         private void Load()
         {
             foreach (var path in this.Paths)
@@ -53,6 +71,35 @@ namespace HarmonizeGit
         public bool TryGetListing(string name, out PathingListing listing)
         {
             return this.pathsDict.TryGetValue(name, out listing);
+        }
+        
+        public void Write(string targetPath)
+        {
+            if (!Properties.Settings.Default.ExportPathingConfigUpdates) return;
+
+            string xmlStr;
+            XmlSerializer xsSubmit = new XmlSerializer(typeof(PathingConfig));
+            var settings = new XmlWriterSettings()
+            {
+                Indent = true,
+                OmitXmlDeclaration = true
+            };
+            var emptyNs = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
+            using (var sw = new StringWriter())
+            {
+                using (XmlWriter writer = XmlWriter.Create(sw, settings))
+                {
+                    xsSubmit.Serialize(writer, this, emptyNs);
+                    xmlStr = sw.ToString();
+                }
+            }
+
+            if (object.Equals(this.OriginalXML, xmlStr)) return;
+
+            using (LockManager.GetLock(LockType.Pathing, targetPath))
+            {
+                File.WriteAllText(Path.Combine(targetPath, HarmonizeGitBase.HarmonizePathingPath), xmlStr);
+            }
         }
     }
 }

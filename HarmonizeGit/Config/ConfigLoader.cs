@@ -24,7 +24,7 @@ namespace HarmonizeGit
             this.harmonize = harmonize;
             this.Config = GetConfig(harmonize.TargetPath);
             if (this.Config == null) return;
-            this.UpdatePathingConfig(this.Config);
+            this.Config.Pathing.Write(harmonize.TargetPath);
         }
 
         #region Config
@@ -56,12 +56,12 @@ namespace HarmonizeGit
 
         private HarmonizeConfig LoadConfig(string path)
         {
-            using (this.harmonize.LockManager.GetLock(LockType.Harmonize, path))
+            using (LockManager.GetLock(LockType.Harmonize, path))
             {
                 this.harmonize.WriteLine($"Loading config at path {path}");
                 FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizeConfigPath);
                 if (!file.Exists) return null;
-                var pathing = LoadPathing(path);
+                var pathing = PathingConfig.Factory(path);
                 using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
                 {
                     return HarmonizeConfig.Factory(
@@ -112,7 +112,7 @@ namespace HarmonizeGit
 
             this.harmonize.WriteLine($"Updating config at {path}");
 
-            using (this.harmonize.LockManager.GetLock(LockType.Harmonize, path))
+            using (LockManager.GetLock(LockType.Harmonize, path))
             {
                 File.WriteAllText(path, xmlStr);
             }
@@ -125,46 +125,9 @@ namespace HarmonizeGit
         {
             path = path.Trim();
             if (pathingConfigs.TryGetValue(path, out PathingConfig ret)) return ret;
-            ret = LoadPathing(path);
+            ret = PathingConfig.Factory(path);
             pathingConfigs[path] = ret;
             return ret;
-        }
-
-        private PathingConfig LoadPathing(string path)
-        {
-            using (this.harmonize.LockManager.GetLock(LockType.Pathing, path))
-            {
-                FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizePathingPath);
-                if (!file.Exists)
-                {
-                    return new PathingConfig();
-                }
-
-                using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
-                {
-                    return PathingConfig.Factory(stream);
-                }
-            }
-        }
-
-        private bool LoadPathing(string path, out PathingConfig config)
-        {
-            FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizePathingPath);
-            if (!file.Exists)
-            {
-                config = null;
-                return false;
-            }
-
-            using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
-            {
-                config = PathingConfig.Factory(stream);
-                foreach (var listing in config.Paths)
-                {
-                    harmonize.WriteLine($"{listing.Nickname} set to path {listing.Path}.");
-                }
-                return true;
-            }
         }
 
         private void AddToGitIgnore(
@@ -173,7 +136,7 @@ namespace HarmonizeGit
         {
             path = path + "/" + HarmonizeGitBase.GitIgnorePath;
 
-            using (this.harmonize.LockManager.GetLock(LockType.GitIgnore, path))
+            using (LockManager.GetLock(LockType.GitIgnore, path))
             {
                 FileInfo file = new FileInfo(path);
                 if (file.Exists)
@@ -190,37 +153,6 @@ namespace HarmonizeGit
                 {
                     File.WriteAllText(path, toAdd);
                 }
-            }
-        }
-
-        public void UpdatePathingConfig(HarmonizeConfig config)
-        {
-            if (!Properties.Settings.Default.ExportPathingConfigUpdates) return;
-
-            string xmlStr;
-            XmlSerializer xsSubmit = new XmlSerializer(typeof(PathingConfig));
-            var settings = new XmlWriterSettings()
-            {
-                Indent = true,
-                OmitXmlDeclaration = true
-            };
-            var emptyNs = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
-            using (var sw = new StringWriter())
-            {
-                using (XmlWriter writer = XmlWriter.Create(sw, settings))
-                {
-                    xsSubmit.Serialize(writer, config.Pathing, emptyNs);
-                    xmlStr = sw.ToString();
-                }
-            }
-
-            if (object.Equals(config.Pathing.OriginalXML, xmlStr)) return;
-
-            this.harmonize.WriteLine("Writing pathing update");
-
-            using (this.harmonize.LockManager.GetLock(LockType.Pathing, this.harmonize.TargetPath))
-            {
-                File.WriteAllText(Path.Combine(this.harmonize.TargetPath, HarmonizeGitBase.HarmonizePathingPath), xmlStr);
             }
         }
         #endregion

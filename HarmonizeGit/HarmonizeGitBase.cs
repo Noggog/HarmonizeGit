@@ -18,7 +18,6 @@ namespace HarmonizeGit
     {
         public ConfigLoader ConfigLoader { get; } = new ConfigLoader();
         public ChildrenLoader ChildLoader { get; private set; }
-        public LockManager LockManager { get; private set; }
         public const string BranchName = "GitHarmonize";
         public const string HarmonizeConfigPath = ".harmonize";
         public const string HarmonizeChildrenPath = ".git/.harmonize-children";
@@ -34,7 +33,6 @@ namespace HarmonizeGit
             this.TargetPath = targetPath;
             this.ChildLoader = new ChildrenLoader(this);
             this.Config = new HarmonizeConfig();
-            this.LockManager = new LockManager(this);
         }
 
         public async Task<bool> Handle(string[] args)
@@ -217,7 +215,7 @@ namespace HarmonizeGit
 
         public void UpdatePathingConfig()
         {
-            this.ConfigLoader.UpdatePathingConfig(this.Config);
+            this.ConfigLoader.Config.Pathing.Write(this.TargetPath);
         }
 
         public void SyncParentRepos()

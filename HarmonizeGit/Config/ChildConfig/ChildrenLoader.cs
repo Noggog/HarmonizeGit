@@ -37,7 +37,7 @@ namespace HarmonizeGit
                         FileInfo dbPath = new FileInfo(GetDBPath(parentRepo.Path));
                         if (dbPath.Exists) return;
                         this.harmonize.WriteLine($"Initilizing into parent: {parentRepo.Path}");
-                        using (this.harmonize.LockManager.GetLock(LockType.Child, parentRepo.Path))
+                        using (LockManager.GetLock(LockType.Child, parentRepo.Path))
                         {
                             if (dbPath.Exists) return;
                             await CheckAndSeed(

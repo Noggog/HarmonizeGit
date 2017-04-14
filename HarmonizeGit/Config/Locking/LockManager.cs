@@ -8,19 +8,13 @@ using System.Threading.Tasks;
 
 namespace HarmonizeGit
 {
-    public class LockManager
+    public static class LockManager
     {
-        private Dictionary<LockType, Dictionary<string, EventWaitHandle>> tracker = new Dictionary<LockType, Dictionary<string, EventWaitHandle>>();
-        private HarmonizeGitBase harmonize;
-
-        public LockManager(HarmonizeGitBase harmonize)
+        private static Dictionary<LockType, Dictionary<string, EventWaitHandle>> tracker = new Dictionary<LockType, Dictionary<string, EventWaitHandle>>();
+        
+        public static FileLockCheckout GetLock(LockType type, string pathToRepo)
         {
-            this.harmonize = harmonize;
-        }
-
-        public FileLockCheckout GetLock(LockType type, string pathToRepo)
-        {
-            if (!this.harmonize.FileLock) return new FileLockCheckout();
+            if (!Properties.Settings.Default.Lock) return new FileLockCheckout();
 
             if (!tracker.TryGetValue(type, out Dictionary<string, EventWaitHandle> dict))
             {
