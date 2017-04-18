@@ -21,30 +21,58 @@ namespace HarmonizeGit
             }
             else
             {
-                var pathing = PathingConfig.Factory(".");
-                if (string.IsNullOrWhiteSpace(pathing.ReroutePathing))
+                return Reroute(args);
+            }
+        }
+
+        static int Reroute(string[] args)
+        {
+            FileInfo pathingFileLocation = new FileInfo("./" + HarmonizeGitBase.HarmonizePathingPath);
+            PathingConfig pathing;
+            try
+            {
+                pathing = PathingConfig.Factory(".");
+            }
+            catch (Exception ex)
+            {
+                System.Console.Error.WriteLine($"Error loading routing path at: {pathingFileLocation.FullName}. " + ex);
+                return -1;
+            }
+            if (string.IsNullOrWhiteSpace(pathing.ReroutePathing))
+            {
+                pathing.Write(".");
+                System.Console.Error.WriteLine($"No routing path specified.  Add it here: {pathingFileLocation.FullName}");
+                return -1;
+            }
+            try
+            {
+                FileInfo reroutePath = new FileInfo(pathing.ReroutePathing);
+                if (!reroutePath.Exists)
                 {
-                    FileInfo info = new FileInfo("./" + HarmonizeGitBase.HarmonizePathingPath);
-                    pathing.Write(".");
-                    System.Console.Error.WriteLine($"No routing path specified.  Add it here: {info.FullName}");
+                    System.Console.Error.WriteLine($"Routing path did not lead to an exe.  Fix it here: {pathingFileLocation.FullName}");
                     return -1;
                 }
-                ProcessStartInfo startInfo = new ProcessStartInfo(
-                    pathing.ReroutePathing,
-                    string.Join(" ", args))
-                {
-                    CreateNoWindow = true,
-                    RedirectStandardError = true,
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false
-                };
-                using (Process proc = Process.Start(startInfo))
-                {
-                    proc.WaitForExit();
-                    System.Console.WriteLine(proc.StandardOutput.ReadToEnd());
-                    System.Console.Error.WriteLine(proc.StandardError.ReadToEnd());
-                    return proc.ExitCode;
-                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.Error.WriteLine($"Routing path was invalid.  Fix it here: {pathingFileLocation.FullName}  " + ex);
+                return -1;
+            }
+            ProcessStartInfo startInfo = new ProcessStartInfo(
+                pathing.ReroutePathing,
+                string.Join(" ", args))
+            {
+                CreateNoWindow = true,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false
+            };
+            using (Process proc = Process.Start(startInfo))
+            {
+                proc.WaitForExit();
+                System.Console.WriteLine(proc.StandardOutput.ReadToEnd());
+                System.Console.Error.WriteLine(proc.StandardError.ReadToEnd());
+                return proc.ExitCode;
             }
         }
     }
