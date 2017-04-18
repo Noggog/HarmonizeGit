@@ -38,15 +38,18 @@ namespace HarmonizeGit
                 System.Console.Error.WriteLine($"Error loading routing path at: {pathingFileLocation.FullName}. " + ex);
                 return -1;
             }
-            if (string.IsNullOrWhiteSpace(pathing.ReroutePathing))
+            if (!pathingFileLocation.Exists)
             {
                 pathing.Write(".");
+            }
+            if (string.IsNullOrWhiteSpace(pathing.ReroutePathing))
+            {
                 System.Console.Error.WriteLine($"No routing path specified.  Add it here: {pathingFileLocation.FullName}");
                 return -1;
             }
             try
             {
-                FileInfo reroutePath = new FileInfo(pathing.ReroutePathing);
+                FileInfo reroutePath = new FileInfo(pathing.ReroutePathing.Trim());
                 if (!reroutePath.Exists)
                 {
                     System.Console.Error.WriteLine($"Routing path did not lead to an exe.  Fix it here: {pathingFileLocation.FullName}");
@@ -55,7 +58,7 @@ namespace HarmonizeGit
             }
             catch (Exception ex)
             {
-                System.Console.Error.WriteLine($"Routing path was invalid.  Fix it here: {pathingFileLocation.FullName}  " + ex);
+                System.Console.Error.WriteLine($"Routing path was invalid. ({pathing.ReroutePathing.Trim()})  Fix it here: {pathingFileLocation.FullName}  " + ex);
                 return -1;
             }
             ProcessStartInfo startInfo = new ProcessStartInfo(

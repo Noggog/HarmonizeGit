@@ -2,10 +2,10 @@
   <ParentRepos>
     <RepoListing>
       <Nickname>FishingWithGit</Nickname>
-      <Sha>925dd42db9a45f00433d9b6ff5115895b08132f4</Sha>
-      <Description>Extra reset handling if no sha is defined.  Constants file with SHA_LENGTH</Description>
+      <Sha>2105b4ef8bb32609c3cd3a0e267ab9f3b1dce754</Sha>
+      <Description>Mass Hook folder support</Description>
       <Author>Justin Swanson</Author>
-      <CommitDate>04-11-2017 22:53:33</CommitDate>
+      <CommitDate>04-14-2017 02:02:27</CommitDate>
     </RepoListing>
   </ParentRepos>
 </HarmonizeConfig>

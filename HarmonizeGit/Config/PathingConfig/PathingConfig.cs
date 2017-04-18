@@ -11,7 +11,7 @@ namespace HarmonizeGit
 {
     public class PathingConfig
     {
-        public string ReroutePathing = " ";
+        public string ReroutePathing = "C:/Program Files/HarmonizeGit/HarmonizeGit.exe";
         [XmlAttribute]
         public int Version = 1;
         public List<PathingListing> Paths = new List<PathingListing>();
