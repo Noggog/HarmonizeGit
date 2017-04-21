@@ -91,6 +91,7 @@
     <Compile Include="Config\Locking\LockType.cs" />
     <Compile Include="Config\PathingConfig\PathingConfig.cs" />
     <Compile Include="Config\PathingConfig\PathingListing.cs" />
+    <Compile Include="Hooks\PostMergeHandler.cs" />
     <Compile Include="Hooks\PreBranchHandler.cs" />
     <Compile Include="Hooks\PostCommitHandler.cs" />
     <Compile Include="Hooks\PostPullHandler.cs" />

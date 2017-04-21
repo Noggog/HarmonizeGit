@@ -65,8 +65,10 @@ namespace HarmonizeGit
                     break;
                 case HookType.Post_Commit:
                 case HookType.Post_CherryPick:
-                case HookType.Post_Merge:
                     handler = new PostCommitHandler(this, new CommitArgs(args));
+                    break;
+                case HookType.Post_Merge:
+                    handler = new PostMergeHandler(this, new MergeArgs(args));
                     break;
                 case HookType.Post_Status:
                     handler = new StatusHandler(this, new StatusArgs(args));

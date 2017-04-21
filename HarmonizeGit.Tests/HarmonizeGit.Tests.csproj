@@ -81,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HarmonizeGit_Tests.cs" />
+    <Compile Include="PostMerge_Tests.cs" />
     <Compile Include="PostCommit_Tests.cs" />
     <Compile Include="PostPull_Tests.cs" />
     <Compile Include="PostRebase_Tests.cs" />

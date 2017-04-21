@@ -2,10 +2,10 @@
   <ParentRepos>
     <RepoListing>
       <Nickname>FishingWithGit</Nickname>
-      <Sha>2105b4ef8bb32609c3cd3a0e267ab9f3b1dce754</Sha>
-      <Description>Mass Hook folder support</Description>
+      <Sha>4e67ee7758da8cd3d3efff9f2100d219b68af216</Sha>
+      <Description>Bugfix for MergeHooks type enum usage</Description>
       <Author>Justin Swanson</Author>
-      <CommitDate>04-14-2017 02:02:27</CommitDate>
+      <CommitDate>04-20-2017 20:18:14</CommitDate>
     </RepoListing>
   </ParentRepos>
 </HarmonizeConfig>
