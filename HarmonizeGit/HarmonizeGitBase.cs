@@ -311,7 +311,15 @@ namespace HarmonizeGit
                 var targetCommit = repo.Lookup<Commit>(targetCommitSha);
                 if (targetCommit == null)
                 {
-                    throw new ArgumentException("Target commit does not exist. " + targetCommitSha);
+                    foreach (var origin in repo.Network.Remotes)
+                    {
+                        repo.Fetch(origin.Name);
+                    }
+                    targetCommit = repo.Lookup<Commit>(targetCommitSha);
+                    if (targetCommit == null)
+                    {
+                        throw new ArgumentException("Target commit does not exist. " + targetCommitSha);
+                    }
                 }
 
                 targetConfig = HarmonizeConfig.Factory(
