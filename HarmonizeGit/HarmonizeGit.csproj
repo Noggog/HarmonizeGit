@@ -99,7 +99,7 @@
     <Compile Include="Hooks\PrePullHandler.cs" />
     <Compile Include="Hooks\PreRebaseHandler.cs" />
     <Compile Include="Hooks\PreResetHandler.cs" />
-    <Compile Include="Hooks\TakeHandler.cs" />
+    <Compile Include="Hooks\PostTakeHandler.cs" />
     <Compile Include="Hooks\StatusHandler.cs" />
     <Compile Include="Hooks\PreCheckoutHandler.cs" />
     <Compile Include="Hooks\PreCommitHandler.cs" />

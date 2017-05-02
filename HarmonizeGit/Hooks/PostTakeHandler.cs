@@ -8,12 +8,12 @@ using FishingWithGit;
 
 namespace HarmonizeGit
 {
-    public class TakeHandler : TypicalHandlerBase
+    public class PostTakeHandler : TypicalHandlerBase
     {
         TakeArgs args;
         public override IGitHookArgs Args => args;
 
-        public TakeHandler(HarmonizeGitBase harmonize, TakeArgs args)
+        public PostTakeHandler(HarmonizeGitBase harmonize, TakeArgs args)
             : base(harmonize)
         {
             this.args = args;

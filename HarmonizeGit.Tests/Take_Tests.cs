@@ -22,7 +22,7 @@ namespace HarmonizeGit.Tests
                 checkout.ChildToParentListing.SetToCommit(parent2ndCommit);
                 File.WriteAllText(Path.Combine(checkout.Repo.Dir.FullName, HarmonizeGitBase.HarmonizeConfigPath), checkout.Harmonize.Config.GetXmlStr());
                 
-                TakeHandler handler = new TakeHandler(checkout.Harmonize, new TakeArgs());
+                PostTakeHandler handler = new PostTakeHandler(checkout.Harmonize, new TakeArgs());
                 var ret = await handler.Handle();
                 Assert.True(ret);
                 Assert.Equal(checkout.Parent_SecondSha, checkout.ParentRepo.Repo.Head.Tip.Sha);

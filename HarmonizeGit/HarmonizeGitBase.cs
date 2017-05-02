@@ -74,7 +74,7 @@ namespace HarmonizeGit
                     handler = new StatusHandler(this, new StatusArgs(args));
                     break;
                 case HookType.Post_Take:
-                    handler = new TakeHandler(this, new TakeArgs(args));
+                    handler = new PostTakeHandler(this, new TakeArgs(args));
                     break;
                 case HookType.Pre_Rebase:
                     handler = new PreRebaseHandler(this, new RebaseArgs(args));
