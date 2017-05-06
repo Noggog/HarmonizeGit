@@ -92,6 +92,7 @@ namespace HarmonizeGit.Tests
         {
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
+                checkout.Init();
                 Assert.Empty(checkout.Harmonize.GetReposWithUncommittedChanges());
             }
         }

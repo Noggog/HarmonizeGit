@@ -31,8 +31,6 @@ namespace HarmonizeGit
         public HarmonizeGitBase(string targetPath)
         {
             this.TargetPath = targetPath;
-            this.ChildLoader = new ChildrenLoader(this);
-            this.Config = new HarmonizeConfig();
         }
 
         public async Task<bool> Handle(string[] args)
@@ -115,6 +113,8 @@ namespace HarmonizeGit
 
         public void Init()
         {
+            this.ChildLoader = new ChildrenLoader(this);
+            this.Config = new HarmonizeConfig();
             this.ConfigLoader.Init(this);
             this.Config = ConfigLoader.GetConfig(this.TargetPath);
         }
