@@ -36,7 +36,7 @@ namespace HarmonizeGit.Tests
                 var mergeResult = checkout.Repo.Repo.Merge(checkout.Child_ThirdSha, Utility.GetSignature());
                 Assert.Equal(MergeStatus.Conflicts, mergeResult.Status);
 
-                StatusHandler handler = new StatusHandler(checkout.Harmonize, new StatusArgs());
+                PostStatusHandler handler = new PostStatusHandler(checkout.Harmonize, new StatusArgs());
                 var result = await handler.Handle();
                 Assert.True(result);
                 var configStatus = checkout.Repo.Repo.RetrieveStatus(HarmonizeGitBase.HarmonizeConfigPath);
@@ -51,7 +51,7 @@ namespace HarmonizeGit.Tests
             {
                 await checkout.Init();
                 Commands.Checkout(checkout.ParentRepo.Repo, checkout.Parent_SecondSha);
-                StatusHandler handler = new StatusHandler(checkout.Harmonize, new StatusArgs());
+                PostStatusHandler handler = new PostStatusHandler(checkout.Harmonize, new StatusArgs());
                 var result = await handler.Handle();
                 Assert.True(result);
                 var configStatus = checkout.Repo.Repo.RetrieveStatus(HarmonizeGitBase.HarmonizeConfigPath);

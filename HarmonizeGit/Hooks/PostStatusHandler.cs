@@ -8,12 +8,12 @@ using FishingWithGit;
 
 namespace HarmonizeGit
 {
-    public class StatusHandler : TypicalHandlerBase
+    public class PostStatusHandler : TypicalHandlerBase
     {
         StatusArgs args;
         public override IGitHookArgs Args => args;
 
-        public StatusHandler(HarmonizeGitBase harmonize, StatusArgs args)
+        public PostStatusHandler(HarmonizeGitBase harmonize, StatusArgs args)
             : base(harmonize)
         {
             this.args = args;

@@ -69,7 +69,7 @@ namespace HarmonizeGit
                     handler = new PostMergeHandler(this, new MergeArgs(args));
                     break;
                 case HookType.Post_Status:
-                    handler = new StatusHandler(this, new StatusArgs(args));
+                    handler = new PostStatusHandler(this, new StatusArgs(args));
                     break;
                 case HookType.Post_Take:
                     handler = new PostTakeHandler(this, new TakeArgs(args));
