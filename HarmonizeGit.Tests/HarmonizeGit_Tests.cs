@@ -88,11 +88,11 @@ namespace HarmonizeGit.Tests
 
         #region GetReposWithUncommittedChanges
         [Fact]
-        public void GetReposWithUncommittedChanges_NoChanges()
+        public async Task GetReposWithUncommittedChanges_NoChanges()
         {
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
-                checkout.Init();
+                await checkout.Init();
                 Assert.Empty(checkout.Harmonize.GetReposWithUncommittedChanges());
             }
         }

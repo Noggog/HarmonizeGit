@@ -2,10 +2,10 @@
   <ParentRepos>
     <RepoListing>
       <Nickname>FishingWithGit</Nickname>
-      <Sha>88ca6ab3502af81c5a44c8f61cc01fa558e300e3</Sha>
-      <Description>Added more fine grained timers</Description>
+      <Sha>95ffff575f7ab575ce969d1ec3347b0976be6cd4</Sha>
+      <Description>NuGet update</Description>
       <Author>Justin Swanson</Author>
-      <CommitDate>05-05-2017 19:19:32</CommitDate>
+      <CommitDate>06-28-2017 19:20:03</CommitDate>
     </RepoListing>
   </ParentRepos>
 </HarmonizeConfig>
