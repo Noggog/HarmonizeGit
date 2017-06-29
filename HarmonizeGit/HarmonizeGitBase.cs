@@ -155,9 +155,9 @@ namespace HarmonizeGit
             List<RepoListing> ret = new List<RepoListing>();
             foreach (var repoListing in this.Config.ParentRepos)
             {
-                if (IsDirty(repoListing.Path))
+                if (IsDirty(repoListing.Path, out var reason))
                 {
-                    this.WriteLine($"{repoListing.Nickname} was dirty.");
+                    this.WriteLine($"{repoListing.Nickname} was dirty: {reason}");
                     ret.Add(repoListing);
                 }
                 else
@@ -171,42 +171,60 @@ namespace HarmonizeGit
         #region IsDirty
         public bool IsDirty(bool excludeHarmonizeConfig = true, bool regenerateConfig = true)
         {
-            return IsDirty(this.TargetPath, excludeHarmonizeConfig, regenerateConfig);
+            return IsDirty(this.TargetPath, out var reason, excludeHarmonizeConfig, regenerateConfig);
         }
 
-        public bool IsDirty(string path, bool excludeHarmonizeConfig = true, bool regenerateConfig = true)
+        public bool IsDirty(string path, out string reason, bool excludeHarmonizeConfig = true, bool regenerateConfig = true)
         {
             using (var repo = new Repository(path))
             {
                 var repoStatus = repo.RetrieveStatus();
-                if (!repoStatus.IsDirty) return false;
+                if (!repoStatus.IsDirty)
+                {
+                    reason = string.Empty;
+                    return false;
+                }
 
                 if (regenerateConfig)
                 {
                     // Regenerate harmonize config, see if that cleans it
                     var status = repo.RetrieveStatus(HarmonizeConfigPath);
                     if (status == FileStatus.Unaltered
-                        || status == FileStatus.Nonexistent) return true;
+                        || status == FileStatus.Nonexistent)
+                    {
+                        reason = $"Harmonize config was dirty: {status}.";
+                        return true;
+                    }
                     var parentConfig = ConfigLoader.GetConfig(path);
                     if (parentConfig != null)
                     {
                         this.ConfigLoader.SyncAndWriteConfig(parentConfig, path);
                         repoStatus = repo.RetrieveStatus();
-                        if (!repoStatus.IsDirty) return false;
+                        if (!repoStatus.IsDirty)
+                        {
+                            reason = string.Empty;
+                            return false;
+                        }
                     }
                 }
 
                 // If not excluding harmonize, it's just dirty
-                if (!excludeHarmonizeConfig) return true;
+                if (!excludeHarmonizeConfig)
+                {
+                    reason = "Various files.";
+                    return true;
+                }
 
                 // See if it's just the harmonize config
                 foreach (var statusEntry in repoStatus)
                 {
                     if (!statusEntry.FilePath.Equals(HarmonizeConfigPath))
                     { // Wasn't just harmonize config, it's dirty
+                        reason = statusEntry.FilePath;
                         return true;
                     }
                 }
+                reason = string.Empty;
                 return false;
             }
         }
