@@ -188,9 +188,12 @@ namespace HarmonizeGit
                     if (status == FileStatus.Unaltered
                         || status == FileStatus.Nonexistent) return true;
                     var parentConfig = ConfigLoader.GetConfig(path);
-                    this.ConfigLoader.SyncAndWriteConfig(parentConfig, path);
-                    repoStatus = repo.RetrieveStatus();
-                    if (!repoStatus.IsDirty) return false;
+                    if (parentConfig != null)
+                    {
+                        this.ConfigLoader.SyncAndWriteConfig(parentConfig, path);
+                        repoStatus = repo.RetrieveStatus();
+                        if (!repoStatus.IsDirty) return false;
+                    }
                 }
 
                 // If not excluding harmonize, it's just dirty
