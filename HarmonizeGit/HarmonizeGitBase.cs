@@ -218,6 +218,8 @@ namespace HarmonizeGit
                 // See if it's just the harmonize config
                 foreach (var statusEntry in repoStatus)
                 {
+                    if (statusEntry.State.HasFlag(FileStatus.Ignored)) continue;
+                    if (statusEntry.State == FileStatus.Unaltered) continue;
                     if (!statusEntry.FilePath.Equals(HarmonizeConfigPath))
                     { // Wasn't just harmonize config, it's dirty
                         reason = statusEntry.FilePath;
