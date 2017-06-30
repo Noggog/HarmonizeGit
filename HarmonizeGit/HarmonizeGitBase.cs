@@ -221,7 +221,9 @@ namespace HarmonizeGit
                 foreach (var statusEntry in repoStatus)
                 {
                     if (statusEntry.FilePath.Equals(HarmonizeConfigPath) && excludeHarmonizeConfig) continue;
-                    
+                    if (statusEntry.State == FileStatus.Unaltered) continue;
+                    if (statusEntry.State.HasFlag(FileStatus.Ignored)) continue;
+
                     // Wasn't just harmonize config, it's dirty
                     reason = $"{statusEntry.State} - {statusEntry.FilePath}";
                     return true;
