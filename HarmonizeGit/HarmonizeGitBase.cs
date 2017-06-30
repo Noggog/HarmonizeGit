@@ -172,15 +172,17 @@ namespace HarmonizeGit
         }
 
         #region IsDirty
-        public bool IsDirty(bool excludeHarmonizeConfig = true, bool regenerateConfig = true)
+        public bool IsDirty(
+            ConfigExclusion configExclusion = ConfigExclusion.Full,
+            bool regenerateConfig = true)
         {
-            return IsDirty(this.TargetPath, out var reason, excludeHarmonizeConfig, regenerateConfig);
+            return IsDirty(this.TargetPath, out var reason, configExclusion, regenerateConfig);
         }
 
         public bool IsDirty(
             string path,
-            out string reason, 
-            bool excludeHarmonizeConfig = true,
+            out string reason,
+            ConfigExclusion configExclusion = ConfigExclusion.Full,
             bool regenerateConfig = true)
         {
             reason = string.Empty;
@@ -220,7 +222,7 @@ namespace HarmonizeGit
                 
                 foreach (var statusEntry in repoStatus)
                 {
-                    if (statusEntry.FilePath.Equals(HarmonizeConfigPath) && excludeHarmonizeConfig) continue;
+                    if (statusEntry.FilePath.Equals(HarmonizeConfigPath) && configExclusion == ConfigExclusion.Full) continue;
                     if (statusEntry.State == FileStatus.Unaltered) continue;
                     if (statusEntry.State.HasFlag(FileStatus.Ignored)) continue;
 

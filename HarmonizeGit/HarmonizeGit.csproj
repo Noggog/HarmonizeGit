@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigExclusion.cs" />
     <Compile Include="Config\ChildConfig\ChildrenLoader.cs" />
     <Compile Include="Config\ChildConfig\ChildUsage.cs" />
     <Compile Include="Config\ConfigLoader.cs" />
