@@ -24,7 +24,12 @@ namespace HarmonizeGit
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
                 var configStatus = repo.RetrieveStatus(HarmonizeGitBase.HarmonizeConfigPath);
-                if (configStatus == FileStatus.Unaltered) return true;
+                if (configStatus == FileStatus.Unaltered)
+                {
+                    this.harmonize.WriteLine("Harmonize config unaltered. Continuing pull.");
+                    return true;
+                }
+                this.harmonize.WriteLine("Purging modified harmonize config to allow pull.");
                 repo.CheckoutPaths(
                     repo.Head.Tip.Sha,
                     new string[] { HarmonizeGitBase.HarmonizeConfigPath },
