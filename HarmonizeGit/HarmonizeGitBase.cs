@@ -189,30 +189,21 @@ namespace HarmonizeGit
                 {
                     // Regenerate harmonize config, see if that cleans it
                     var status = repo.RetrieveStatus(HarmonizeConfigPath);
-                    if (status == FileStatus.Unaltered
-                        || status == FileStatus.Nonexistent)
+                    if (status != FileStatus.Unaltered
+                        && status != FileStatus.Nonexistent)
                     {
-                        reason = $"Harmonize config was dirty: {status}.";
-                        return true;
-                    }
-                    var parentConfig = ConfigLoader.GetConfig(path);
-                    if (parentConfig != null)
-                    {
-                        this.ConfigLoader.SyncAndWriteConfig(parentConfig, path);
-                        repoStatus = repo.RetrieveStatus();
-                        if (!repoStatus.IsDirty)
+                        var parentConfig = ConfigLoader.GetConfig(path);
+                        if (parentConfig != null)
                         {
-                            reason = string.Empty;
-                            return false;
+                            this.ConfigLoader.SyncAndWriteConfig(parentConfig, path);
+                            repoStatus = repo.RetrieveStatus();
+                            if (!repoStatus.IsDirty)
+                            {
+                                reason = string.Empty;
+                                return false;
+                            }
                         }
                     }
-                }
-
-                // If not excluding harmonize, it's just dirty
-                if (!excludeHarmonizeConfig)
-                {
-                    reason = "Various files.";
-                    return true;
                 }
 
                 // See if it's just the harmonize config
