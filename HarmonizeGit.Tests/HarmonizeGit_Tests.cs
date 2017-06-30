@@ -109,7 +109,7 @@ namespace HarmonizeGit.Tests
                     "Dirty changes");
                 var changes = checkout.Harmonize.GetReposWithUncommittedChanges();
                 Assert.Equal(1, changes.Count);
-                Assert.Equal(changes[0].Path, parentRepo.Dir.FullName);
+                Assert.Equal(changes[0].Listing.Path, parentRepo.Dir.FullName);
             }
         }
 

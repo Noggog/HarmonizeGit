@@ -146,22 +146,22 @@ namespace HarmonizeGit
                 this.WriteLine("Cancelling because repos had uncommitted changes:");
                 foreach (var repo in uncomittedChangeRepos)
                 {
-                    this.WriteLine("   -" + repo.Nickname);
+                    this.WriteLine($"   -{repo.Listing.Nickname}: {repo.Reason}");
                 }
                 return true;
             }
             return false;
         }
 
-        public List<RepoListing> GetReposWithUncommittedChanges()
+        public List<(RepoListing Listing, string Reason)> GetReposWithUncommittedChanges()
         {
-            List<RepoListing> ret = new List<RepoListing>();
+            List<(RepoListing Listing, string Reason)> ret = new List<(RepoListing Listing, string Reason)>();
             foreach (var repoListing in this.Config.ParentRepos)
             {
                 if (IsDirty(repoListing.Path, out var reason))
                 {
                     this.WriteLine($"{repoListing.Nickname} was dirty: {reason}");
-                    ret.Add(repoListing);
+                    ret.Add((repoListing, reason));
                 }
                 else
                 {
@@ -183,6 +183,7 @@ namespace HarmonizeGit
             bool excludeHarmonizeConfig = true,
             bool regenerateConfig = true)
         {
+            reason = string.Empty;
             using (var repo = new Repository(path))
             {
                 var repoStatus = repo.RetrieveStatus(new StatusOptions()
@@ -194,7 +195,6 @@ namespace HarmonizeGit
                 });
                 if (!repoStatus.IsDirty)
                 {
-                    reason = string.Empty;
                     return false;
                 }
 
@@ -212,7 +212,6 @@ namespace HarmonizeGit
                             repoStatus = repo.RetrieveStatus();
                             if (!repoStatus.IsDirty)
                             {
-                                reason = string.Empty;
                                 return false;
                             }
                         }
@@ -227,7 +226,6 @@ namespace HarmonizeGit
                     reason = $"{statusEntry.State} - {statusEntry.FilePath}";
                     return true;
                 }
-                reason = string.Empty;
                 return false;
             }
         }
