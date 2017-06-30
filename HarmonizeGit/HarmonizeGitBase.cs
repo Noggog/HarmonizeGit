@@ -181,7 +181,13 @@ namespace HarmonizeGit
         {
             using (var repo = new Repository(path))
             {
-                var repoStatus = repo.RetrieveStatus();
+                var repoStatus = repo.RetrieveStatus(new StatusOptions()
+                {
+                    IncludeIgnored = false,
+                    IncludeUnaltered = false,
+                    RecurseIgnoredDirs = false,
+                    ExcludeSubmodules = true
+                });
                 if (!repoStatus.IsDirty)
                 {
                     reason = string.Empty;
@@ -208,15 +214,13 @@ namespace HarmonizeGit
                         }
                     }
                 }
-
-                // See if it's just the harmonize config
+                
                 foreach (var statusEntry in repoStatus)
                 {
-                    if (statusEntry.State.HasFlag(FileStatus.Ignored)) continue;
-                    if (statusEntry.State == FileStatus.Unaltered) continue;
-                    if (!statusEntry.FilePath.Equals(HarmonizeConfigPath))
+                    if (!excludeHarmonizeConfig
+                        || !statusEntry.FilePath.Equals(HarmonizeConfigPath))
                     { // Wasn't just harmonize config, it's dirty
-                        reason = statusEntry.FilePath;
+                        reason = $"{statusEntry.State} - {statusEntry.FilePath}";
                         return true;
                     }
                 }
