@@ -177,7 +177,11 @@ namespace HarmonizeGit
             return IsDirty(this.TargetPath, out var reason, excludeHarmonizeConfig, regenerateConfig);
         }
 
-        public bool IsDirty(string path, out string reason, bool excludeHarmonizeConfig = true, bool regenerateConfig = true)
+        public bool IsDirty(
+            string path,
+            out string reason, 
+            bool excludeHarmonizeConfig = true,
+            bool regenerateConfig = true)
         {
             using (var repo = new Repository(path))
             {
@@ -217,12 +221,11 @@ namespace HarmonizeGit
                 
                 foreach (var statusEntry in repoStatus)
                 {
-                    if (!excludeHarmonizeConfig
-                        || !statusEntry.FilePath.Equals(HarmonizeConfigPath))
-                    { // Wasn't just harmonize config, it's dirty
-                        reason = $"{statusEntry.State} - {statusEntry.FilePath}";
-                        return true;
-                    }
+                    if (statusEntry.FilePath.Equals(HarmonizeConfigPath) && excludeHarmonizeConfig) continue;
+                    
+                    // Wasn't just harmonize config, it's dirty
+                    reason = $"{statusEntry.State} - {statusEntry.FilePath}";
+                    return true;
                 }
                 reason = string.Empty;
                 return false;
