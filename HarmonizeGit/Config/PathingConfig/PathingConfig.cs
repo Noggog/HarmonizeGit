@@ -73,7 +73,7 @@ namespace HarmonizeGit
             return this.pathsDict.TryGetValue(name, out listing);
         }
         
-        public void Write(string targetPath)
+        public void Write(string targetPath, bool blockIfEqual = true)
         {
             if (!Properties.Settings.Default.ExportPathingConfigUpdates) return;
 
@@ -94,7 +94,7 @@ namespace HarmonizeGit
                 }
             }
 
-            if (object.Equals(this.OriginalXML, xmlStr)) return;
+            if (blockIfEqual && object.Equals(this.OriginalXML, xmlStr)) return;
 
             using (LockManager.GetLock(LockType.Pathing, targetPath))
             {
