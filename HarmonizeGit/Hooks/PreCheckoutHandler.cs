@@ -33,8 +33,7 @@ namespace HarmonizeGit
                 return false;
             }
             
-            harmonize.SyncParentReposToSha(args.TargetSha);
-            return true;
+            return harmonize.SyncParentReposToSha(args.TargetSha);
         }
     }
 }

@@ -16,6 +16,7 @@ namespace HarmonizeGit.Tester
                 {
                     HarmonizeGitBase harmonize = new HarmonizeGitBase(Environment.CurrentDirectory);
                     await harmonize.Handle(args);
+                    System.Console.WriteLine("DONE");
                 }
                 catch (Exception ex)
                 {

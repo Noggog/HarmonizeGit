@@ -20,7 +20,7 @@ namespace HarmonizeGit
 
         public override async Task<bool> Handle()
         {
-            harmonize.SyncParentRepos();
+            if (!harmonize.SyncParentRepos()) return false;
             await this.harmonize.ChildLoader.InsertCurrentConfig();
             return true;
         }

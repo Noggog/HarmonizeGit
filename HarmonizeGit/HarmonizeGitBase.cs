@@ -246,17 +246,27 @@ namespace HarmonizeGit
             this.ConfigLoader.Config.Pathing.Write(this.TargetPath);
         }
 
-        public void SyncParentRepos()
+        public bool SyncParentRepos()
         {
-            SyncParentRepos(this.Config);
+            return SyncParentRepos(this.Config);
         }
 
-        public void SyncParentRepos(HarmonizeConfig config)
+        public bool SyncParentRepos(HarmonizeConfig config)
         {
+            bool passed = true;
             foreach (var listing in config.ParentRepos)
             {
-                SyncParentRepo(listing);
+                try
+                {
+                    SyncParentRepo(listing);
+                }
+                catch (Exception ex)
+                {
+                    this.WriteLine($"Error syncing parent repo {listing.Nickname}: {ex}");
+                    passed = false;
+                }
             }
+            return passed;
         }
 
         private void SyncParentRepo(RepoListing listing)
@@ -329,7 +339,7 @@ namespace HarmonizeGit
             throw new NotImplementedException("Delete some branches.  You have over 100.");
         }
 
-        public void SyncParentReposToSha(string targetCommitSha)
+        public bool SyncParentReposToSha(string targetCommitSha)
         {
             HarmonizeConfig targetConfig;
             using (var repo = new Repository(this.TargetPath))
@@ -352,9 +362,9 @@ namespace HarmonizeGit
                     this,
                     this.TargetPath,
                     targetCommit);
-                if (targetConfig == null) return;
+                if (targetConfig == null) return true;
             }
-            SyncParentRepos(targetConfig);
+            return SyncParentRepos(targetConfig);
         }
 
         public void CheckForCircularConfigs()

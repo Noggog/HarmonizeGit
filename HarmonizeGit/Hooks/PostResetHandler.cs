@@ -21,7 +21,7 @@ namespace HarmonizeGit
 
         public override async Task<bool> Handle()
         {
-            harmonize.SyncParentRepos();
+            if (!harmonize.SyncParentRepos()) return false;
 
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
