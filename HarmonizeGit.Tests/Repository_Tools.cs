@@ -35,6 +35,10 @@ namespace HarmonizeGit.Tests
         public string Child_ThirdSha;
         public string Child_FourthSha;
 
+        public FileInfo ChildFile;
+        public FileInfo ParentFile;
+        public FileInfo SuperParentFile;
+
         public ConfigCheckout(
             Repository superParentRepo,
             Repository parentRepo,
@@ -245,6 +249,9 @@ namespace HarmonizeGit.Tests
                 Child_SecondSha = commit2.Sha,
                 Child_ThirdSha = commit3.Sha,
                 Child_FourthSha = commit4.Sha,
+                ChildFile = childFile,
+                ParentFile = parentFile,
+                SuperParentFile = superParentFile,
             };
         }
     }
