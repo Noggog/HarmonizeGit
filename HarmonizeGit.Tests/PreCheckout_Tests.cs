@@ -57,6 +57,34 @@ namespace HarmonizeGit.Tests
         }
 
         [Fact]
+        public async Task SuperParentUntrackedCommit()
+        {
+            using (var checkout = Repository_Tools.GetStandardConfigCheckout())
+            {
+                await checkout.Init();
+                File.WriteAllText(checkout.SuperParentFile.FullName, "DirtyContent\n");
+                Commands.Stage(checkout.SuperParentRepo.Repo, checkout.SuperParentFile.FullName);
+                checkout.SuperParentRepo.Repo.Commit("New commit", Utility.GetSignature(), Utility.GetSignature());
+                checkout.ParentHarmonize.SyncConfigToParentShas();
+                checkout.Harmonize.SyncConfigToParentShas();
+                Assert.False(checkout.SuperParentRepo.Repo.RetrieveStatus().IsDirty);
+                Assert.True(checkout.ParentRepo.Repo.RetrieveStatus().IsDirty);
+                Assert.True(checkout.Repo.Repo.RetrieveStatus().IsDirty);
+                CheckoutArgs args = new CheckoutArgs()
+                {
+                    CurrentSha = checkout.Repo.Repo.Head.Tip.Sha,
+                    TargetSha = checkout.Child_SecondSha
+                };
+                PreCheckoutHandler handler = new PreCheckoutHandler(checkout.Harmonize, args);
+                var ret = await handler.Handle();
+                Assert.True(ret);
+                Assert.False(checkout.ParentRepo.Repo.RetrieveStatus().IsDirty);
+                Assert.False(checkout.Repo.Repo.RetrieveStatus().IsDirty);
+                Assert.False(checkout.SuperParentRepo.Repo.RetrieveStatus().IsDirty);
+            }
+        }
+
+        [Fact]
         public async Task DirtyParent()
         {
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())

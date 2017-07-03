@@ -2,6 +2,7 @@
 using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -32,7 +33,11 @@ namespace HarmonizeGit
             {
                 return false;
             }
-            
+
+            using (var repo = new Repository(harmonize.TargetPath))
+            {
+                repo.Discard(Path.Combine(harmonize.TargetPath, HarmonizeGitBase.HarmonizeConfigPath));
+            }
             return harmonize.SyncParentReposToSha(args.TargetSha);
         }
     }

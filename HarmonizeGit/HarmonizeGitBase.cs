@@ -258,7 +258,7 @@ namespace HarmonizeGit
             {
                 try
                 {
-                    SyncParentRepo(listing);
+                    if (!SyncParentRepo(listing)) return false;
                 }
                 catch (Exception ex)
                 {
@@ -269,7 +269,7 @@ namespace HarmonizeGit
             return passed;
         }
 
-        private void SyncParentRepo(RepoListing listing)
+        private bool SyncParentRepo(RepoListing listing)
         {
             this.WriteLine($"Processing {listing.Nickname} at path {listing.Path}. Trying to check out an existing branch at {listing.Sha}.");
             if (listing.Sha == null)
@@ -279,10 +279,17 @@ namespace HarmonizeGit
 
             using (var repo = new Repository(listing.Path))
             {
+                repo.Discard(HarmonizeGitBase.HarmonizeConfigPath);
+                if (repo.RetrieveStatus().IsDirty)
+                {
+                    this.WriteLine($"Checking out existing branch error {listing.Nickname}: was still dirty after cleaning config.");
+                    return false;
+                }
+
                 if (repo.Head.Tip.Sha.Equals(listing.Sha))
                 {
                     this.WriteLine("Repository already at desired commit.");
-                    return;
+                    return true;
                 }
 
                 var localBranches = new HashSet<string>(
@@ -308,7 +315,7 @@ namespace HarmonizeGit
                 {
                     this.WriteLine($"Checking out existing branch {listing.Nickname}:{existingBranch.FriendlyName}.");
                     LibGit2Sharp.Commands.Checkout(repo, existingBranch.FriendlyName);
-                    return;
+                    return true;
                 }
                 this.WriteLine("No branch found.  Allocating a Harmonize branch.");
                 for (int i = 0; i < 100; i++)
@@ -320,7 +327,7 @@ namespace HarmonizeGit
                         this.WriteLine($"Creating {listing.Nickname}:{branchName}.");
                         var branch = repo.CreateBranch(branchName, listing.Sha);
                         Commands.Checkout(repo, branch);
-                        return;
+                        return true;
                     }
                     else if (repo.IsLoneTip(harmonizeBranch))
                     {
@@ -332,7 +339,7 @@ namespace HarmonizeGit
                         this.WriteLine($"Moving {listing.Nickname}:{harmonizeBranch.FriendlyName} to target commit.");
                         Commands.Checkout(repo, harmonizeBranch);
                         repo.Reset(ResetMode.Hard, listing.Sha);
-                        return;
+                        return true;
                     }
                 }
             }

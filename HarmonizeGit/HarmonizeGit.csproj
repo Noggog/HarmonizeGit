@@ -84,6 +84,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Extensions\RepoExt.cs" />
     <Compile Include="RepositoryExt.cs" />
   </ItemGroup>
   <ItemGroup>
