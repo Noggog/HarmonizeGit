@@ -114,7 +114,6 @@ namespace HarmonizeGit
         public void Init()
         {
             this.ChildLoader = new ChildrenLoader(this);
-            this.Config = new HarmonizeConfig();
             this.ConfigLoader.Init(this);
             this.Config = ConfigLoader.GetConfig(this.TargetPath);
         }

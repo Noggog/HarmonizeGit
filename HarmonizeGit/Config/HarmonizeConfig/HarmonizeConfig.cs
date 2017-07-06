@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace HarmonizeGit
@@ -26,23 +27,30 @@ namespace HarmonizeGit
             Stream stream,
             PathingConfig pathing)
         {
-            string originalStr;
+            HarmonizeConfig ret = new HarmonizeConfig();
             using (var reader = new StreamReader(stream))
             {
-                originalStr = reader.ReadToEnd();
+                ret.OriginalXML = reader.ReadToEnd();
             }
-            XmlDocument xml = new XmlDocument();
-            xml.Load(new StringReader(originalStr));
-            string xmlString = xml.OuterXml;
+            XDocument xml = XDocument.Parse(ret.OriginalXML);
 
-            HarmonizeConfig ret;
-            using (StringReader read = new StringReader(xmlString))
+            if (int.TryParse(xml.Root.Attribute(XName.Get(nameof(Version)))?.Value, out int ver))
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(HarmonizeConfig));
-                using (XmlReader reader = new XmlTextReader(read))
+                ret.Version = ver;
+            }
+            var reposElem = xml.Root.Element(XName.Get(nameof(ParentRepos)));
+            if (reposElem != null)
+            {
+                foreach (var repoListing in reposElem.Elements(XName.Get(nameof(RepoListing))))
                 {
-                    ret = (HarmonizeConfig)serializer.Deserialize(reader);
-                    ret.OriginalXML = originalStr;
+                    var listing = new RepoListing();
+                    listing.Nickname = repoListing.Element(XName.Get(nameof(RepoListing.Nickname)))?.Value ?? listing.Nickname;
+                    listing.Sha = repoListing.Element(XName.Get(nameof(RepoListing.Sha)))?.Value ?? listing.Sha;
+                    listing.Description = repoListing.Element(XName.Get(nameof(RepoListing.Description)))?.Value ?? listing.Description;
+                    listing.Author = repoListing.Element(XName.Get(nameof(RepoListing.Author)))?.Value ?? listing.Author;
+                    listing.CommitDate = repoListing.Element(XName.Get(nameof(RepoListing.CommitDate)))?.Value ?? listing.CommitDate;
+                    listing.SuggestedPath = repoListing.Element(XName.Get(nameof(RepoListing.SuggestedPath)))?.Value ?? listing.SuggestedPath;
+                    ret.ParentRepos.Add(listing);
                 }
             }
 

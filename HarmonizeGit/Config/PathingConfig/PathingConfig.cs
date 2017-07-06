@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace HarmonizeGit
@@ -21,26 +22,29 @@ namespace HarmonizeGit
 
         public static PathingConfig Factory(Stream stream)
         {
-            string originalStr;
+            PathingConfig ret = new PathingConfig();
             using (var reader = new StreamReader(stream))
             {
-                originalStr = reader.ReadToEnd();
+                ret.OriginalXML = reader.ReadToEnd();
             }
-            XmlDocument xml = new XmlDocument();
-            xml.Load(new StringReader(originalStr));
-            string xmlString = xml.OuterXml;
+            XDocument xml = XDocument.Parse(ret.OriginalXML);
 
-            using (StringReader read = new StringReader(xmlString))
+            if (int.TryParse(xml.Root.Attribute(XName.Get(nameof(Version)))?.Value, out int ver))
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(PathingConfig));
-                using (XmlReader reader = new XmlTextReader(read))
-                {
-                    var ret = (PathingConfig)serializer.Deserialize(reader);
-                    ret.OriginalXML = originalStr;
-                    ret.Load();
-                    return ret;
-                }
+                ret.Version = ver;
             }
+            ret.ReroutePathing = xml.Root.Element(XName.Get(nameof(ReroutePathing)))?.Value ?? ret.ReroutePathing;
+            var pathElem = xml.Root.Element(XName.Get(nameof(Paths)));
+            if (pathElem == null) return ret;
+            foreach (var pathListing in pathElem.Elements(XName.Get(nameof(PathingListing))))
+            {
+                var listing = new PathingListing();
+                listing.Nickname = pathListing.Element(XName.Get(nameof(PathingListing.Nickname)))?.Value ?? listing.Nickname;
+                listing.Path = pathListing.Element(XName.Get(nameof(PathingListing.Path)))?.Value ?? listing.Path;
+                ret.Paths.Add(listing);
+            }
+            
+            return ret;
         }
 
         public static PathingConfig Factory(string path)
@@ -55,7 +59,8 @@ namespace HarmonizeGit
 
                 using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
                 {
-                    return PathingConfig.Factory(stream);
+                    var ret =  PathingConfig.Factory(stream);
+                    return ret;
                 }
             }
         }
