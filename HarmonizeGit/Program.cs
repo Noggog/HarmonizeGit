@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace HarmonizeGit
 {
-    class Program
+    public class Program
     {
-        static int Main(string[] args)
+        public static int Main(string[] args)
         {
-            if (!Properties.Settings.Default.Enabled) return 0;
-            if (!Properties.Settings.Default.Reroute)
+            if (!Settings.Instance.Enabled) return 0;
+            if (!Settings.Instance.Reroute)
             {
                 DirectoryInfo dir = new DirectoryInfo(".");
                 HarmonizeGitBase harmonize = new HarmonizeGitBase(dir.FullName);
@@ -25,7 +25,7 @@ namespace HarmonizeGit
             }
         }
 
-        static int Reroute(string[] args)
+        public static int Reroute(string[] args)
         {
             FileInfo pathingFileLocation = new FileInfo("./" + HarmonizeGitBase.HarmonizePathingPath);
             PathingConfig pathing;

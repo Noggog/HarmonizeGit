@@ -29,7 +29,7 @@ namespace HarmonizeGit
         public void SetToCommit(Commit commit)
         {
             this.Sha = commit.Sha;
-            if (!Properties.Settings.Default.AddMetadataToConfig) return;
+            if (!Settings.Instance.AddMetadataToConfig) return;
             this.Description = commit.MessageShort;
             this.CommitDateObj = commit.Committer.When.DateTime;
             this.Author = commit.Committer.Name;

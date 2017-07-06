@@ -61,6 +61,7 @@
     <Compile Include="Config\Locking\LockType.cs" />
     <Compile Include="Config\PathingConfig\PathingConfig.cs" />
     <Compile Include="Config\PathingConfig\PathingListing.cs" />
+    <Compile Include="Config\Settings\Settings.cs" />
     <Compile Include="Hooks\PostMergeHandler.cs" />
     <Compile Include="Hooks\PreBranchHandler.cs" />
     <Compile Include="Hooks\PostCommitHandler.cs" />
@@ -78,19 +79,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Hooks\PostResetHandler.cs" />
     <Compile Include="Hooks\TypicalHandlerBase.cs" />
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
     <Compile Include="RepositoryExt.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\FishingWithGit\FishingWithGit.Common\FishingWithGit.Common.csproj">
@@ -111,6 +103,9 @@
     <PackageReference Include="System.ValueTuple">
       <Version>4.4.0-preview2-25405-01</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Extensions\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

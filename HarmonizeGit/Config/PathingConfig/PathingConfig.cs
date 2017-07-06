@@ -80,7 +80,7 @@ namespace HarmonizeGit
         
         public void Write(string targetPath)
         {
-            if (!Properties.Settings.Default.ExportPathingConfigUpdates) return;
+            if (!Settings.Instance.ExportPathingConfigUpdates) return;
 
             string xmlStr;
             XmlSerializer xsSubmit = new XmlSerializer(typeof(PathingConfig));

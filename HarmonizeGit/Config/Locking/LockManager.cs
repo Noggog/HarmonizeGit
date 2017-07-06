@@ -14,7 +14,7 @@ namespace HarmonizeGit
         
         public static FileLockCheckout GetLock(LockType type, string pathToRepo)
         {
-            if (!Properties.Settings.Default.Lock) return new FileLockCheckout();
+            if (!Settings.Instance.Lock) return new FileLockCheckout();
 
             if (!tracker.TryGetValue(type, out Dictionary<string, EventWaitHandle> dict))
             {

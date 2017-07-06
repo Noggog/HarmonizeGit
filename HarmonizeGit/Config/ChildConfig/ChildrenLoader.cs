@@ -29,7 +29,7 @@ namespace HarmonizeGit
 
         public async Task InitializeIntoParents()
         {
-            if (!Properties.Settings.Default.TrackChildRepos) return;
+            if (!Settings.Instance.TrackChildRepos) return;
             await Task.WhenAll(
                 harmonize.Config.ParentRepos.Select(
                     async (parentRepo) =>

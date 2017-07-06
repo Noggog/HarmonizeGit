@@ -333,7 +333,7 @@ namespace HarmonizeGit
 
         public void CheckForCircularConfigs()
         {
-            if (!Properties.Settings.Default.CheckForCircularConfigs) return;
+            if (!Settings.Instance.CheckForCircularConfigs) return;
             this.WriteLine("Checking for circular configs.");
             var ret = CheckCircular(ImmutableHashSet.Create<string>(), this.TargetPath);
             if (ret != null)
