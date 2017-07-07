@@ -87,9 +87,12 @@ namespace HarmonizeGit
                         using (new ElementWrapper(writer, nameof(HarmonizeConfig)))
                         {
                             writer.WriteAttributeString(nameof(Version), this.Version.ToString());
-                            using (new ElementWrapper(writer, nameof(ReroutePathing)))
+                            if (!string.IsNullOrWhiteSpace(this.ReroutePathing))
                             {
-                                writer.WriteValue(this.ReroutePathing);
+                                using (new ElementWrapper(writer, nameof(ReroutePathing)))
+                                {
+                                    writer.WriteValue(this.ReroutePathing);
+                                }
                             }
                             using (new ElementWrapper(writer, nameof(Paths)))
                             {
@@ -97,13 +100,19 @@ namespace HarmonizeGit
                                 {
                                     using (new ElementWrapper(writer, nameof(PathingListing)))
                                     {
-                                        using (new ElementWrapper(writer, nameof(PathingListing.Nickname)))
+                                        if (!string.IsNullOrWhiteSpace(item.Nickname))
                                         {
-                                            writer.WriteValue(item.Nickname);
+                                            using (new ElementWrapper(writer, nameof(PathingListing.Nickname)))
+                                            {
+                                                writer.WriteValue(item.Nickname);
+                                            }
                                         }
-                                        using (new ElementWrapper(writer, nameof(PathingListing.Path)))
+                                        if (!string.IsNullOrWhiteSpace(item.Path))
                                         {
-                                            writer.WriteValue(item.Path);
+                                            using (new ElementWrapper(writer, nameof(PathingListing.Path)))
+                                            {
+                                                writer.WriteValue(item.Path);
+                                            }
                                         }
                                     }
                                 }

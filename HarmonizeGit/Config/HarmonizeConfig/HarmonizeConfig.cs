@@ -130,33 +130,54 @@ namespace HarmonizeGit
                             {
                                 using (new ElementWrapper(writer, nameof(RepoListing)))
                                 {
-                                    using (new ElementWrapper(writer, nameof(RepoListing.Nickname)))
+                                    if (!string.IsNullOrWhiteSpace(item.Nickname))
                                     {
-                                        writer.WriteValue(item.Nickname);
+                                        using (new ElementWrapper(writer, nameof(RepoListing.Nickname)))
+                                        {
+                                            writer.WriteValue(item.Nickname);
+                                        }
                                     }
-                                    using (new ElementWrapper(writer, nameof(RepoListing.Sha)))
+                                    if (!string.IsNullOrWhiteSpace(item.Sha))
                                     {
-                                        writer.WriteValue(item.Sha);
+                                        using (new ElementWrapper(writer, nameof(RepoListing.Sha)))
+                                        {
+                                            writer.WriteValue(item.Sha);
+                                        }
                                     }
-                                    using (new ElementWrapper(writer, nameof(RepoListing.Path)))
+                                    if (!string.IsNullOrWhiteSpace(item.Path))
                                     {
-                                        writer.WriteValue(item.Path);
+                                        using (new ElementWrapper(writer, nameof(RepoListing.Path)))
+                                        {
+                                            writer.WriteValue(item.Path);
+                                        }
                                     }
-                                    using (new ElementWrapper(writer, nameof(RepoListing.SuggestedPath)))
+                                    if (!string.IsNullOrWhiteSpace(item.SuggestedPath))
                                     {
-                                        writer.WriteValue(item.SuggestedPath);
+                                        using (new ElementWrapper(writer, nameof(RepoListing.SuggestedPath)))
+                                        {
+                                            writer.WriteValue(item.SuggestedPath);
+                                        }
                                     }
-                                    using (new ElementWrapper(writer, nameof(RepoListing.CommitDate)))
+                                    if (!string.IsNullOrWhiteSpace(item.CommitDate))
                                     {
-                                        writer.WriteValue(item.CommitDate);
+                                        using (new ElementWrapper(writer, nameof(RepoListing.CommitDate)))
+                                        {
+                                            writer.WriteValue(item.CommitDate);
+                                        }
                                     }
-                                    using (new ElementWrapper(writer, nameof(RepoListing.Description)))
+                                    if (!string.IsNullOrWhiteSpace(item.Description))
                                     {
-                                        writer.WriteValue(item.Description);
+                                        using (new ElementWrapper(writer, nameof(RepoListing.Description)))
+                                        {
+                                            writer.WriteValue(item.Description);
+                                        }
                                     }
-                                    using (new ElementWrapper(writer, nameof(RepoListing.Author)))
+                                    if (!string.IsNullOrWhiteSpace(item.Author))
                                     {
-                                        writer.WriteValue(item.Author);
+                                        using (new ElementWrapper(writer, nameof(RepoListing.Author)))
+                                        {
+                                            writer.WriteValue(item.Author);
+                                        }
                                     }
                                 }
                             }
@@ -165,7 +186,7 @@ namespace HarmonizeGit
                 }
             }
         }
-        
+
         public bool SetPathing(PathingConfig pathing, bool addMissing = true)
         {
             this.Pathing = pathing;
