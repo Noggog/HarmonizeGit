@@ -27,7 +27,7 @@ namespace HarmonizeGit
             }
             try
             {
-                this.harmonize.SyncConfigToParentShas();
+                await this.harmonize.SyncConfigToParentShas();
             }
             catch (Exception ex)
             {

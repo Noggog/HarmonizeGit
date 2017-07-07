@@ -135,9 +135,9 @@ namespace HarmonizeGit
             }
         }
 
-        public bool CancelIfParentsHaveChanges()
+        public async Task<bool> CancelIfParentsHaveChanges()
         {
-            var uncomittedChangeRepos = this.GetReposWithUncommittedChanges();
+            var uncomittedChangeRepos = await this.GetReposWithUncommittedChanges();
             if (uncomittedChangeRepos.Count > 0)
             {
                 this.WriteLine("Cancelling because repos had uncommitted changes:");
@@ -150,12 +150,12 @@ namespace HarmonizeGit
             return false;
         }
 
-        public List<RepoListing> GetReposWithUncommittedChanges()
+        public async Task<List<RepoListing>> GetReposWithUncommittedChanges()
         {
             List<RepoListing> ret = new List<RepoListing>();
             foreach (var repoListing in this.Config.ParentRepos)
             {
-                if (IsDirty(repoListing.Path))
+                if (await IsDirty(repoListing.Path))
                 {
                     this.WriteLine($"{repoListing.Nickname} was dirty.");
                     ret.Add(repoListing);
@@ -169,12 +169,12 @@ namespace HarmonizeGit
         }
 
         #region IsDirty
-        public bool IsDirty(bool excludeHarmonizeConfig = true, bool regenerateConfig = true)
+        public Task<bool> IsDirty(bool excludeHarmonizeConfig = true, bool regenerateConfig = true)
         {
             return IsDirty(this.TargetPath, excludeHarmonizeConfig, regenerateConfig);
         }
 
-        public bool IsDirty(string path, bool excludeHarmonizeConfig = true, bool regenerateConfig = true)
+        public async Task<bool> IsDirty(string path, bool excludeHarmonizeConfig = true, bool regenerateConfig = true)
         {
             using (var repo = new Repository(path))
             {
@@ -188,7 +188,7 @@ namespace HarmonizeGit
                     if (status == FileStatus.Unaltered
                         || status == FileStatus.Nonexistent) return true;
                     var parentConfig = ConfigLoader.GetConfig(path);
-                    this.ConfigLoader.SyncAndWriteConfig(parentConfig, path);
+                    await this.ConfigLoader.SyncAndWriteConfig(parentConfig, path);
                     repoStatus = repo.RetrieveStatus();
                     if (!repoStatus.IsDirty) return false;
                 }
@@ -209,10 +209,10 @@ namespace HarmonizeGit
         }
         #endregion
 
-        public void SyncConfigToParentShas()
+        public async Task SyncConfigToParentShas()
         {
             this.WriteLine("Syncing config to parent repo shas.");
-            this.ConfigLoader.SyncAndWriteConfig(this.Config, this.TargetPath);
+            await this.ConfigLoader.SyncAndWriteConfig(this.Config, this.TargetPath);
         }
 
         public void UpdatePathingConfig()

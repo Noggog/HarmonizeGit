@@ -24,7 +24,7 @@ namespace HarmonizeGit
 
         public override async Task<bool> Handle()
         {
-            if (this.harmonize.CancelIfParentsHaveChanges())
+            if (await this.harmonize.CancelIfParentsHaveChanges())
             {
                 return false;
             }
@@ -42,13 +42,13 @@ namespace HarmonizeGit
                 }
             }
 
-            DoCommitTasks();
+            await DoCommitTasks();
             return true;
         }
 
-        private void DoCommitTasks()
+        private async Task DoCommitTasks()
         {
-            this.harmonize.SyncConfigToParentShas();
+            await this.harmonize.SyncConfigToParentShas();
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
                 Commands.Stage(repo, HarmonizeGitBase.HarmonizeConfigPath);

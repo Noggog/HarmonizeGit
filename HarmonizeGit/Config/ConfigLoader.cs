@@ -73,21 +73,27 @@ namespace HarmonizeGit
             }
         }
 
-        public void SyncAndWriteConfig(HarmonizeConfig config, string path)
+        public async Task SyncAndWriteConfig(HarmonizeConfig config, string path)
         {
             List<RepoListing> changed = new List<RepoListing>();
-            foreach (var listing in config.ParentRepos)
-            {
-                this.harmonize.WriteLine($"Checking for sha changes {listing.Nickname} at path {listing.Path}.");
-                using (var repo = new Repository(listing.Path))
+            changed.AddRange((await Task.WhenAll(config.ParentRepos.Select(
+                (listing) =>
                 {
-                    this.harmonize.WriteLine($"Config sha {listing.Sha} compared to current sha {repo.Head.Tip.Sha}.");
-                    if (object.Equals(listing.Sha, repo.Head.Tip.Sha)) continue;
-                    changed.Add(listing);
-                    listing.SetToCommit(repo.Head.Tip);
-                    this.harmonize.WriteLine($"Changed to sha {repo.Head.Tip.Sha}.");
-                }
-            }
+                    return Task.Run(() =>
+                    {
+                        this.harmonize.WriteLine($"Checking for sha changes {listing.Nickname} at path {listing.Path}.");
+                        using (var repo = new Repository(listing.Path))
+                        {
+                            this.harmonize.WriteLine($"Config sha {listing.Sha} compared to current sha {repo.Head.Tip.Sha}.");
+                            if (object.Equals(listing.Sha, repo.Head.Tip.Sha)) return null;
+                            changed.Add(listing);
+                            listing.SetToCommit(repo.Head.Tip);
+                            this.harmonize.WriteLine($"Changed to sha {repo.Head.Tip.Sha}.");
+                            return listing;
+                        }
+                    });
+                })))
+                .Where((listing) => listing != null));
 
             if (WriteConfig(config, path))
             {
