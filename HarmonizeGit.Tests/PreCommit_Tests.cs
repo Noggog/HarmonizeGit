@@ -22,7 +22,7 @@ namespace HarmonizeGit.Tests
                 await checkout.Init();
                 var superParentCommit = checkout.SuperParentRepo.Repo.Lookup<Commit>(checkout.SuperParent_FirstSha);
                 checkout.ParentHarmonize.Config.ParentRepos[0].SetToCommit(superParentCommit);
-                File.WriteAllText(checkout.ParentRepo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath, checkout.ParentHarmonize.Config.GetXmlStr());
+                checkout.ParentHarmonize.Config.WriteToPath(checkout.ParentRepo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath);
                 Assert.True(checkout.ParentRepo.Repo.RetrieveStatus().IsDirty);
                 CommitArgs args = new CommitArgs();
                 PreCommitHandler handler = new PreCommitHandler(checkout.Harmonize, args);
@@ -77,7 +77,7 @@ namespace HarmonizeGit.Tests
 
                 var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(checkout.Parent_SecondSha);
                 checkout.ChildToParentListing.SetToCommit(parentCommit);
-                File.WriteAllText(checkout.Repo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath, checkout.Harmonize.Config.GetXmlStr());
+                checkout.Harmonize.Config.WriteToPath(checkout.Repo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath);
                 Assert.True(checkout.Repo.Repo.RetrieveStatus().IsDirty);
 
                 stat = checkout.Repo.Repo.RetrieveStatus(HarmonizeGitBase.HarmonizeConfigPath);

@@ -24,7 +24,7 @@ namespace HarmonizeGit
             this.harmonize = harmonize;
             this.Config = GetConfig(harmonize.TargetPath);
             if (this.Config == null) return;
-            this.Config.Pathing.Write(harmonize.TargetPath);
+            this.Config.Pathing.WriteToPath(harmonize.TargetPath);
         }
 
         #region Config
@@ -106,15 +106,12 @@ namespace HarmonizeGit
         {
             if (object.Equals(config, config?.OriginalConfig)) return false;
 
-            var xmlStr = config.GetXmlStr();
-
             path = path + "/" + HarmonizeGitBase.HarmonizeConfigPath;
-
             this.harmonize.WriteLine($"Updating config at {path}");
 
             using (LockManager.GetLock(LockType.Harmonize, path))
             {
-                File.WriteAllText(path, xmlStr);
+                config.WriteToPath(path);
             }
             return true;
         }

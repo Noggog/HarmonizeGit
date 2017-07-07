@@ -40,7 +40,7 @@ namespace HarmonizeGit
             }
             if (!pathingFileLocation.Exists)
             {
-                pathing.Write(".");
+                pathing.WriteToPath(".");
             }
             if (string.IsNullOrWhiteSpace(pathing.ReroutePathing))
             {

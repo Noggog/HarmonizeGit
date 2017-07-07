@@ -13,7 +13,6 @@ namespace HarmonizeGit
     {
         public string Nickname;
         public string Sha;
-        [XmlIgnore]
         public string Path;
         public string SuggestedPath;
         public string CommitDate
@@ -21,7 +20,6 @@ namespace HarmonizeGit
             get { return this.CommitDateObj.ToString("MM-dd-yyyy HH:mm:ss"); }
             set { this.CommitDateObj = DateTime.Parse(value); }
         }
-        [XmlIgnore]
         public DateTime CommitDateObj;
         public string Description;
         public string Author;

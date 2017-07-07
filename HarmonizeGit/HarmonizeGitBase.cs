@@ -217,7 +217,7 @@ namespace HarmonizeGit
 
         public void UpdatePathingConfig()
         {
-            this.ConfigLoader.Config.Pathing.Write(this.TargetPath);
+            this.ConfigLoader.Config.Pathing.WriteToPath(this.TargetPath);
         }
 
         public void SyncParentRepos()

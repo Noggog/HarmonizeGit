@@ -13,12 +13,9 @@ namespace HarmonizeGit
 {
     public class HarmonizeConfig : IEquatable<HarmonizeConfig>
     {
-        [XmlAttribute]
         public int Version = 1;
         public List<RepoListing> ParentRepos = new List<RepoListing>();
-        [XmlIgnore]
         public PathingConfig Pathing;
-        [XmlIgnore]
         public HarmonizeConfig OriginalConfig;
 
         public static HarmonizeConfig Factory(
@@ -115,25 +112,58 @@ namespace HarmonizeGit
             return ret;
         }
 
-        public string GetXmlStr()
+        public void WriteToPath(string path)
         {
-            string xmlStr;
-            XmlSerializer xsSubmit = new XmlSerializer(typeof(HarmonizeConfig));
-            var settings = new XmlWriterSettings()
+            using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite))
             {
-                Indent = true,
-                OmitXmlDeclaration = true
-            };
-            var emptyNs = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
-            using (var sw = new StringWriter())
-            {
-                using (XmlWriter writer = XmlWriter.Create(sw, settings))
+                using (var writer = new XmlTextWriter(fileStream, Encoding.ASCII))
                 {
-                    xsSubmit.Serialize(writer, this, emptyNs);
-                    xmlStr = sw.ToString();
+                    writer.Formatting = Formatting.Indented;
+                    writer.Indentation = 3;
+
+                    using (new ElementWrapper(writer, nameof(HarmonizeConfig)))
+                    {
+                        writer.WriteAttributeString(nameof(Version), this.Version.ToString());
+                        using (new ElementWrapper(writer, nameof(ParentRepos)))
+                        {
+                            foreach (var item in this.ParentRepos)
+                            {
+                                using (new ElementWrapper(writer, nameof(RepoListing)))
+                                {
+                                    using (new ElementWrapper(writer, nameof(RepoListing.Nickname)))
+                                    {
+                                        writer.WriteValue(item.Nickname);
+                                    }
+                                    using (new ElementWrapper(writer, nameof(RepoListing.Sha)))
+                                    {
+                                        writer.WriteValue(item.Sha);
+                                    }
+                                    using (new ElementWrapper(writer, nameof(RepoListing.Path)))
+                                    {
+                                        writer.WriteValue(item.Path);
+                                    }
+                                    using (new ElementWrapper(writer, nameof(RepoListing.SuggestedPath)))
+                                    {
+                                        writer.WriteValue(item.SuggestedPath);
+                                    }
+                                    using (new ElementWrapper(writer, nameof(RepoListing.CommitDate)))
+                                    {
+                                        writer.WriteValue(item.CommitDate);
+                                    }
+                                    using (new ElementWrapper(writer, nameof(RepoListing.Description)))
+                                    {
+                                        writer.WriteValue(item.Description);
+                                    }
+                                    using (new ElementWrapper(writer, nameof(RepoListing.Author)))
+                                    {
+                                        writer.WriteValue(item.Author);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
-            return xmlStr;
         }
         
         public bool SetPathing(PathingConfig pathing, bool addMissing = true)

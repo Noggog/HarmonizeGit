@@ -62,6 +62,7 @@
     <Compile Include="Config\PathingConfig\PathingConfig.cs" />
     <Compile Include="Config\PathingConfig\PathingListing.cs" />
     <Compile Include="Config\Settings\Settings.cs" />
+    <Compile Include="Extensions\ElementWrapper.cs" />
     <Compile Include="Extensions\HashHelper.cs" />
     <Compile Include="Hooks\PostMergeHandler.cs" />
     <Compile Include="Hooks\PreBranchHandler.cs" />

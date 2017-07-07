@@ -13,11 +13,9 @@ namespace HarmonizeGit
     public class PathingConfig : IEquatable<PathingConfig>
     {
         public string ReroutePathing = "C:/Program Files/HarmonizeGit/HarmonizeGit.exe";
-        [XmlAttribute]
         public int Version = 1;
         public List<PathingListing> Paths = new List<PathingListing>();
         private Dictionary<string, PathingListing> pathsDict = new Dictionary<string, PathingListing>();
-        [XmlIgnore]
         public PathingConfig OriginalConfig;
 
         public static PathingConfig Factory(Stream stream)
@@ -60,7 +58,7 @@ namespace HarmonizeGit
 
                 using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
                 {
-                    var ret =  PathingConfig.Factory(stream);
+                    var ret = PathingConfig.Factory(stream);
                     return ret;
                 }
             }
@@ -78,34 +76,50 @@ namespace HarmonizeGit
         {
             return this.pathsDict.TryGetValue(name, out listing);
         }
-        
-        public void Write(string targetPath)
+
+        public void WriteToPath(string path)
         {
             if (!Settings.Instance.ExportPathingConfigUpdates) return;
             if (this.Equals(this.OriginalConfig)) return;
 
-            string xmlStr;
-            XmlSerializer xsSubmit = new XmlSerializer(typeof(PathingConfig));
-            var settings = new XmlWriterSettings()
+            using (LockManager.GetLock(LockType.Pathing, path))
             {
-                Indent = true,
-                OmitXmlDeclaration = true
-            };
-            var emptyNs = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
-            using (var sw = new StringWriter())
-            {
-                using (XmlWriter writer = XmlWriter.Create(sw, settings))
+                path = Path.Combine(path, HarmonizeGitBase.HarmonizePathingPath);
+
+                using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite))
                 {
-                    xsSubmit.Serialize(writer, this, emptyNs);
-                    xmlStr = sw.ToString();
+                    using (var writer = new XmlTextWriter(fileStream, Encoding.ASCII))
+                    {
+                        writer.Formatting = Formatting.Indented;
+                        writer.Indentation = 3;
+
+                        using (new ElementWrapper(writer, nameof(HarmonizeConfig)))
+                        {
+                            writer.WriteAttributeString(nameof(Version), this.Version.ToString());
+                            using (new ElementWrapper(writer, nameof(ReroutePathing)))
+                            {
+                                writer.WriteValue(this.ReroutePathing);
+                            }
+                            using (new ElementWrapper(writer, nameof(Paths)))
+                            {
+                                foreach (var item in this.Paths)
+                                {
+                                    using (new ElementWrapper(writer, nameof(PathingListing)))
+                                    {
+                                        using (new ElementWrapper(writer, nameof(PathingListing.Nickname)))
+                                        {
+                                            writer.WriteValue(item.Nickname);
+                                        }
+                                        using (new ElementWrapper(writer, nameof(PathingListing.Path)))
+                                        {
+                                            writer.WriteValue(item.Path);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-
-            if (object.Equals(this, xmlStr)) return;
-
-            using (LockManager.GetLock(LockType.Pathing, targetPath))
-            {
-                File.WriteAllText(Path.Combine(targetPath, HarmonizeGitBase.HarmonizePathingPath), xmlStr);
             }
         }
 

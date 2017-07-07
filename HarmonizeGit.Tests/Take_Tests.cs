@@ -20,7 +20,7 @@ namespace HarmonizeGit.Tests
                 await checkout.Init();
                 var parent2ndCommit = checkout.ParentRepo.Repo.Lookup<Commit>(checkout.Parent_SecondSha);
                 checkout.ChildToParentListing.SetToCommit(parent2ndCommit);
-                File.WriteAllText(Path.Combine(checkout.Repo.Dir.FullName, HarmonizeGitBase.HarmonizeConfigPath), checkout.Harmonize.Config.GetXmlStr());
+                checkout.Harmonize.Config.WriteToPath(Path.Combine(checkout.Repo.Dir.FullName, HarmonizeGitBase.HarmonizeConfigPath));
                 
                 PostTakeHandler handler = new PostTakeHandler(checkout.Harmonize, new TakeArgs());
                 var ret = await handler.Handle();
