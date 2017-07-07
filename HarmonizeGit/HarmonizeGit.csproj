@@ -82,6 +82,9 @@
     <Compile Include="Hooks\PostResetHandler.cs" />
     <Compile Include="Hooks\TypicalHandlerBase.cs" />
     <Compile Include="RepositoryExt.cs" />
+    <Compile Include="Tuples\ChildUsages.cs" />
+    <Compile Include="Tuples\GetResponse.cs" />
+    <Compile Include="Tuples\RepoConfigKey.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -98,9 +101,6 @@
     </PackageReference>
     <PackageReference Include="System.Data.SQLite">
       <Version>1.0.105.2</Version>
-    </PackageReference>
-    <PackageReference Include="System.ValueTuple">
-      <Version>4.4.0-preview2-25405-01</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup />

@@ -89,9 +89,6 @@
     <PackageReference Include="System.Data.SQLite">
       <Version>1.0.105.2</Version>
     </PackageReference>
-    <PackageReference Include="System.ValueTuple">
-      <Version>4.4.0-preview2-25405-01</Version>
-    </PackageReference>
     <PackageReference Include="xunit">
       <Version>2.3.0-beta3-build3705</Version>
     </PackageReference>

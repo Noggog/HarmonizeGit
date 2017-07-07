@@ -99,10 +99,10 @@ namespace HarmonizeGit.Tests
                 await handler.Handle();
                 childGet = await checkout.ParentHarmonize.ChildLoader.LookupChildUsage(this.RebasedSha);
                 Assert.True(childGet.Succeeded);
-                Assert.Equal(this.RebasedSha, childGet.Usage.Sha);
-                Assert.Equal(checkout.Repo.Dir.FullName, childGet.Usage.ChildRepoPath);
-                Assert.Equal(checkout.ParentRepo.Repo.Head.Tip.Sha, childGet.Usage.ParentSha);
-                Assert.Equal(checkout.ParentRepo.Dir.FullName, childGet.Usage.ParentRepoPath);
+                Assert.Equal(this.RebasedSha, childGet.Item.Sha);
+                Assert.Equal(checkout.Repo.Dir.FullName, childGet.Item.ChildRepoPath);
+                Assert.Equal(checkout.ParentRepo.Repo.Head.Tip.Sha, childGet.Item.ParentSha);
+                Assert.Equal(checkout.ParentRepo.Dir.FullName, childGet.Item.ParentRepoPath);
             }
         }
     }

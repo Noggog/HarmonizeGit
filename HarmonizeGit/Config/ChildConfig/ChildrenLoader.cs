@@ -298,7 +298,7 @@ namespace HarmonizeGit
             }
         }
 
-        public async Task<(ChildUsage Usage, bool Succeeded)> LookupChildUsage(string childSha)
+        public async Task<GetResponse<ChildUsage>> LookupChildUsage(string childSha)
         {
             using (var conn = await GetConnection(this.harmonize.TargetPath))
             {
@@ -314,22 +314,24 @@ ON ParentRef.ID = ChildUsage.ParentID
 INNER JOIN ChildIdentity
 ON ChildIdentity.ID = ChildUsage.IdentityID 
 where ChildUsage.Sha = '{childSha}'";
-                    List<(string, string)> ret = new List<(string, string)>();
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
                         while (reader.Read())
                         {
-                            return (new ChildUsage()
+                            return new GetResponse<ChildUsage>()
                             {
-                                Sha = childSha,
-                                ParentSha = (string)reader[0],
-                                ChildRepoPath = (string)reader[1],
-                                ParentRepoPath = this.harmonize.TargetPath
-                            },
-                            true);
+                                Item = new ChildUsage()
+                                {
+                                    Sha = childSha,
+                                    ParentSha = (string)reader[0],
+                                    ChildRepoPath = (string)reader[1],
+                                    ParentRepoPath = this.harmonize.TargetPath
+                                },
+                                Succeeded = true
+                            };
                         }
                     }
-                    return (null, false);
+                    return new GetResponse<ChildUsage>();
                 }
             }
         }
@@ -344,12 +346,12 @@ where ChildUsage.Sha = '{childSha}'";
             await RemoveChildEntries(GetCurrentConfigUsagesFromConfig());
         }
 
-        public async Task<(ICollection<string> UsedCommits, ICollection<string> ChildRepos)> GetChildUsages(
+        public async Task<ChildUsages> GetChildUsages(
             IEnumerable<string> commits)
         {
             HashSet<string> usedCommits = new HashSet<string>();
             HashSet<string> childRepos = new HashSet<string>();
-            List<(string ParentSha, string ChildPath)>[] results;
+            List<ChildUsage>[] results;
             using (var conn = await GetConnection(this.harmonize.TargetPath))
             {
                 results = await Task.WhenAll(
@@ -368,14 +370,16 @@ ON ParentRef.ID = ChildUsage.ParentID
 INNER JOIN ChildIdentity
 ON ChildIdentity.ID = ChildUsage.IdentityID 
 where ParentRef.Sha = '{commit}'";
-                                List<(string, string)> ret = new List<(string, string)>();
+                                List<ChildUsage> ret = new List<ChildUsage>();
                                 using (var reader = await cmd.ExecuteReaderAsync())
                                 {
                                     while (reader.Read())
                                     {
-                                        ret.Add((
-                                            (string)reader[0],
-                                            (string)reader[1]));
+                                        ret.Add(new ChildUsage()
+                                        {
+                                            ParentSha = (string)reader[0],
+                                            ChildRepoPath = (string)reader[1]
+                                        });
                                     }
                                 }
                                 return ret;
@@ -386,10 +390,14 @@ where ParentRef.Sha = '{commit}'";
             foreach (var pair in results.SelectMany((x) => x))
             {
                 usedCommits.Add(pair.ParentSha);
-                childRepos.Add(pair.ChildPath);
+                childRepos.Add(pair.ChildRepoPath);
             }
 
-            return (usedCommits, childRepos);
+            return new ChildUsages()
+            {
+                UsedCommits = usedCommits,
+                ChildRepos = childRepos
+            };
         }
     }
 }
