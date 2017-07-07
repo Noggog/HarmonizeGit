@@ -84,7 +84,7 @@ namespace HarmonizeGit
                         writer.Formatting = Formatting.Indented;
                         writer.Indentation = 3;
 
-                        using (new ElementWrapper(writer, nameof(HarmonizeConfig)))
+                        using (new ElementWrapper(writer, nameof(PathingConfig)))
                         {
                             writer.WriteAttributeString(nameof(Version), this.Version.ToString());
                             if (!string.IsNullOrWhiteSpace(this.ReroutePathing))
