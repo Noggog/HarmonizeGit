@@ -14,8 +14,7 @@ namespace HarmonizeGit
     {
         public string ReroutePathing = "C:/Program Files/HarmonizeGit/HarmonizeGit.exe";
         public int Version = 1;
-        public List<PathingListing> Paths = new List<PathingListing>();
-        private Dictionary<string, PathingListing> pathsDict = new Dictionary<string, PathingListing>();
+        public Dictionary<string, PathingListing> Paths = new Dictionary<string, PathingListing>();
         public PathingConfig OriginalConfig;
 
         public static PathingConfig Factory(Stream stream)
@@ -39,7 +38,7 @@ namespace HarmonizeGit
                 var listing = new PathingListing();
                 listing.Nickname = pathListing.Element(XName.Get(nameof(PathingListing.Nickname)))?.Value ?? listing.Nickname;
                 listing.Path = pathListing.Element(XName.Get(nameof(PathingListing.Path)))?.Value ?? listing.Path;
-                ret.Paths.Add(listing);
+                ret.Paths[listing.Nickname] = listing;
             }
 
             ret.OriginalConfig = ret.GetCopy();
@@ -64,17 +63,9 @@ namespace HarmonizeGit
             }
         }
 
-        private void Load()
-        {
-            foreach (var path in this.Paths)
-            {
-                pathsDict[path.Nickname] = path;
-            }
-        }
-
         public bool TryGetListing(string name, out PathingListing listing)
         {
-            return this.pathsDict.TryGetValue(name, out listing);
+            return this.Paths.TryGetValue(name, out listing);
         }
 
         public void WriteToPath(string path)
@@ -102,7 +93,7 @@ namespace HarmonizeGit
                             }
                             using (new ElementWrapper(writer, nameof(Paths)))
                             {
-                                foreach (var item in this.Paths)
+                                foreach (var item in this.Paths.Values.OrderBy((s) => s.Nickname))
                                 {
                                     using (new ElementWrapper(writer, nameof(PathingListing)))
                                     {
@@ -152,8 +143,10 @@ namespace HarmonizeGit
                 Version = this.Version,
                 ReroutePathing = this.ReroutePathing
             };
-            ret.Paths.AddRange(this.Paths.Select((p) => p.GetCopy()));
-            ret.Load();
+            foreach (var p in this.Paths.Values.Select((p) => p.GetCopy()))
+            {
+                ret.Paths[p.Nickname] = p;
+            }
             return ret;
         }
     }

@@ -189,7 +189,7 @@ namespace HarmonizeGit
                         Nickname = listing.Nickname,
                         Path = missingPath
                     };
-                    pathing.Paths.Add(pathListing);
+                    pathing.Paths[pathListing.Nickname] = pathListing;
                     added = true;
                 }
 
