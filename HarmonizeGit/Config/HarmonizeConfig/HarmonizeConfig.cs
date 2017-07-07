@@ -11,7 +11,7 @@ using System.Xml.Serialization;
 
 namespace HarmonizeGit
 {
-    public class HarmonizeConfig
+    public class HarmonizeConfig : IEquatable<HarmonizeConfig>
     {
         [XmlAttribute]
         public int Version = 1;
@@ -19,7 +19,7 @@ namespace HarmonizeGit
         [XmlIgnore]
         public PathingConfig Pathing;
         [XmlIgnore]
-        public string OriginalXML;
+        public HarmonizeConfig OriginalConfig;
 
         public static HarmonizeConfig Factory(
             HarmonizeGitBase harmonize,
@@ -28,11 +28,11 @@ namespace HarmonizeGit
             PathingConfig pathing)
         {
             HarmonizeConfig ret = new HarmonizeConfig();
+            XDocument xml;
             using (var reader = new StreamReader(stream))
             {
-                ret.OriginalXML = reader.ReadToEnd();
+                xml = XDocument.Parse(reader.ReadToEnd());
             }
-            XDocument xml = XDocument.Parse(ret.OriginalXML);
 
             if (int.TryParse(xml.Root.Attribute(XName.Get(nameof(Version)))?.Value, out int ver))
             {
@@ -55,6 +55,7 @@ namespace HarmonizeGit
             }
 
             ret.SetPathing(pathing, addMissing: true);
+            ret.OriginalConfig = ret.GetCopy();
             return ret;
         }
 
@@ -79,6 +80,39 @@ namespace HarmonizeGit
                     tr.BaseStream,
                     harmonize.ConfigLoader.GetPathing(path));
             }
+        }
+
+        public bool Equals(HarmonizeConfig other)
+        {
+            if (other == null) return false;
+            if (this.Version != other.Version) return false;
+            if (!object.Equals(this.Pathing, other.Pathing)) return false;
+            if (!ParentRepos.SequenceEqual(other.ParentRepos)) return false;
+            return true;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is HarmonizeConfig config)) return false;
+            return Equals(config);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Version.GetHashCode()
+                .CombineHashCode(this.ParentRepos)
+                .CombineHashCode(this.Pathing);
+        }
+
+        public HarmonizeConfig GetCopy()
+        {
+            var ret = new HarmonizeConfig()
+            {
+                Version = this.Version,
+                Pathing = this.Pathing.GetCopy()
+            };
+            ret.ParentRepos.AddRange(this.ParentRepos.Select((pr) => pr.GetCopy()));
+            return ret;
         }
 
         public string GetXmlStr()

@@ -104,9 +104,9 @@ namespace HarmonizeGit
 
         public bool WriteConfig(HarmonizeConfig config, string path)
         {
-            var xmlStr = config.GetXmlStr();
+            if (object.Equals(config, config?.OriginalConfig)) return false;
 
-            if (object.Equals(config.OriginalXML, xmlStr)) return false;
+            var xmlStr = config.GetXmlStr();
 
             path = path + "/" + HarmonizeGitBase.HarmonizeConfigPath;
 

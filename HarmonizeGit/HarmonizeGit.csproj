@@ -62,6 +62,7 @@
     <Compile Include="Config\PathingConfig\PathingConfig.cs" />
     <Compile Include="Config\PathingConfig\PathingListing.cs" />
     <Compile Include="Config\Settings\Settings.cs" />
+    <Compile Include="Extensions\HashHelper.cs" />
     <Compile Include="Hooks\PostMergeHandler.cs" />
     <Compile Include="Hooks\PreBranchHandler.cs" />
     <Compile Include="Hooks\PostCommitHandler.cs" />
@@ -104,9 +105,7 @@
       <Version>4.4.0-preview2-25405-01</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Extensions\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
