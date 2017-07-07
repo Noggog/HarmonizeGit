@@ -16,7 +16,7 @@ namespace HarmonizeGit
 {
     public class HarmonizeGitBase
     {
-        public ConfigLoader ConfigLoader { get; } = new ConfigLoader();
+        public ConfigLoader ConfigLoader { get; private set; }
         public ChildrenLoader ChildLoader { get; private set; }
         public const string BranchName = "GitHarmonize";
         public const string HarmonizeConfigPath = ".harmonize";
@@ -114,6 +114,7 @@ namespace HarmonizeGit
         public void Init()
         {
             this.ChildLoader = new ChildrenLoader(this);
+            this.ConfigLoader = new ConfigLoader();
             this.ConfigLoader.Init(this);
             this.Config = ConfigLoader.GetConfig(this.TargetPath);
         }
