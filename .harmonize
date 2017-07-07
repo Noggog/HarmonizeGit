@@ -2,10 +2,10 @@
    <ParentRepos>
       <RepoListing>
          <Nickname>FishingWithGit</Nickname>
-         <Sha>95ffff575f7ab575ce969d1ec3347b0976be6cd4</Sha>
+         <Sha>b9989b257be731e8f149f91aac80bd06cd1cf135</Sha>
          <Path>../FishingWithGit</Path>
-         <CommitDate>06-28-2017 19:20:03</CommitDate>
-         <Description>NuGet update</Description>
+         <CommitDate>07-07-2017 18:24:31</CommitDate>
+         <Description>Added harmonize hook</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
    </ParentRepos>

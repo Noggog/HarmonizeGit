@@ -17,9 +17,8 @@ namespace HarmonizeGit.Tester
                 {
                     Stopwatch sw = new Stopwatch();
                     sw.Start();
-                    //HarmonizeGitBase harmonize = new HarmonizeGitBase(Environment.CurrentDirectory);
-                    //await harmonize.Handle(args);
-                    HarmonizeGit.Program.Reroute(args);
+                    HarmonizeGitBase harmonize = new HarmonizeGitBase(Environment.CurrentDirectory);
+                    await harmonize.Handle(args);
                     sw.Stop();
                     System.Console.WriteLine($"DONE   Took {sw.ElapsedMilliseconds}ms");
                 }
