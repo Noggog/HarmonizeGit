@@ -161,7 +161,7 @@ namespace HarmonizeGit.Tests
             var parentRepo = new Repository(parentRepoDir.FullName);
             var parentFile = new FileInfo(Path.Combine(parentRepoDir.FullName, Utility.STANDARD_FILE));
             var parentHarmonizeFile = new FileInfo(Path.Combine(parentRepoDir.FullName, HarmonizeGitBase.HarmonizeConfigPath));
-            File.WriteAllText(parentHarmonizeFile.FullName, parentConfig.GetXmlStr());
+            parentConfig.WriteToPath(parentHarmonizeFile.FullName);
             Commands.Stage(parentRepo, parentHarmonizeFile.FullName);
             File.WriteAllText(parentFile.FullName, "Testing123\n");
             Commands.Stage(parentRepo, parentFile.FullName);
@@ -207,7 +207,7 @@ namespace HarmonizeGit.Tests
             File.WriteAllText(childFile.FullName, "Child123\n");
             Commands.Stage(childRepo, childFile.FullName);
             parentListing.SetToCommit(firstParentCommit);
-            File.WriteAllText(childHarmonizeFile.FullName, childConfig.GetXmlStr());
+            childConfig.WriteToPath(childHarmonizeFile.FullName);
             Commands.Stage(childRepo, childHarmonizeFile.FullName);
             var commit1 = childRepo.Commit(
                 "A Commit",
@@ -216,7 +216,7 @@ namespace HarmonizeGit.Tests
             File.WriteAllText(childFile.FullName, "Child456\n");
             Commands.Stage(childRepo, childFile.FullName);
             parentListing.SetToCommit(secondCommit);
-            File.WriteAllText(childHarmonizeFile.FullName, childConfig.GetXmlStr());
+            childConfig.WriteToPath(childHarmonizeFile.FullName);
             Commands.Stage(childRepo, childHarmonizeFile.FullName);
             var commit2 = childRepo.Commit(
                 "A Commit",
@@ -231,7 +231,7 @@ namespace HarmonizeGit.Tests
             File.WriteAllText(childFile.FullName, "Child101112\n");
             Commands.Stage(childRepo, childFile.FullName);
             parentListing.SetToCommit(thirdCommit);
-            File.WriteAllText(childHarmonizeFile.FullName, childConfig.GetXmlStr());
+            childConfig.WriteToPath(childHarmonizeFile.FullName);
             Commands.Stage(childRepo, childHarmonizeFile.FullName);
             var commit4 = childRepo.Commit(
                 "A Commit",

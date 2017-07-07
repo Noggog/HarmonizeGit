@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{14618B58-9218-4537-9E10-0B6537424575}</ProjectGuid>
+    <ProjectGuid>{B597FF88-233E-432D-B3F9-D46724293276}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>HarmonizeGit.Tester</RootNamespace>
     <AssemblyName>HarmonizeGit.Tester</AssemblyName>
@@ -31,6 +31,8 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <NoWarn>CS1998</NoWarn>
+    <WarningsAsErrors>CS4014</WarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -47,6 +49,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\FishingWithGit\FishingWithGit.Common\FishingWithGit.Common.csproj">
       <Project>{a99553e3-d288-482a-9bc8-ae0bf4f32acf}</Project>
       <Name>FishingWithGit.Common</Name>
@@ -55,6 +60,11 @@
       <Project>{8d8330ab-b1f9-4769-846e-5a606543dcaa}</Project>
       <Name>HarmonizeGit</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Data.SQLite">
+      <Version>1.0.105.2</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

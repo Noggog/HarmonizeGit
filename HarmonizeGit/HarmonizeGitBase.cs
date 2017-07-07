@@ -2,7 +2,6 @@
 using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,7 +15,7 @@ namespace HarmonizeGit
 {
     public class HarmonizeGitBase
     {
-        public ConfigLoader ConfigLoader { get; } = new ConfigLoader();
+        public ConfigLoader ConfigLoader { get; private set; }
         public ChildrenLoader ChildLoader { get; private set; }
         public const string BranchName = "GitHarmonize";
         public const string HarmonizeConfigPath = ".harmonize";
@@ -117,7 +116,7 @@ namespace HarmonizeGit
         public void Init()
         {
             this.ChildLoader = new ChildrenLoader(this);
-            this.Config = new HarmonizeConfig();
+            this.ConfigLoader = new ConfigLoader();
             this.ConfigLoader.Init(this);
             this.Config = ConfigLoader.GetConfig(this.TargetPath);
         }
@@ -138,9 +137,9 @@ namespace HarmonizeGit
             }
         }
 
-        public bool CancelIfParentsHaveChanges()
+        public async Task<bool> CancelIfParentsHaveChanges()
         {
-            var uncomittedChangeRepos = this.GetReposWithUncommittedChanges();
+            var uncomittedChangeRepos = await this.GetReposWithUncommittedChanges();
             if (uncomittedChangeRepos.Count > 0)
             {
                 this.WriteLine("Cancelling because repos had uncommitted changes:");
@@ -153,12 +152,12 @@ namespace HarmonizeGit
             return false;
         }
 
-        public List<(RepoListing Listing, string Reason)> GetReposWithUncommittedChanges()
+        public async Task<List<RepoListing>> GetReposWithUncommittedChanges()
         {
             List<(RepoListing Listing, string Reason)> ret = new List<(RepoListing Listing, string Reason)>();
             foreach (var repoListing in this.Config.ParentRepos)
             {
-                if (IsDirty(repoListing.Path, out var reason))
+                if (await IsDirty(repoListing.Path))
                 {
                     this.WriteLine($"{repoListing.Nickname} was dirty: {reason}");
                     ret.Add((repoListing, reason));
@@ -172,14 +171,14 @@ namespace HarmonizeGit
         }
 
         #region IsDirty
-        public bool IsDirty(
+        public Task<bool> IsDirty(
             ConfigExclusion configExclusion = ConfigExclusion.Full,
             bool regenerateConfig = true)
         {
             return IsDirty(this.TargetPath, out var reason, configExclusion, regenerateConfig);
         }
 
-        public bool IsDirty(
+        public async Task<bool> IsDirty(
             string path,
             out string reason,
             ConfigExclusion configExclusion = ConfigExclusion.Full,
@@ -235,15 +234,15 @@ namespace HarmonizeGit
         }
         #endregion
 
-        public void SyncConfigToParentShas()
+        public async Task SyncConfigToParentShas()
         {
             this.WriteLine("Syncing config to parent repo shas.");
-            this.ConfigLoader.SyncAndWriteConfig(this.Config, this.TargetPath);
+            await this.ConfigLoader.SyncAndWriteConfig(this.Config, this.TargetPath);
         }
 
         public void UpdatePathingConfig()
         {
-            this.ConfigLoader.Config.Pathing.Write(this.TargetPath);
+            this.ConfigLoader.Config.Pathing.WriteToPath(this.TargetPath);
         }
 
         public bool SyncParentRepos()
@@ -376,9 +375,9 @@ namespace HarmonizeGit
 
         public void CheckForCircularConfigs()
         {
-            if (!Properties.Settings.Default.CheckForCircularConfigs) return;
+            if (!Settings.Instance.CheckForCircularConfigs) return;
             this.WriteLine("Checking for circular configs.");
-            var ret = CheckCircular(ImmutableHashSet.Create<string>(), this.TargetPath);
+            var ret = CheckCircular(new HashSet<string>(), this.TargetPath);
             if (ret != null)
             {
                 throw new ArgumentException($"Found circular configurations:" + Environment.NewLine + ret);
@@ -386,18 +385,17 @@ namespace HarmonizeGit
             this.WriteLine("No circular configs detected.");
         }
 
-        private string CheckCircular(ImmutableHashSet<string> paths, string targetPath)
+        private string CheckCircular(HashSet<string> paths, string targetPath)
         {
-            if (paths.Contains(targetPath))
+            if (!paths.Add(targetPath))
             {
                 return targetPath;
             }
-            paths = paths.Add(targetPath);
             var config = this.ConfigLoader.GetConfig(targetPath);
             if (config == null) return null;
             foreach (var listing in config.ParentRepos)
             {
-                var ret = CheckCircular(paths, listing.Path);
+                var ret = CheckCircular(new HashSet<string>(paths), listing.Path);
                 if (ret != null) return targetPath + Environment.NewLine + ret;
             }
             return null;

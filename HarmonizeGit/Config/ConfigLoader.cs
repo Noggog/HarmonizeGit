@@ -16,7 +16,7 @@ namespace HarmonizeGit
         public HarmonizeConfig Config;
         private HarmonizeGitBase harmonize;
         private Dictionary<string, HarmonizeConfig> configs = new Dictionary<string, HarmonizeConfig>();
-        private Dictionary<(string WorkingDir, string CommitSha), HarmonizeConfig> repoConfigs = new Dictionary<(string, string), HarmonizeConfig>();
+        private Dictionary<RepoConfigKey, HarmonizeConfig> repoConfigs = new Dictionary<RepoConfigKey, HarmonizeConfig>();
         private Dictionary<string, PathingConfig> pathingConfigs = new Dictionary<string, PathingConfig>();
 
         public void Init(HarmonizeGitBase harmonize)
@@ -24,7 +24,7 @@ namespace HarmonizeGit
             this.harmonize = harmonize;
             this.Config = GetConfig(harmonize.TargetPath);
             if (this.Config == null) return;
-            this.Config.Pathing.Write(harmonize.TargetPath);
+            this.Config.Pathing.WriteToPath(harmonize.TargetPath);
         }
 
         #region Config
@@ -41,16 +41,18 @@ namespace HarmonizeGit
             Repository repo,
             Commit commit)
         {
-            var tuple = (
-                repo.Info.WorkingDirectory,
-                commit.Sha);
-            if (repoConfigs.TryGetValue(tuple, out HarmonizeConfig ret)) return ret;
+            var key = new RepoConfigKey()
+            {
+                WorkingDir = repo.Info.WorkingDirectory,
+                CommitSha = commit.Sha
+            };
+            if (repoConfigs.TryGetValue(key, out HarmonizeConfig ret)) return ret;
             this.harmonize.WriteLine($"Loading config from repo at path {repo.Info.WorkingDirectory} at commit {commit.Sha} ");
             ret = HarmonizeConfig.Factory(
                 this.harmonize,
                 repo.Info.WorkingDirectory,
                 commit);
-            repoConfigs[tuple] = ret;
+            repoConfigs[key] = ret;
             return ret;
         }
 
@@ -73,21 +75,27 @@ namespace HarmonizeGit
             }
         }
 
-        public void SyncAndWriteConfig(HarmonizeConfig config, string path)
+        public async Task SyncAndWriteConfig(HarmonizeConfig config, string path)
         {
             List<RepoListing> changed = new List<RepoListing>();
-            foreach (var listing in config.ParentRepos)
-            {
-                this.harmonize.WriteLine($"Checking for sha changes {listing.Nickname} at path {listing.Path}.");
-                using (var repo = new Repository(listing.Path))
+            changed.AddRange((await Task.WhenAll(config.ParentRepos.Select(
+                (listing) =>
                 {
-                    this.harmonize.WriteLine($"Config sha {listing.Sha} compared to current sha {repo.Head.Tip.Sha}.");
-                    if (object.Equals(listing.Sha, repo.Head.Tip.Sha)) continue;
-                    changed.Add(listing);
-                    listing.SetToCommit(repo.Head.Tip);
-                    this.harmonize.WriteLine($"Changed to sha {repo.Head.Tip.Sha}.");
-                }
-            }
+                    return Task.Run(() =>
+                    {
+                        this.harmonize.WriteLine($"Checking for sha changes {listing.Nickname} at path {listing.Path}.");
+                        using (var repo = new Repository(listing.Path))
+                        {
+                            this.harmonize.WriteLine($"Config sha {listing.Sha} compared to current sha {repo.Head.Tip.Sha}.");
+                            if (object.Equals(listing.Sha, repo.Head.Tip.Sha)) return null;
+                            changed.Add(listing);
+                            listing.SetToCommit(repo.Head.Tip);
+                            this.harmonize.WriteLine($"Changed to sha {repo.Head.Tip.Sha}.");
+                            return listing;
+                        }
+                    });
+                })))
+                .Where((listing) => listing != null));
 
             if (WriteConfig(config, path))
             {
@@ -104,17 +112,14 @@ namespace HarmonizeGit
 
         public bool WriteConfig(HarmonizeConfig config, string path)
         {
-            var xmlStr = config.GetXmlStr();
-
-            if (object.Equals(config.OriginalXML, xmlStr)) return false;
+            if (object.Equals(config, config?.OriginalConfig)) return false;
 
             path = path + "/" + HarmonizeGitBase.HarmonizeConfigPath;
-
             this.harmonize.WriteLine($"Updating config at {path}");
 
             using (LockManager.GetLock(LockType.Harmonize, path))
             {
-                File.WriteAllText(path, xmlStr);
+                config.WriteToPath(path);
             }
             return true;
         }

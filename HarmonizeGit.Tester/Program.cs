@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,9 +15,12 @@ namespace HarmonizeGit.Tester
             {
                 try
                 {
+                    Stopwatch sw = new Stopwatch();
+                    sw.Start();
                     HarmonizeGitBase harmonize = new HarmonizeGitBase(Environment.CurrentDirectory);
                     await harmonize.Handle(args);
-                    System.Console.WriteLine("DONE");
+                    sw.Stop();
+                    System.Console.WriteLine($"DONE   Took {sw.ElapsedMilliseconds}ms");
                 }
                 catch (Exception ex)
                 {

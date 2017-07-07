@@ -5,42 +5,44 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace HarmonizeGit
 {
-    public class PathingConfig
+    public class PathingConfig : IEquatable<PathingConfig>
     {
         public string ReroutePathing = "C:/Program Files/HarmonizeGit/HarmonizeGit.exe";
-        [XmlAttribute]
         public int Version = 1;
-        public List<PathingListing> Paths = new List<PathingListing>();
-        private Dictionary<string, PathingListing> pathsDict = new Dictionary<string, PathingListing>();
-        [XmlIgnore]
-        public string OriginalXML;
+        public Dictionary<string, PathingListing> Paths = new Dictionary<string, PathingListing>();
+        public PathingConfig OriginalConfig;
 
         public static PathingConfig Factory(Stream stream)
         {
-            string originalStr;
+            PathingConfig ret = new PathingConfig();
+            XDocument xml;
             using (var reader = new StreamReader(stream))
             {
-                originalStr = reader.ReadToEnd();
+                xml = XDocument.Parse(reader.ReadToEnd());
             }
-            XmlDocument xml = new XmlDocument();
-            xml.Load(new StringReader(originalStr));
-            string xmlString = xml.OuterXml;
 
-            using (StringReader read = new StringReader(xmlString))
+            if (int.TryParse(xml.Root.Attribute(XName.Get(nameof(Version)))?.Value, out int ver))
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(PathingConfig));
-                using (XmlReader reader = new XmlTextReader(read))
-                {
-                    var ret = (PathingConfig)serializer.Deserialize(reader);
-                    ret.OriginalXML = originalStr;
-                    ret.Load();
-                    return ret;
-                }
+                ret.Version = ver;
             }
+            ret.ReroutePathing = xml.Root.Element(XName.Get(nameof(ReroutePathing)))?.Value ?? ret.ReroutePathing;
+            var pathElem = xml.Root.Element(XName.Get(nameof(Paths)));
+            if (pathElem == null) return ret;
+            foreach (var pathListing in pathElem.Elements(XName.Get(nameof(PathingListing))))
+            {
+                var listing = new PathingListing();
+                listing.Nickname = pathListing.Element(XName.Get(nameof(PathingListing.Nickname)))?.Value ?? listing.Nickname;
+                listing.Path = pathListing.Element(XName.Get(nameof(PathingListing.Path)))?.Value ?? listing.Path;
+                ret.Paths[listing.Nickname] = listing;
+            }
+
+            ret.OriginalConfig = ret.GetCopy();
+            return ret;
         }
 
         public static PathingConfig Factory(string path)
@@ -55,51 +57,106 @@ namespace HarmonizeGit
 
                 using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
                 {
-                    return PathingConfig.Factory(stream);
+                    var ret = PathingConfig.Factory(stream);
+                    return ret;
                 }
-            }
-        }
-
-        private void Load()
-        {
-            foreach (var path in this.Paths)
-            {
-                pathsDict[path.Nickname] = path;
             }
         }
 
         public bool TryGetListing(string name, out PathingListing listing)
         {
-            return this.pathsDict.TryGetValue(name, out listing);
+            return this.Paths.TryGetValue(name, out listing);
         }
-        
-        public void Write(string targetPath, bool blockIfEqual = true)
-        {
-            if (!Properties.Settings.Default.ExportPathingConfigUpdates) return;
 
-            string xmlStr;
-            XmlSerializer xsSubmit = new XmlSerializer(typeof(PathingConfig));
-            var settings = new XmlWriterSettings()
+        public void WriteToPath(string path, bool blockIfEqual = true)
+        {
+            if (!Settings.Instance.ExportPathingConfigUpdates) return;
+            if (blockIfEqual && this.Equals(this.OriginalConfig)) return;
+
+            using (LockManager.GetLock(LockType.Pathing, path))
             {
-                Indent = true,
-                OmitXmlDeclaration = true
-            };
-            var emptyNs = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
-            using (var sw = new StringWriter())
-            {
-                using (XmlWriter writer = XmlWriter.Create(sw, settings))
+                path = Path.Combine(path, HarmonizeGitBase.HarmonizePathingPath);
+
+                using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite))
                 {
-                    xsSubmit.Serialize(writer, this, emptyNs);
-                    xmlStr = sw.ToString();
+                    using (var writer = new XmlTextWriter(fileStream, Encoding.ASCII))
+                    {
+                        writer.Formatting = Formatting.Indented;
+                        writer.Indentation = 3;
+
+                        using (new ElementWrapper(writer, nameof(PathingConfig)))
+                        {
+                            writer.WriteAttributeString(nameof(Version), this.Version.ToString());
+                            if (!string.IsNullOrWhiteSpace(this.ReroutePathing))
+                            {
+                                using (new ElementWrapper(writer, nameof(ReroutePathing)))
+                                {
+                                    writer.WriteValue(this.ReroutePathing);
+                                }
+                            }
+                            using (new ElementWrapper(writer, nameof(Paths)))
+                            {
+                                foreach (var item in this.Paths.Values.OrderBy((s) => s.Nickname))
+                                {
+                                    using (new ElementWrapper(writer, nameof(PathingListing)))
+                                    {
+                                        if (!string.IsNullOrWhiteSpace(item.Nickname))
+                                        {
+                                            using (new ElementWrapper(writer, nameof(PathingListing.Nickname)))
+                                            {
+                                                writer.WriteValue(item.Nickname);
+                                            }
+                                        }
+                                        if (!string.IsNullOrWhiteSpace(item.Path))
+                                        {
+                                            using (new ElementWrapper(writer, nameof(PathingListing.Path)))
+                                            {
+                                                writer.WriteValue(item.Path);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
+        }
 
-            if (blockIfEqual && object.Equals(this.OriginalXML, xmlStr)) return;
+        public bool Equals(PathingConfig other)
+        {
+            if (other == null) return false;
+            if (this.Version != other.Version) return false;
+            if (!object.Equals(this.ReroutePathing, other.ReroutePathing)) return false;
+            if (!this.Paths.SequenceEqual(other.Paths)) return false;
+            return true;
+        }
 
-            using (LockManager.GetLock(LockType.Pathing, targetPath))
+        public override bool Equals(object obj)
+        {
+            if (!(obj is PathingConfig config)) return false;
+            return Equals(config);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Version.GetHashCode()
+                .CombineHashCode(this.ReroutePathing)
+                .CombineHashCode(this.Paths);
+        }
+
+        public PathingConfig GetCopy()
+        {
+            var ret = new PathingConfig()
             {
-                File.WriteAllText(Path.Combine(targetPath, HarmonizeGitBase.HarmonizePathingPath), xmlStr);
+                Version = this.Version,
+                ReroutePathing = this.ReroutePathing
+            };
+            foreach (var p in this.Paths.Values.Select((p) => p.GetCopy()))
+            {
+                ret.Paths[p.Nickname] = p;
             }
+            return ret;
         }
     }
 }

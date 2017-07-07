@@ -21,7 +21,7 @@ namespace HarmonizeGit.Tests
 
         #region IsDirty
         [Fact]
-        public void IsDirty_Normal()
+        public async Task IsDirty_Normal()
         {
             using (var repo = Repository_Tools.GetStandardRepo())
             {
@@ -29,22 +29,22 @@ namespace HarmonizeGit.Tests
                     Path.Combine(repo.Repo.Info.WorkingDirectory, Utility.STANDARD_FILE),
                     "dirty work");
                 HarmonizeGitBase gitBase = GetHarmonize(repo.Repo.Info.WorkingDirectory);
-                Assert.True(gitBase.IsDirty(configExclusion: ConfigExclusion.None, regenerateConfig: false));
+                Assert.True(await gitBase.IsDirty(configExclusion: ConfigExclusion.None, regenerateConfig: false));
             }
         }
 
         [Fact]
-        public void IsDirty_NotDirty()
+        public async Task IsDirty_NotDirty()
         {
             using (var repo = Repository_Tools.GetStandardRepo())
             {
                 HarmonizeGitBase gitBase = GetHarmonize(repo.Repo.Info.WorkingDirectory);
-                Assert.False(gitBase.IsDirty(configExclusion: ConfigExclusion.None, regenerateConfig: false));
+                Assert.False(await gitBase.IsDirty(configExclusion: ConfigExclusion.None, regenerateConfig: false));
             }
         }
 
         [Fact]
-        public void IsDirty_WithConfig()
+        public async Task IsDirty_WithConfig()
         {
             using (var repo = Repository_Tools.GetStandardRepo())
             {
@@ -55,12 +55,12 @@ namespace HarmonizeGit.Tests
                     Path.Combine(repo.Repo.Info.WorkingDirectory, HarmonizeGitBase.HarmonizeConfigPath),
                     "dirty work");
                 HarmonizeGitBase gitBase = GetHarmonize(repo.Repo.Info.WorkingDirectory);
-                Assert.True(gitBase.IsDirty(configExclusion: ConfigExclusion.Full, regenerateConfig: false));
+                Assert.True(await gitBase.IsDirty(configExclusion: ConfigExclusion.Full, regenerateConfig: false));
             }
         }
 
         [Fact]
-        public void IsDirty_OnlyConfig_Include()
+        public async Task IsDirty_OnlyConfig_Include()
         {
             using (var repo = Repository_Tools.GetStandardRepo())
             {
@@ -68,12 +68,12 @@ namespace HarmonizeGit.Tests
                     Path.Combine(repo.Repo.Info.WorkingDirectory, HarmonizeGitBase.HarmonizeConfigPath),
                     "dirty work");
                 HarmonizeGitBase gitBase = GetHarmonize(repo.Repo.Info.WorkingDirectory);
-                Assert.True(gitBase.IsDirty(configExclusion: ConfigExclusion.None, regenerateConfig: false));
+                Assert.True(await gitBase.IsDirty(configExclusion: ConfigExclusion.None, regenerateConfig: false));
             }
         }
 
         [Fact]
-        public void IsDirty_OnlyConfig_Exclude()
+        public async Task IsDirty_OnlyConfig_Exclude()
         {
             using (var repo = Repository_Tools.GetStandardRepo())
             {
@@ -81,7 +81,7 @@ namespace HarmonizeGit.Tests
                     Path.Combine(repo.Repo.Info.WorkingDirectory, HarmonizeGitBase.HarmonizeConfigPath),
                     "dirty work");
                 HarmonizeGitBase gitBase = GetHarmonize(repo.Repo.Info.WorkingDirectory);
-                Assert.False(gitBase.IsDirty(configExclusion: ConfigExclusion.Full, regenerateConfig: false));
+                Assert.False(await gitBase.IsDirty(configExclusion: ConfigExclusion.Full, regenerateConfig: false));
             }
         }
         #endregion
@@ -93,7 +93,7 @@ namespace HarmonizeGit.Tests
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
                 await checkout.Init();
-                Assert.Empty(checkout.Harmonize.GetReposWithUncommittedChanges());
+                Assert.Empty(await checkout.Harmonize.GetReposWithUncommittedChanges());
             }
         }
 
@@ -107,7 +107,7 @@ namespace HarmonizeGit.Tests
                 File.WriteAllText(
                     Path.Combine(parentRepo.Dir.FullName, Utility.STANDARD_FILE),
                     "Dirty changes");
-                var changes = checkout.Harmonize.GetReposWithUncommittedChanges();
+                var changes = await checkout.Harmonize.GetReposWithUncommittedChanges();
                 Assert.Equal(1, changes.Count);
                 Assert.Equal(changes[0].Listing.Path, parentRepo.Dir.FullName);
             }
@@ -121,9 +121,9 @@ namespace HarmonizeGit.Tests
                 await checkout.Init();
                 var superParentCommit = checkout.SuperParentRepo.Repo.Lookup<Commit>(checkout.SuperParent_FirstSha);
                 checkout.ParentHarmonize.Config.ParentRepos[0].SetToCommit(superParentCommit);
-                File.WriteAllText(checkout.ParentRepo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath, checkout.ParentHarmonize.Config.GetXmlStr());
+                checkout.ParentHarmonize.Config.WriteToPath(checkout.ParentRepo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath);
                 Assert.True(checkout.ParentRepo.Repo.RetrieveStatus().IsDirty);
-                var changes = checkout.Harmonize.GetReposWithUncommittedChanges();
+                var changes = await checkout.Harmonize.GetReposWithUncommittedChanges();
                 Assert.Equal(0, changes.Count);
             }
         }

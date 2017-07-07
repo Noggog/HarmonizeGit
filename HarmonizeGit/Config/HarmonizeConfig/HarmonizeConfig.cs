@@ -6,19 +6,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Serialization;
 
 namespace HarmonizeGit
 {
-    public class HarmonizeConfig
+    public class HarmonizeConfig : IEquatable<HarmonizeConfig>
     {
-        [XmlAttribute]
         public int Version = 1;
         public List<RepoListing> ParentRepos = new List<RepoListing>();
-        [XmlIgnore]
         public PathingConfig Pathing;
-        [XmlIgnore]
-        public string OriginalXML;
+        public HarmonizeConfig OriginalConfig;
 
         public static HarmonizeConfig Factory(
             HarmonizeGitBase harmonize,
@@ -26,27 +24,35 @@ namespace HarmonizeGit
             Stream stream,
             PathingConfig pathing)
         {
-            string originalStr;
+            HarmonizeConfig ret = new HarmonizeConfig();
+            XDocument xml;
             using (var reader = new StreamReader(stream))
             {
-                originalStr = reader.ReadToEnd();
+                xml = XDocument.Parse(reader.ReadToEnd());
             }
-            XmlDocument xml = new XmlDocument();
-            xml.Load(new StringReader(originalStr));
-            string xmlString = xml.OuterXml;
 
-            HarmonizeConfig ret;
-            using (StringReader read = new StringReader(xmlString))
+            if (int.TryParse(xml.Root.Attribute(XName.Get(nameof(Version)))?.Value, out int ver))
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(HarmonizeConfig));
-                using (XmlReader reader = new XmlTextReader(read))
+                ret.Version = ver;
+            }
+            var reposElem = xml.Root.Element(XName.Get(nameof(ParentRepos)));
+            if (reposElem != null)
+            {
+                foreach (var repoListing in reposElem.Elements(XName.Get(nameof(RepoListing))))
                 {
-                    ret = (HarmonizeConfig)serializer.Deserialize(reader);
-                    ret.OriginalXML = originalStr;
+                    var listing = new RepoListing();
+                    listing.Nickname = repoListing.Element(XName.Get(nameof(RepoListing.Nickname)))?.Value ?? listing.Nickname;
+                    listing.Sha = repoListing.Element(XName.Get(nameof(RepoListing.Sha)))?.Value ?? listing.Sha;
+                    listing.Description = repoListing.Element(XName.Get(nameof(RepoListing.Description)))?.Value ?? listing.Description;
+                    listing.Author = repoListing.Element(XName.Get(nameof(RepoListing.Author)))?.Value ?? listing.Author;
+                    listing.CommitDate = repoListing.Element(XName.Get(nameof(RepoListing.CommitDate)))?.Value ?? listing.CommitDate;
+                    listing.SuggestedPath = repoListing.Element(XName.Get(nameof(RepoListing.SuggestedPath)))?.Value ?? listing.SuggestedPath;
+                    ret.ParentRepos.Add(listing);
                 }
             }
 
             ret.SetPathing(pathing, addMissing: true);
+            ret.OriginalConfig = ret.GetCopy();
             return ret;
         }
 
@@ -73,27 +79,114 @@ namespace HarmonizeGit
             }
         }
 
-        public string GetXmlStr()
+        public bool Equals(HarmonizeConfig other)
         {
-            string xmlStr;
-            XmlSerializer xsSubmit = new XmlSerializer(typeof(HarmonizeConfig));
-            var settings = new XmlWriterSettings()
+            if (other == null) return false;
+            if (this.Version != other.Version) return false;
+            if (!object.Equals(this.Pathing, other.Pathing)) return false;
+            if (!ParentRepos.SequenceEqual(other.ParentRepos)) return false;
+            return true;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is HarmonizeConfig config)) return false;
+            return Equals(config);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Version.GetHashCode()
+                .CombineHashCode(this.ParentRepos)
+                .CombineHashCode(this.Pathing);
+        }
+
+        public HarmonizeConfig GetCopy()
+        {
+            var ret = new HarmonizeConfig()
             {
-                Indent = true,
-                OmitXmlDeclaration = true
+                Version = this.Version,
+                Pathing = this.Pathing.GetCopy()
             };
-            var emptyNs = new XmlSerializerNamespaces(new[] { XmlQualifiedName.Empty });
-            using (var sw = new StringWriter())
+            ret.ParentRepos.AddRange(this.ParentRepos.Select((pr) => pr.GetCopy()));
+            return ret;
+        }
+
+        public void WriteToPath(string path)
+        {
+            using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite))
             {
-                using (XmlWriter writer = XmlWriter.Create(sw, settings))
+                using (var writer = new XmlTextWriter(fileStream, Encoding.ASCII))
                 {
-                    xsSubmit.Serialize(writer, this, emptyNs);
-                    xmlStr = sw.ToString();
+                    writer.Formatting = Formatting.Indented;
+                    writer.Indentation = 3;
+
+                    using (new ElementWrapper(writer, nameof(HarmonizeConfig)))
+                    {
+                        writer.WriteAttributeString(nameof(Version), this.Version.ToString());
+                        using (new ElementWrapper(writer, nameof(ParentRepos)))
+                        {
+                            foreach (var item in this.ParentRepos)
+                            {
+                                using (new ElementWrapper(writer, nameof(RepoListing)))
+                                {
+                                    if (!string.IsNullOrWhiteSpace(item.Nickname))
+                                    {
+                                        using (new ElementWrapper(writer, nameof(RepoListing.Nickname)))
+                                        {
+                                            writer.WriteValue(item.Nickname);
+                                        }
+                                    }
+                                    if (!string.IsNullOrWhiteSpace(item.Sha))
+                                    {
+                                        using (new ElementWrapper(writer, nameof(RepoListing.Sha)))
+                                        {
+                                            writer.WriteValue(item.Sha);
+                                        }
+                                    }
+                                    if (!string.IsNullOrWhiteSpace(item.Path))
+                                    {
+                                        using (new ElementWrapper(writer, nameof(RepoListing.Path)))
+                                        {
+                                            writer.WriteValue(item.Path);
+                                        }
+                                    }
+                                    if (!string.IsNullOrWhiteSpace(item.SuggestedPath))
+                                    {
+                                        using (new ElementWrapper(writer, nameof(RepoListing.SuggestedPath)))
+                                        {
+                                            writer.WriteValue(item.SuggestedPath);
+                                        }
+                                    }
+                                    if (!string.IsNullOrWhiteSpace(item.CommitDate))
+                                    {
+                                        using (new ElementWrapper(writer, nameof(RepoListing.CommitDate)))
+                                        {
+                                            writer.WriteValue(item.CommitDate);
+                                        }
+                                    }
+                                    if (!string.IsNullOrWhiteSpace(item.Description))
+                                    {
+                                        using (new ElementWrapper(writer, nameof(RepoListing.Description)))
+                                        {
+                                            writer.WriteValue(item.Description);
+                                        }
+                                    }
+                                    if (!string.IsNullOrWhiteSpace(item.Author))
+                                    {
+                                        using (new ElementWrapper(writer, nameof(RepoListing.Author)))
+                                        {
+                                            writer.WriteValue(item.Author);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
-            return xmlStr;
         }
-        
+
         public bool SetPathing(PathingConfig pathing, bool addMissing = true)
         {
             this.Pathing = pathing;
@@ -117,7 +210,7 @@ namespace HarmonizeGit
                         Nickname = listing.Nickname,
                         Path = missingPath
                     };
-                    pathing.Paths.Add(pathListing);
+                    pathing.Paths[pathListing.Nickname] = pathListing;
                     added = true;
                 }
 

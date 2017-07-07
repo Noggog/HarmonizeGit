@@ -29,7 +29,7 @@ namespace HarmonizeGit
                 return true;
             }
 
-            if (this.harmonize.CancelIfParentsHaveChanges())
+            if (await this.harmonize.CancelIfParentsHaveChanges())
             {
                 return false;
             }
