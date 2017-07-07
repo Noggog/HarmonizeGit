@@ -16,20 +16,23 @@ namespace HarmonizeGit
         {
             if (!Settings.Instance.Lock) return new FileLockCheckout();
 
-            if (!tracker.TryGetValue(type, out Dictionary<string, EventWaitHandle> dict))
+            lock (tracker)
             {
-                dict = new Dictionary<string, EventWaitHandle>();
-                tracker[type] = dict;
-            }
-            var lower = pathToRepo.ToLower();
-            if (!dict.TryGetValue(lower, out EventWaitHandle handle))
-            {
-                DirectoryInfo dir = new DirectoryInfo(pathToRepo);
-                handle = new EventWaitHandle(true, EventResetMode.AutoReset, $"GIT_HARMONIZE_{type.ToString()}_{dir.Name}");
-                dict[lower] = handle;
-            }
+                if (!tracker.TryGetValue(type, out Dictionary<string, EventWaitHandle> dict))
+                {
+                    dict = new Dictionary<string, EventWaitHandle>();
+                    tracker[type] = dict;
+                }
+                var lower = pathToRepo.ToLower();
+                if (!dict.TryGetValue(lower, out EventWaitHandle handle))
+                {
+                    DirectoryInfo dir = new DirectoryInfo(pathToRepo);
+                    handle = new EventWaitHandle(true, EventResetMode.AutoReset, $"GIT_HARMONIZE_{type.ToString()}_{dir.Name}");
+                    dict[lower] = handle;
+                }
 
-            return new FileLockCheckout(handle);
+                return new FileLockCheckout(handle);
+            }
         }
     }
 }
