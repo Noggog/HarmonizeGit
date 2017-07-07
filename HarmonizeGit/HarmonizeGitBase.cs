@@ -2,7 +2,6 @@
 using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -335,7 +334,7 @@ namespace HarmonizeGit
         {
             if (!Settings.Instance.CheckForCircularConfigs) return;
             this.WriteLine("Checking for circular configs.");
-            var ret = CheckCircular(ImmutableHashSet.Create<string>(), this.TargetPath);
+            var ret = CheckCircular(new HashSet<string>(), this.TargetPath);
             if (ret != null)
             {
                 throw new ArgumentException($"Found circular configurations:" + Environment.NewLine + ret);
@@ -343,18 +342,17 @@ namespace HarmonizeGit
             this.WriteLine("No circular configs detected.");
         }
 
-        private string CheckCircular(ImmutableHashSet<string> paths, string targetPath)
+        private string CheckCircular(HashSet<string> paths, string targetPath)
         {
-            if (paths.Contains(targetPath))
+            if (!paths.Add(targetPath))
             {
                 return targetPath;
             }
-            paths = paths.Add(targetPath);
             var config = this.ConfigLoader.GetConfig(targetPath);
             if (config == null) return null;
             foreach (var listing in config.ParentRepos)
             {
-                var ret = CheckCircular(paths, listing.Path);
+                var ret = CheckCircular(new HashSet<string>(paths), listing.Path);
                 if (ret != null) return targetPath + Environment.NewLine + ret;
             }
             return null;
