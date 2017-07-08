@@ -85,6 +85,7 @@
     <Compile Include="Extensions\RepoExt.cs" />
     <Compile Include="RepositoryExt.cs" />
     <Compile Include="Tuples\ChildUsages.cs" />
+    <Compile Include="Tuples\ErrorResponse.cs" />
     <Compile Include="Tuples\GetResponse.cs" />
     <Compile Include="Tuples\RepoConfigKey.cs" />
   </ItemGroup>

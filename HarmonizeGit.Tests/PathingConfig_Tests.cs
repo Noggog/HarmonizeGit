@@ -17,10 +17,10 @@ namespace HarmonizeGit.Tests
             var config = PathingConfig.Factory(@"..\..\");
             Assert.Equal(@"C:/Program Files/HarmonizeGit/HarmonizeGit.exe", config.ReroutePathing);
             Assert.Equal(2, config.Paths.Count);
-            var path = config.Paths[0];
+            var path = config.Paths["Parent"];
             Assert.Equal(@"Parent", path.Nickname);
             Assert.Equal(@"../Parent", path.Path);
-            path = config.Paths[1];
+            path = config.Paths["SuperParent"];
             Assert.Equal(@"SuperParent", path.Nickname);
             Assert.Equal(@"../SuperParent", path.Path);
         }
@@ -32,7 +32,7 @@ namespace HarmonizeGit.Tests
             var tmpDir = Utility.GetTemporaryDirectory();
             Directory.CreateDirectory(tmpDir.FullName + "/.git/");
             var tmp = tmpDir + "/.git/.harmonize-pathing";
-            config.Write(tmpDir.FullName, blockIfEqual: false);
+            config.WriteToPath(tmpDir.FullName, blockIfEqual: false);
             Assert.Equal(File.ReadAllBytes(@"..\..\.git\.harmonize-pathing"), File.ReadAllBytes(tmp));
             tmpDir.Delete(recursive: true);
         }

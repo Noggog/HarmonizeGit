@@ -65,8 +65,8 @@ namespace HarmonizeGit.Tests
                 File.WriteAllText(checkout.SuperParentFile.FullName, "DirtyContent\n");
                 Commands.Stage(checkout.SuperParentRepo.Repo, checkout.SuperParentFile.FullName);
                 checkout.SuperParentRepo.Repo.Commit("New commit", Utility.GetSignature(), Utility.GetSignature());
-                checkout.ParentHarmonize.SyncConfigToParentShas();
-                checkout.Harmonize.SyncConfigToParentShas();
+                await checkout.ParentHarmonize.SyncConfigToParentShas();
+                await checkout.Harmonize.SyncConfigToParentShas();
                 Assert.False(checkout.SuperParentRepo.Repo.RetrieveStatus().IsDirty);
                 Assert.True(checkout.ParentRepo.Repo.RetrieveStatus().IsDirty);
                 Assert.True(checkout.Repo.Repo.RetrieveStatus().IsDirty);

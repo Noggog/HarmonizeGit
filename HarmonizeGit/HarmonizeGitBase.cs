@@ -145,22 +145,23 @@ namespace HarmonizeGit
                 this.WriteLine("Cancelling because repos had uncommitted changes:");
                 foreach (var repo in uncomittedChangeRepos)
                 {
-                    this.WriteLine($"   -{repo.Listing.Nickname}: {repo.Reason}");
+                    this.WriteLine($"   -{repo.Item1.Nickname}: {repo.Item2}");
                 }
                 return true;
             }
             return false;
         }
 
-        public async Task<List<RepoListing>> GetReposWithUncommittedChanges()
+        public async Task<List<Tuple<RepoListing, string>>> GetReposWithUncommittedChanges()
         {
-            List<(RepoListing Listing, string Reason)> ret = new List<(RepoListing Listing, string Reason)>();
+            List<Tuple<RepoListing, string>> ret = new List<Tuple<RepoListing, string>>();
             foreach (var repoListing in this.Config.ParentRepos)
             {
-                if (await IsDirty(repoListing.Path))
+                var dirt = await IsDirty(repoListing.Path);
+                if (dirt.Succeeded)
                 {
-                    this.WriteLine($"{repoListing.Nickname} was dirty: {reason}");
-                    ret.Add((repoListing, reason));
+                    this.WriteLine($"{repoListing.Nickname} was dirty: {dirt.Reason}");
+                    ret.Add(new Tuple<RepoListing, string>(repoListing, dirt.Reason));
                 }
                 else
                 {
@@ -171,20 +172,18 @@ namespace HarmonizeGit
         }
 
         #region IsDirty
-        public Task<bool> IsDirty(
+        public Task<ErrorResponse> IsDirty(
             ConfigExclusion configExclusion = ConfigExclusion.Full,
             bool regenerateConfig = true)
         {
-            return IsDirty(this.TargetPath, out var reason, configExclusion, regenerateConfig);
+            return IsDirty(this.TargetPath, configExclusion, regenerateConfig);
         }
 
-        public async Task<bool> IsDirty(
+        public async Task<ErrorResponse> IsDirty(
             string path,
-            out string reason,
             ConfigExclusion configExclusion = ConfigExclusion.Full,
             bool regenerateConfig = true)
         {
-            reason = string.Empty;
             using (var repo = new Repository(path))
             {
                 var repoStatus = repo.RetrieveStatus(new StatusOptions()
@@ -196,7 +195,7 @@ namespace HarmonizeGit
                 });
                 if (!repoStatus.IsDirty)
                 {
-                    return false;
+                    return new ErrorResponse();
                 }
 
                 if (regenerateConfig)
@@ -209,16 +208,16 @@ namespace HarmonizeGit
                         var parentConfig = ConfigLoader.GetConfig(path);
                         if (parentConfig != null)
                         {
-                            this.ConfigLoader.SyncAndWriteConfig(parentConfig, path);
+                            await this.ConfigLoader.SyncAndWriteConfig(parentConfig, path);
                             repoStatus = repo.RetrieveStatus();
                             if (!repoStatus.IsDirty)
                             {
-                                return false;
+                                return new ErrorResponse();
                             }
                         }
                     }
                 }
-                
+
                 foreach (var statusEntry in repoStatus)
                 {
                     if (statusEntry.FilePath.Equals(HarmonizeConfigPath) && configExclusion == ConfigExclusion.Full) continue;
@@ -226,10 +225,13 @@ namespace HarmonizeGit
                     if (statusEntry.State.HasFlag(FileStatus.Ignored)) continue;
 
                     // Wasn't just harmonize config, it's dirty
-                    reason = $"{statusEntry.State} - {statusEntry.FilePath}";
-                    return true;
+                    return new ErrorResponse()
+                    {
+                        Succeeded = true,
+                        Reason = $"{statusEntry.State} - {statusEntry.FilePath}"
+                    };
                 }
-                return false;
+                return new ErrorResponse();
             }
         }
         #endregion
