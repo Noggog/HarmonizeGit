@@ -47,7 +47,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="HarmonizeGit_Tests.cs" />
-    <Compile Include="PathingConfig_Tests.cs" />
     <Compile Include="PostMerge_Tests.cs" />
     <Compile Include="PostCommit_Tests.cs" />
     <Compile Include="PostPull_Tests.cs" />
@@ -96,10 +95,6 @@
     <PackageReference Include="xunit.runner.visualstudio">
       <Version>2.3.0-beta3-build3705</Version>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include=".harmonize" />
-    <None Include=".git\.harmonize-pathing" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
