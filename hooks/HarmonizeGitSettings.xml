@@ -6,4 +6,5 @@
 	<Enabled value="True" />
 	<TrackChildRepos value="True" />
 	<Lock value="True" />
+	<ParentUnpushedPreference value="Block" />
 </HarmonizeGitSettings>

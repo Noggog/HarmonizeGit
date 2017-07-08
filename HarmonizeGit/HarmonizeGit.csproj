@@ -62,6 +62,7 @@
     <Compile Include="Config\Locking\LockType.cs" />
     <Compile Include="Config\PathingConfig\PathingConfig.cs" />
     <Compile Include="Config\PathingConfig\PathingListing.cs" />
+    <Compile Include="Config\Settings\ParentPushPreference.cs" />
     <Compile Include="Config\Settings\Settings.cs" />
     <Compile Include="Extensions\ElementWrapper.cs" />
     <Compile Include="Extensions\HashHelper.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="Hooks\PostPullHandler.cs" />
     <Compile Include="Hooks\PostRebaseHandler.cs" />
     <Compile Include="Hooks\PrePullHandler.cs" />
+    <Compile Include="Hooks\PrePushHandler.cs" />
     <Compile Include="Hooks\PreRebaseHandler.cs" />
     <Compile Include="Hooks\PreResetHandler.cs" />
     <Compile Include="Hooks\PostTakeHandler.cs" />

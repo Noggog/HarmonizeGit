@@ -10,6 +10,8 @@ namespace HarmonizeGit
 {
     public class Settings
     {
+        public const string VALUE = "value";
+
         private static Settings _settings;
         public static Settings Instance => GetSettings();
 
@@ -20,6 +22,7 @@ namespace HarmonizeGit
         public bool Enabled = true;
         public bool TrackChildRepos = true;
         public bool Lock = true;
+        public ParentPushPreference ParentUnpushedPreference = ParentPushPreference.Block;
 
         Settings()
         {
@@ -36,7 +39,7 @@ namespace HarmonizeGit
 
         private static bool GetBool(XElement elem, string name, bool def)
         {
-            var attr = elem.Element(name)?.Attribute("value");
+            var attr = elem.Element(name)?.Attribute(VALUE);
             if (attr == null) return def;
             return bool.Parse(attr.Value);
         }
@@ -57,8 +60,8 @@ namespace HarmonizeGit
                     xml = XDocument.Parse(reader.ReadToEnd());
                 }
             }
-            
-            return new Settings()
+
+            var ret = new Settings()
             {
                 AddMetadataToConfig = GetBool(xml.Root, nameof(AddMetadataToConfig), true),
                 CheckForCircularConfigs = GetBool(xml.Root, nameof(CheckForCircularConfigs), true),
@@ -68,6 +71,21 @@ namespace HarmonizeGit
                 Reroute = GetBool(xml.Root, nameof(Reroute), false),
                 TrackChildRepos = GetBool(xml.Root, nameof(TrackChildRepos), true),
             };
+
+            var parentPushAttr = xml.Root.Element(nameof(ParentUnpushedPreference))?.Attribute(VALUE);
+            if (parentPushAttr != null)
+            {
+                if (Enum.TryParse<ParentPushPreference>(parentPushAttr.Value, ignoreCase: true, result: out var result))
+                {
+                    ret.ParentUnpushedPreference = result;
+                }
+                else
+                {
+                    throw new ArgumentException($"Unknown {nameof(ParentPushPreference)}: {parentPushAttr.Value}");
+                }
+            }
+
+            return ret;
         }
     }
 }

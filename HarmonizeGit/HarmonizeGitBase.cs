@@ -89,6 +89,9 @@ namespace HarmonizeGit
                 case HookType.Pre_Pull:
                     handler = new PrePullHandler(this, new PullArgs(args));
                     break;
+                case HookType.Pre_Push:
+                    handler = new PrePushHandler(this, new PushArgs(args));
+                    break;
                 default:
                     return true;
             }

@@ -2,10 +2,10 @@
    <ParentRepos>
       <RepoListing>
          <Nickname>FishingWithGit</Nickname>
-         <Sha>44f51ba772182cca856bf8a6db8ce648bd63604d</Sha>
+         <Sha>6263f5f229039979298fa34f5ed2654f59433c58</Sha>
          <Path>../FishingWithGit</Path>
-         <CommitDate>07-08-2017 16:16:38</CommitDate>
-         <Description>Made RealGitProgramFolder less picky with ending / character</Description>
+         <CommitDate>07-08-2017 18:55:22</CommitDate>
+         <Description>basic Push hook support</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
    </ParentRepos>
