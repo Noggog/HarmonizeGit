@@ -88,7 +88,6 @@ namespace HarmonizeGit
                         {
                             this.harmonize.WriteLine($"Config sha {listing.Sha} compared to current sha {repo.Head.Tip.Sha}.");
                             if (object.Equals(listing.Sha, repo.Head.Tip.Sha)) return null;
-                            changed.Add(listing);
                             listing.SetToCommit(repo.Head.Tip);
                             this.harmonize.WriteLine($"Changed to sha {repo.Head.Tip.Sha}.");
                             return listing;
