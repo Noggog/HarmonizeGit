@@ -36,7 +36,7 @@ namespace HarmonizeGit
                     ancestorCommit);
             }
 
-            return true;
+            return harmonize.SyncParentReposToSha(args.TargetSha);
         }
     }
 }
