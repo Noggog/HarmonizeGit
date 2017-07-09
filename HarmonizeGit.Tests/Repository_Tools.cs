@@ -73,6 +73,32 @@ namespace HarmonizeGit.Tests
         }
     }
 
+    public class CloneCheckout : IDisposable
+    {
+        public ConfigCheckout Local;
+
+        public Repository ChildRemoteRepo;
+        public Repository ParentRemoteRepo;
+        public Repository SuperParentRemoteRepo;
+
+        public Remote ChildRemote;
+        public Remote ParentRemote;
+        public Remote SuperParentRemote;
+
+        public void Dispose()
+        {
+            Local.Dispose();
+            ChildRemote.Dispose();
+            ParentRemote.Dispose();
+            SuperParentRemote.Dispose();
+        }
+
+        public async Task Init()
+        {
+            await Local.Init();
+        }
+    }
+
     class Repository_Tools
     {
         public const string STANDARD_MERGE_BRANCH = "Merge";
@@ -181,7 +207,7 @@ namespace HarmonizeGit.Tests
                 "Third Commit",
                 signature,
                 signature);
-            
+
             var childRepoDir = Utility.GetTemporaryDirectory();
             Repository.Init(childRepoDir.FullName);
             var childRepo = new Repository(childRepoDir.FullName);
@@ -253,6 +279,42 @@ namespace HarmonizeGit.Tests
                 ParentFile = parentFile,
                 SuperParentFile = superParentFile,
             };
+        }
+
+        public static CloneCheckout GetStandardCloneCheckout()
+        {
+            var clone = new CloneCheckout()
+            {
+                Local = GetStandardConfigCheckout()
+            };
+
+            var superParentRepoDir = Utility.GetTemporaryDirectory();
+            var parentRepoDir = Utility.GetTemporaryDirectory();
+            var repoDir = Utility.GetTemporaryDirectory();
+
+            Repository.Init(superParentRepoDir.FullName, isBare: true);
+            Repository.Init(parentRepoDir.FullName, isBare: true);
+            Repository.Init(repoDir.FullName, isBare: true);
+
+            clone.SuperParentRemoteRepo = new Repository(superParentRepoDir.FullName);
+            clone.ParentRemoteRepo = new Repository(parentRepoDir.FullName);
+            clone.ChildRemoteRepo = new Repository(repoDir.FullName);
+
+            clone.SuperParentRemote = clone.Local.SuperParentRepo.Repo.Network.Remotes.Add("origin", superParentRepoDir.FullName);
+            clone.ParentRemote = clone.Local.ParentRepo.Repo.Network.Remotes.Add("origin", parentRepoDir.FullName);
+            clone.ChildRemote = clone.Local.Repo.Repo.Network.Remotes.Add("origin", repoDir.FullName);
+
+            clone.Local.SuperParentRepo.Repo.Network.Push(
+                clone.SuperParentRemote,
+                pushRefSpec: @"refs/heads/master");
+            clone.Local.ParentRepo.Repo.Network.Push(
+                clone.ParentRemote,
+                pushRefSpec: @"refs/heads/master");
+            clone.Local.Repo.Repo.Network.Push(
+                clone.ChildRemote,
+                pushRefSpec: @"refs/heads/master");
+
+            return clone;
         }
     }
 }

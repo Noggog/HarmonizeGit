@@ -55,6 +55,7 @@
     <Compile Include="PreCheckout_Tests.cs" />
     <Compile Include="PreCommit_Tests.cs" />
     <Compile Include="PrePull_Tests.cs" />
+    <Compile Include="PrePush_Tests.cs" />
     <Compile Include="PreRebase_Tests.cs" />
     <Compile Include="PreReset_Tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

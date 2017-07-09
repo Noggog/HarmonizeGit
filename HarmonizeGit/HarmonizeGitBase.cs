@@ -23,6 +23,7 @@ namespace HarmonizeGit
         public const string HarmonizePathingPath = ".git/.harmonize-pathing";
         public const string GitIgnorePath = ".gitignore";
         public readonly string TargetPath;
+        public string ConfigPath => Path.Combine(TargetPath, HarmonizeConfigPath);
         public HarmonizeConfig Config;
         public bool Silent;
         public bool FileLock;
