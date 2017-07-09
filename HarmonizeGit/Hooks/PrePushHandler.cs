@@ -36,7 +36,8 @@ namespace HarmonizeGit
                     return new Tuple<string, HarmonizeConfig>(
                         b.Name(),
                         this.harmonize.ConfigLoader.GetConfigFromRepo(repo, b.Tip));
-                }));
+                })
+                .Where((i) => i.Item2 != null));
             }
 
             HashSet<string> fetchedRemotes = new HashSet<string>();
