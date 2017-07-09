@@ -319,7 +319,12 @@ namespace HarmonizeGit
                 if (existingBranch != null)
                 {
                     this.WriteLine($"Checking out existing branch {listing.Nickname}:{existingBranch.FriendlyName}.");
-                    LibGit2Sharp.Commands.Checkout(repo, existingBranch.FriendlyName);
+                    var branch = repo.Branches[existingBranch.Name()];
+                    if (branch == null)
+                    {
+                        branch = repo.CreateBranch(existingBranch.Name(), existingBranch.Tip);
+                    }
+                    LibGit2Sharp.Commands.Checkout(repo, branch);
                     return true;
                 }
                 this.WriteLine("No branch found.  Allocating a Harmonize branch.");
