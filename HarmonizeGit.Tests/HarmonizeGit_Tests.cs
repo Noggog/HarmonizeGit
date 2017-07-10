@@ -128,5 +128,21 @@ namespace HarmonizeGit.Tests
             }
         }
         #endregion
+
+        #region SyncParentReposToConfig
+        [Fact]
+        public async Task SyncParentReposToConfig_Typical()
+        {
+            using (var checkout = Repository_Tools.GetStandardConfigCheckout())
+            {
+                checkout.Repo.Repo.Checkout(checkout.Child_FirstSha);
+                await checkout.Init();
+
+                Assert.True(checkout.Harmonize.SyncParentRepos());
+                Assert.Equal(checkout.Parent_FirstSha, checkout.ParentRepo.Repo.Head.Tip.Sha);
+                Assert.Equal(checkout.SuperParent_SecondSha, checkout.SuperParentRepo.Repo.Head.Tip.Sha);
+            }
+        }
+        #endregion
     }
 }
