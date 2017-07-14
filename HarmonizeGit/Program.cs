@@ -12,16 +12,24 @@ namespace HarmonizeGit
     {
         public static int Main(string[] args)
         {
-            if (!Settings.Instance.Enabled) return 0;
-            if (!Settings.Instance.Reroute)
+            try
             {
-                DirectoryInfo dir = new DirectoryInfo(".");
-                HarmonizeGitBase harmonize = new HarmonizeGitBase(dir.FullName);
-                return harmonize.Handle(args).Result ? 0 : 1;
+                if (!Settings.Instance.Enabled) return 0;
+                if (!Settings.Instance.Reroute)
+                {
+                    DirectoryInfo dir = new DirectoryInfo(".");
+                    HarmonizeGitBase harmonize = new HarmonizeGitBase(dir.FullName);
+                    return harmonize.Handle(args).Result ? 0 : 1;
+                }
+                else
+                {
+                    return Reroute(args);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return Reroute(args);
+                System.Console.Error.WriteLine(ex);
+                return 1;
             }
         }
 
