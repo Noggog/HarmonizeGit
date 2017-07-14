@@ -23,6 +23,7 @@ namespace HarmonizeGit
         public bool TrackChildRepos = true;
         public bool Lock = true;
         public bool ContinuePushingOnCredentialFailure = true;
+        public int TimeoutMS = 45000;
         public ParentPushPreference ParentUnpushedPreference = ParentPushPreference.Block;
 
         Settings()
@@ -43,6 +44,13 @@ namespace HarmonizeGit
             var attr = elem.Element(name)?.Attribute(VALUE);
             if (attr == null) return def;
             return bool.Parse(attr.Value);
+        }
+
+        private static int GetInt(XElement elem, string name, int def)
+        {
+            var attr = elem.Element(name)?.Attribute(VALUE);
+            if (attr == null) return def;
+            return int.Parse(attr.Value);
         }
 
         private static Settings CreateSettings()
@@ -72,6 +80,7 @@ namespace HarmonizeGit
                 Reroute = GetBool(xml.Root, nameof(Reroute), false),
                 TrackChildRepos = GetBool(xml.Root, nameof(TrackChildRepos), true),
                 ContinuePushingOnCredentialFailure = GetBool(xml.Root, nameof(ContinuePushingOnCredentialFailure), false),
+                TimeoutMS = GetInt(xml.Root, nameof(TimeoutMS), 45000),
             };
 
             var parentPushAttr = xml.Root.Element(nameof(ParentUnpushedPreference))?.Attribute(VALUE);

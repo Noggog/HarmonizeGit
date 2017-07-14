@@ -19,7 +19,20 @@ namespace HarmonizeGit
                 {
                     DirectoryInfo dir = new DirectoryInfo(".");
                     HarmonizeGitBase harmonize = new HarmonizeGitBase(dir.FullName);
-                    return harmonize.Handle(args).Result ? 0 : 1;
+                    return Task.Run(async () =>
+                    {
+                        var task = harmonize.Handle(args);
+                        var doneTask = await Task.WhenAny(task, Task.Delay(Settings.Instance.TimeoutMS));
+                        if (task == doneTask)
+                        {
+                            return await task;
+                        }
+                        if (!harmonize.Silent)
+                        {
+                            System.Console.Error.WriteLine("Harmonize timed out.");
+                        }
+                        return false;
+                    }).Result ? 0 : 1;
                 }
                 else
                 {
