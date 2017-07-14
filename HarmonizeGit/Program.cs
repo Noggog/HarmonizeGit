@@ -55,12 +55,18 @@ namespace HarmonizeGit
                     System.Console.Error.WriteLine($"Routing path did not lead to an exe.  Fix it here: {pathingFileLocation.FullName}");
                     return -1;
                 }
+                if (reroutePath.FullName.Equals(System.Reflection.Assembly.GetEntryAssembly().Location))
+                {
+                    System.Console.Error.WriteLine($"Routing path lead to a loop.  Someone needs to turn off routing.");
+                    return -1;
+                }
             }
             catch (Exception ex)
             {
                 System.Console.Error.WriteLine($"Routing path was invalid. ({pathing.ReroutePathing.Trim()})  Fix it here: {pathingFileLocation.FullName}  " + ex);
                 return -1;
             }
+
             ProcessStartInfo startInfo = new ProcessStartInfo(
                 pathing.ReroutePathing,
                 string.Join(" ", args))
