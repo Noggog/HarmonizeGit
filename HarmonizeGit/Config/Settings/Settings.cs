@@ -22,6 +22,7 @@ namespace HarmonizeGit
         public bool Enabled = true;
         public bool TrackChildRepos = true;
         public bool Lock = true;
+        public bool ContinuePushingOnCredentialFailure = true;
         public ParentPushPreference ParentUnpushedPreference = ParentPushPreference.Block;
 
         Settings()
@@ -70,6 +71,7 @@ namespace HarmonizeGit
                 Lock = GetBool(xml.Root, nameof(Lock), true),
                 Reroute = GetBool(xml.Root, nameof(Reroute), false),
                 TrackChildRepos = GetBool(xml.Root, nameof(TrackChildRepos), true),
+                ContinuePushingOnCredentialFailure = GetBool(xml.Root, nameof(ContinuePushingOnCredentialFailure), false),
             };
 
             var parentPushAttr = xml.Root.Element(nameof(ParentUnpushedPreference))?.Attribute(VALUE);

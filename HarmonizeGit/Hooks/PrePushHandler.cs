@@ -62,13 +62,22 @@ namespace HarmonizeGit
                         if (remoteNames.Count == 0) continue;
 
                         // Fetch failed remotes
-                        foreach (var remote in parentRepo.Network.Remotes
-                            .Where((r) => remoteNames.Contains(r.Name)))
+                        try
                         {
-                            if (fetchedRemotes.Add(remote.Name))
+                            foreach (var remote in parentRepo.Network.Remotes
+                                .Where((r) => remoteNames.Contains(r.Name)))
                             {
-                                parentRepo.Network.Fetch(remote);
+                                if (fetchedRemotes.Add(remote.Name))
+                                {
+                                    parentRepo.Network.Fetch(remote);
+                                }
                             }
+                        }
+                        catch (LibGit2SharpException ex)
+                        when (Settings.Instance.ContinuePushingOnCredentialFailure)
+                        {
+                            this.harmonize.WriteLine("Unable to fetch remotes and check push status.  Skipping safety check.");
+                            return true;
                         }
 
                         //  Try Again
