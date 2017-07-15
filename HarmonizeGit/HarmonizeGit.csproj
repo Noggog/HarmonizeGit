@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>HarmonizeGit</RootNamespace>
     <AssemblyName>HarmonizeGit</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <NuGetPackageImportStamp>
@@ -38,6 +38,9 @@
     <WarningLevel>4</WarningLevel>
     <NoWarn>CS1998</NoWarn>
     <WarningsAsErrors>CS4014</WarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>harmonize_git2.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -93,6 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Resources\harmonize-git.pxd" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\FishingWithGit\FishingWithGit.Common\FishingWithGit.Common.csproj">
@@ -108,7 +112,11 @@
       <Version>1.0.105.2</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="HarmonizeGitSettings.xml" />
+    <Content Include="harmonize_git2.ico" />
+    <Content Include="Resources\harmonize-git.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
