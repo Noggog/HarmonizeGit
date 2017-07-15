@@ -12,51 +12,10 @@ namespace HarmonizeGit
     {
         public int Reroute(string[] args)
         {
-            // Find route file
-            FileInfo pathingFileLocation = new FileInfo("./" + HarmonizeGitBase.HarmonizePathingPath);
-            PathingConfig pathing;
-            try
-            {
-                pathing = PathingConfig.Factory(".");
-            }
-            catch (Exception ex)
-            {
-                System.Console.Error.WriteLine($"Error loading routing path at: {pathingFileLocation.FullName}. " + ex);
-                return -1;
-            }
-            if (!pathingFileLocation.Exists)
-            {
-                pathing.WriteToPath(".");
-            }
-            if (string.IsNullOrWhiteSpace(pathing.ReroutePathing))
-            {
-                System.Console.Error.WriteLine($"No routing path specified.  Add it here: {pathingFileLocation.FullName}");
-                return -1;
-            }
-
-            // Check route file exists
-            try
-            {
-                FileInfo reroutePath = new FileInfo(pathing.ReroutePathing.Trim());
-                if (!reroutePath.Exists)
-                {
-                    System.Console.Error.WriteLine($"Routing path did not lead to an exe.  Fix it here: {pathingFileLocation.FullName}");
-                    return -1;
-                }
-                if (reroutePath.FullName.Equals(System.Reflection.Assembly.GetEntryAssembly().Location))
-                {
-                    System.Console.Error.WriteLine($"Routing path lead to a loop.  Someone needs to turn off routing.");
-                    return -1;
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Console.Error.WriteLine($"Routing path was invalid. ({pathing.ReroutePathing.Trim()})  Fix it here: {pathingFileLocation.FullName}  " + ex);
-                return -1;
-            }
+            if (!TryGetReroutePath(out var reroutePath)) return -1;
 
             ProcessStartInfo startInfo = new ProcessStartInfo(
-                pathing.ReroutePathing,
+                reroutePath,
                 string.Join(" ", args))
             {
                 CreateNoWindow = true,
@@ -71,6 +30,59 @@ namespace HarmonizeGit
                 System.Console.Error.WriteLine(proc.StandardError.ReadToEnd());
                 return proc.ExitCode;
             }
+        }
+
+        public bool TryGetReroutePath(out string reroutePath)
+        {
+            FileInfo pathingFileLocation = new FileInfo("./" + HarmonizeGitBase.HarmonizePathingPath);
+            PathingConfig pathing;
+            try
+            {
+                pathing = PathingConfig.Factory(".");
+            }
+            catch (Exception ex)
+            {
+                System.Console.Error.WriteLine($"Error loading routing path at: {pathingFileLocation.FullName}. " + ex);
+                reroutePath = null;
+                return false;
+            }
+            if (!pathingFileLocation.Exists)
+            {
+                pathing.WriteToPath(".");
+            }
+            if (string.IsNullOrWhiteSpace(pathing.ReroutePathing))
+            {
+                System.Console.Error.WriteLine($"No routing path specified.  Add it here: {pathingFileLocation.FullName}");
+                reroutePath = null;
+                return false;
+            }
+
+            reroutePath = pathing.ReroutePathing.Trim();
+
+            // Check route file exists
+            try
+            {
+                FileInfo rerouteFile = new FileInfo(reroutePath);
+                if (!rerouteFile.Exists)
+                {
+                    System.Console.Error.WriteLine($"Routing path did not lead to an exe.  Fix it here: {pathingFileLocation.FullName}");
+                    reroutePath = null;
+                    return false;
+                }
+                if (rerouteFile.FullName.Equals(System.Reflection.Assembly.GetEntryAssembly().Location))
+                {
+                    System.Console.Error.WriteLine($"Routing path lead to a loop.  Someone needs to turn off routing.");
+                    reroutePath = null;
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Console.Error.WriteLine($"Routing path was invalid. ({reroutePath.Trim()})  Fix it here: {pathingFileLocation.FullName}  " + ex);
+                reroutePath = null;
+                return false;
+            }
+            return true;
         }
     }
 }
