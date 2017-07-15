@@ -89,6 +89,7 @@
     <Compile Include="Hooks\TypicalHandlerBase.cs" />
     <Compile Include="Extensions\RepoExt.cs" />
     <Compile Include="RepositoryExt.cs" />
+    <Compile Include="Rerouter.cs" />
     <Compile Include="Tuples\ChildUsages.cs" />
     <Compile Include="Tuples\ErrorResponse.cs" />
     <Compile Include="Tuples\GetResponse.cs" />
