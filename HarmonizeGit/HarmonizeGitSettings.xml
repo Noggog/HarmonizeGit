@@ -1,6 +1,6 @@
 ﻿<HarmonizeGitSettings>
 	<AddMetadataToConfig value="True" />
-	<Reroute value="True" />
+	<Reroute value="False" />
 	<ExportPathingConfigUpdates value="True" />
 	<CheckForCircularConfigs value="True" />
 	<Enabled value="True" />

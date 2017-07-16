@@ -12,7 +12,7 @@ namespace HarmonizeGit
 {
     public class PathingConfig : IEquatable<PathingConfig>
     {
-        public string ReroutePathing = "C:/Program Files/HarmonizeGit/HarmonizeGit.exe";
+        public string ReroutePathing;
         public int Version = 1;
         public Dictionary<string, PathingListing> Paths = new Dictionary<string, PathingListing>();
         public PathingConfig OriginalConfig;

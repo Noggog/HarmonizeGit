@@ -52,6 +52,26 @@ namespace HarmonizeGit
             }
             if (string.IsNullOrWhiteSpace(pathing.ReroutePathing))
             {
+                // Try typical program file paths
+                FileInfo harmonizeExe = new FileInfo(
+                    Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
+                        HarmonizeGitBase.HarmonizeEXEPath));
+                if (harmonizeExe.Exists)
+                {
+                    reroutePath = harmonizeExe.FullName;
+                    return true;
+                }
+                harmonizeExe = new FileInfo(
+                    Path.Combine(
+                        Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
+                        HarmonizeGitBase.HarmonizeEXEPath));
+                if (harmonizeExe.Exists)
+                {
+                    reroutePath = harmonizeExe.FullName;
+                    return true;
+                }
+
                 System.Console.Error.WriteLine($"No routing path specified.  Add it here: {pathingFileLocation.FullName}");
                 reroutePath = null;
                 return false;
