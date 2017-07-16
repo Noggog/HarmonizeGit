@@ -151,6 +151,7 @@ namespace HarmonizeGit
             {
                 ConsoleSilent = this.Silent,
                 ShouldLogToFile = Settings.Instance.LogToFile,
+                WipeLogsOlderThanDays = Settings.Instance.WipeLogsOlderThanDays 
             };
             this.Logger.ActivateAndFlushLogging();
             this.ChildLoader = new ChildrenLoader(this);
