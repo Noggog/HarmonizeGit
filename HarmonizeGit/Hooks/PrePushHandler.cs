@@ -76,7 +76,7 @@ namespace HarmonizeGit
                         catch (LibGit2SharpException ex)
                         when (Settings.Instance.ContinuePushingOnCredentialFailure)
                         {
-                            this.harmonize.WriteLine("Unable to fetch remotes and check push status.  Skipping safety check.");
+                            this.harmonize.Logger.WriteLine("Unable to fetch remotes and check push status.  Skipping safety check.");
                             return true;
                         }
 
@@ -89,10 +89,10 @@ namespace HarmonizeGit
 
 
                         // Have some remotes that don't know about our config's reference
-                        this.harmonize.WriteLine("Blocking because parent repositories need to push their branches first:");
+                        this.harmonize.Logger.WriteLine("Blocking because parent repositories need to push their branches first:", error: true);
                         foreach (var remoteName in remoteNames)
                         {
-                            this.harmonize.WriteLine($"   {repoListing.Nickname} -> {config.Item1}");
+                            this.harmonize.Logger.WriteLine($"   {repoListing.Nickname} -> {config.Item1}", error: true);
                         }
                         return false;
                     }

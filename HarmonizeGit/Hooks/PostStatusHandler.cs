@@ -31,7 +31,7 @@ namespace HarmonizeGit
             }
             catch (Exception ex)
             {
-                this.harmonize.WriteLine("Failed up sync config. " + ex);
+                this.harmonize.Logger.WriteLine("Failed up sync config. " + ex, error: true);
             }
             return true;
         }

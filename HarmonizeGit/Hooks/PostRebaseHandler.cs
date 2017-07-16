@@ -27,14 +27,14 @@ namespace HarmonizeGit
                 var originalCommit = repo.Lookup<Commit>(args.OriginalTipSha);
                 if (originalCommit == null)
                 {
-                    harmonize.WriteLine($"Original commit {args.OriginalTipSha} could not be found.");
+                    harmonize.Logger.WriteLine($"Original commit {args.OriginalTipSha} could not be found.", error: true);
                     return false;
                 }
 
                 var landingCommit = repo.Lookup<Commit>(args.LandingSha);
                 if (landingCommit == null)
                 {
-                    harmonize.WriteLine($"Target commit {args.LandingSha} could not be found.");
+                    harmonize.Logger.WriteLine($"Target commit {args.LandingSha} could not be found.", error: true);
                     return false;
                 }
 

@@ -9,4 +9,5 @@
 	<TimeoutMS value="45000" />
 	<ContinuePushingOnCredentialFailure value="True" />
 	<ParentUnpushedPreference value="Block" />
+	<LogToFile value="False" />
 </HarmonizeGitSettings>

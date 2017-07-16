@@ -36,7 +36,7 @@ namespace HarmonizeGit
                     {
                         FileInfo dbPath = new FileInfo(GetDBPath(parentRepo.Path));
                         if (dbPath.Exists) return;
-                        this.harmonize.WriteLine($"Initilizing into parent: {parentRepo.Path}");
+                        this.harmonize.Logger.WriteLine($"Initilizing into parent: {parentRepo.Path}");
                         using (LockManager.GetLock(LockType.Child, parentRepo.Path))
                         {
                             if (dbPath.Exists) return;
@@ -44,7 +44,7 @@ namespace HarmonizeGit
                                 parentRepo.Path,
                                 harmonize.TargetPath);
                         }
-                        this.harmonize.WriteLine($"Initilized into parent: {parentRepo.Path}");
+                        this.harmonize.Logger.WriteLine($"Initilized into parent: {parentRepo.Path}");
                     }));
         }
 
@@ -54,11 +54,11 @@ namespace HarmonizeGit
         {
             var parentRepoFile = new FileInfo(parentRepoPath);
             parentRepoPath = parentRepoFile.FullName;
-            this.harmonize.WriteLine("Getting seed usages.");
+            this.harmonize.Logger.WriteLine("Getting seed usages.");
             var usages = await GetUsages(
                 parentRepoPath,
                 childRepoPath);
-            this.harmonize.WriteLine("Got seed usages.");
+            this.harmonize.Logger.WriteLine("Got seed usages.");
             await InsertChildEntries(usages);
         }
 
@@ -177,7 +177,7 @@ namespace HarmonizeGit
             string pathToRepo,
             IEnumerable<ChildUsage> usages)
         {
-            this.harmonize.WriteLine($"Inserting child usages into {pathToRepo}");
+            this.harmonize.Logger.WriteLine($"Inserting child usages into {pathToRepo}");
             using (var conn = await GetConnection(pathToRepo))
             {
                 using (var transaction = conn.BeginTransaction())
@@ -215,7 +215,7 @@ namespace HarmonizeGit
                             {
                                 throw new ArgumentException("Sha length was not 40 characters: " + usage.Sha);
                             }
-                            this.harmonize.WriteLine($"   {usage.Sha} using {usage.ParentSha}");
+                            this.harmonize.Logger.WriteLine($"   {usage.Sha} using {usage.ParentSha}");
                             // Usages
                             cmd.CommandText = $@"INSERT OR IGNORE INTO {USAGE_TABLE} ({PARENT_ID}, {IDENTITY_ID}, {SHA}) 
                                         VALUES (
@@ -241,7 +241,7 @@ namespace HarmonizeGit
             string pathToRepo,
             IEnumerable<ChildUsage> usages)
         {
-            this.harmonize.WriteLine($"Removing child usages from {pathToRepo}");
+            this.harmonize.Logger.WriteLine($"Removing child usages from {pathToRepo}");
             using (var conn = await GetConnection(pathToRepo))
             {
                 using (var transaction = conn.BeginTransaction())
@@ -250,7 +250,7 @@ namespace HarmonizeGit
                     {
                         foreach (var usage in usages)
                         {
-                            this.harmonize.WriteLine($"   {usage.Sha} used {usage.ParentSha}");
+                            this.harmonize.Logger.WriteLine($"   {usage.Sha} used {usage.ParentSha}");
                             // Usages
                             cmd.CommandText = $@"DELETE FROM {USAGE_TABLE}
                                         WHERE {SHA} = '{usage.Sha}' 

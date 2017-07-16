@@ -24,7 +24,9 @@ namespace HarmonizeGit
         public bool Lock = true;
         public bool ContinuePushingOnCredentialFailure = true;
         public int TimeoutMS = 45000;
+        public int WipeLogsOlderThanDays = 3;
         public ParentPushPreference ParentUnpushedPreference = ParentPushPreference.Block;
+        public bool LogToFile = false;
 
         Settings()
         {
@@ -81,6 +83,8 @@ namespace HarmonizeGit
                 TrackChildRepos = GetBool(xml.Root, nameof(TrackChildRepos), true),
                 ContinuePushingOnCredentialFailure = GetBool(xml.Root, nameof(ContinuePushingOnCredentialFailure), false),
                 TimeoutMS = GetInt(xml.Root, nameof(TimeoutMS), 45000),
+                LogToFile = GetBool(xml.Root, nameof(LogToFile), false),
+                WipeLogsOlderThanDays = GetInt(xml.Root, nameof(WipeLogsOlderThanDays), 3),
             };
 
             var parentPushAttr = xml.Root.Element(nameof(ParentUnpushedPreference))?.Attribute(VALUE);

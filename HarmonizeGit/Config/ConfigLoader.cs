@@ -47,7 +47,7 @@ namespace HarmonizeGit
                 CommitSha = commit.Sha
             };
             if (repoConfigs.TryGetValue(key, out HarmonizeConfig ret)) return ret;
-            this.harmonize.WriteLine($"Loading config from repo at path {repo.Info.WorkingDirectory} at commit {commit.Sha} ");
+            this.harmonize.Logger.WriteLine($"Loading config from repo at path {repo.Info.WorkingDirectory} at commit {commit.Sha} ");
             ret = HarmonizeConfig.Factory(
                 this.harmonize,
                 repo.Info.WorkingDirectory,
@@ -60,7 +60,7 @@ namespace HarmonizeGit
         {
             using (LockManager.GetLock(LockType.Harmonize, path))
             {
-                this.harmonize.WriteLine($"Loading config at path {path}");
+                this.harmonize.Logger.WriteLine($"Loading config at path {path}");
                 FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizeConfigPath);
                 if (!file.Exists) return null;
                 var pathing = PathingConfig.Factory(path);
@@ -83,13 +83,13 @@ namespace HarmonizeGit
                 {
                     return Task.Run(() =>
                     {
-                        this.harmonize.WriteLine($"Checking for sha changes {listing.Nickname} at path {listing.Path}.");
+                        this.harmonize.Logger.WriteLine($"Checking for sha changes {listing.Nickname} at path {listing.Path}.");
                         using (var repo = new Repository(listing.Path))
                         {
-                            this.harmonize.WriteLine($"Config sha {listing.Sha} compared to current sha {repo.Head.Tip.Sha}.");
+                            this.harmonize.Logger.WriteLine($"Config sha {listing.Sha} compared to current sha {repo.Head.Tip.Sha}.");
                             if (object.Equals(listing.Sha, repo.Head.Tip.Sha)) return null;
                             listing.SetToCommit(repo.Head.Tip);
-                            this.harmonize.WriteLine($"Changed to sha {repo.Head.Tip.Sha}.");
+                            this.harmonize.Logger.WriteLine($"Changed to sha {repo.Head.Tip.Sha}.");
                             return listing;
                         }
                     });
@@ -100,10 +100,10 @@ namespace HarmonizeGit
             {
                 if (changed.Count > 0)
                 {
-                    this.harmonize.WriteLine("Parent repos have changed: ");
+                    this.harmonize.Logger.WriteLine("Parent repos have changed: ");
                     foreach (var change in changed)
                     {
-                        this.harmonize.WriteLine("  " + change.Nickname);
+                        this.harmonize.Logger.WriteLine("  " + change.Nickname);
                     }
                 }
             }
@@ -114,7 +114,7 @@ namespace HarmonizeGit
             if (object.Equals(config, config?.OriginalConfig)) return false;
 
             path = path + "/" + HarmonizeGitBase.HarmonizeConfigPath;
-            this.harmonize.WriteLine($"Updating config at {path}");
+            this.harmonize.Logger.WriteLine($"Updating config at {path}");
 
             using (LockManager.GetLock(LockType.Harmonize, path))
             {

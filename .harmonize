@@ -2,10 +2,10 @@
    <ParentRepos>
       <RepoListing>
          <Nickname>FishingWithGit</Nickname>
-         <Sha>5d460e5dec59657df3a6547754f212a60b3e7a37</Sha>
+         <Sha>3ef58a9a7e2a4a7ae0d159a12517189d2b62fda2</Sha>
          <Path>../FishingWithGit</Path>
-         <CommitDate>07-13-2017 19:22:32</CommitDate>
-         <Description>Harmonize upgrade</Description>
+         <CommitDate>07-16-2017 18:03:11</CommitDate>
+         <Description>HookIO now attaches to silent commands if they return an error code</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
    </ParentRepos>

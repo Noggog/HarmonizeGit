@@ -25,7 +25,7 @@ namespace HarmonizeGit
             // If moving to the same commit, just exit
             if (args.CurrentSha.Equals(args.TargetSha))
             {
-                this.harmonize.WriteLine("Target commit was the same as the source commit.");
+                this.harmonize.Logger.WriteLine("Target commit was the same as the source commit.");
                 return true;
             }
 

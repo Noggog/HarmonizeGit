@@ -31,7 +31,7 @@ namespace HarmonizeGit
 
             if (args.Amending)
             {
-                this.harmonize.WriteLine("Running amending commit tasks.");
+                this.harmonize.Logger.WriteLine("Running amending commit tasks.");
                 using (var repo = new Repository(this.harmonize.TargetPath))
                 {
                     var resetRet = await PreResetHandler.DoResetTasks(

@@ -28,7 +28,7 @@ namespace HarmonizeGit
                 var startingCommit = repo.Lookup<Commit>(args.StartingSha);
                 if (startingCommit == null)
                 {
-                    this.harmonize.WriteLine($"Starting commit did not exist {args.StartingSha}");
+                    this.harmonize.Logger.WriteLine($"Starting commit did not exist {args.StartingSha}", error: true);
                     return false;
                 }
 

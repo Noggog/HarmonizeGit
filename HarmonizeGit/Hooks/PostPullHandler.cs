@@ -26,7 +26,7 @@ namespace HarmonizeGit
                 var ancestorCommit = repo.Lookup<Commit>(args.AncestorSha);
                 if (ancestorCommit == null)
                 {
-                    this.harmonize.WriteLine($"Ancestor commit did not exist: {args.AncestorSha}");
+                    this.harmonize.Logger.WriteLine($"Ancestor commit did not exist: {args.AncestorSha}", error: true);
                     return false;
                 }
 

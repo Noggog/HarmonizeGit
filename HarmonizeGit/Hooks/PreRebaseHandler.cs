@@ -28,7 +28,7 @@ namespace HarmonizeGit
                 var targetBranch = repo.Branches[args.TargetBranch];
                 if (targetBranch == null)
                 {
-                    harmonize.WriteLine($"Target branch {args.TargetBranch} could not be found.");
+                    harmonize.Logger.WriteLine($"Target branch {args.TargetBranch} could not be found.");
                     return false;
                 }
                 if (!GetStrandedCommits(
@@ -57,18 +57,18 @@ namespace HarmonizeGit
             var ancestor = divergence.CommonAncestor;
             if (ancestor == null)
             {
-                harmonize.WriteLine("No common ancestor found.");
+                harmonize.Logger.WriteLine("No common ancestor found.");
                 strandedCommits = null;
                 return false;
             }
 
-            harmonize.WriteLine($"Getting stranded commits between {targetCommit.Sha} and {ancestor.Sha}");
+            harmonize.Logger.WriteLine($"Getting stranded commits between {targetCommit.Sha} and {ancestor.Sha}");
             strandedCommits = repo.GetPotentiallyStrandedCommits(
                 targetCommit,
                 ancestor);
             foreach (var commit in strandedCommits)
             {
-                harmonize.WriteLine($"   {commit.Sha} -- {commit.MessageShort}");
+                harmonize.Logger.WriteLine($"   {commit.Sha} -- {commit.MessageShort}");
             }
             return true;
         }

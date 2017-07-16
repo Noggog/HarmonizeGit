@@ -25,11 +25,11 @@ namespace HarmonizeGit
             List<Commit> strandedCommits;
             using (var repo = new Repository(this.harmonize.TargetPath))
             {
-                this.harmonize.WriteLine("Getting stranded commits: ");
+                this.harmonize.Logger.WriteLine("Getting stranded commits: ");
                 Commit targetCommit = repo.Lookup<Commit>(args.TargetSha);
                 if (targetCommit == null)
                 {
-                    this.harmonize.WriteLine($"Target reset commit did not exist: {args.TargetSha}");
+                    this.harmonize.Logger.WriteLine($"Target reset commit did not exist: {args.TargetSha}");
                 }
 
                 strandedCommits = repo.GetPotentiallyStrandedCommits(
@@ -37,7 +37,7 @@ namespace HarmonizeGit
                     targetCommit).ToList();
                 foreach (var commit in strandedCommits)
                 {
-                    this.harmonize.WriteLine($"   {commit.Sha} -- {commit.MessageShort}");
+                    this.harmonize.Logger.WriteLine($"   {commit.Sha} -- {commit.MessageShort}");
                 }
 
                 return await DoResetTasks(harmonize, repo, strandedCommits);
@@ -53,18 +53,18 @@ namespace HarmonizeGit
             if (childUsages.ChildRepos.Count > 0)
             {
                 #region Print
-                harmonize.WriteLine("Repositories:");
+                harmonize.Logger.WriteLine("Repositories:", error: true);
                 foreach (var usage in childUsages.ChildRepos.OrderBy((str) => str))
                 {
-                    harmonize.WriteLine($"   {usage}");
+                    harmonize.Logger.WriteLine($"   {usage}");
                 }
 
-                harmonize.WriteLine("Some Stranded Commits:");
+                harmonize.Logger.WriteLine("Some Stranded Commits:", error: true);
                 foreach (var usage in childUsages.UsedCommits)
                 {
-                    harmonize.WriteLine($"   {usage}");
+                    harmonize.Logger.WriteLine($"   {usage}", error: true);
                 }
-                harmonize.WriteLine("Child repositories marked stranded commits as used.  Stopping.");
+                harmonize.Logger.WriteLine("Child repositories marked stranded commits as used.  Stopping.", error: true);
                 #endregion
                 return false;
             }
@@ -79,7 +79,7 @@ namespace HarmonizeGit
             // Unregister lost commits from parents
             if (harmonize.Config != null)
             {
-                harmonize.WriteLine("Removing lost commits from parent databases.");
+                harmonize.Logger.WriteLine("Removing lost commits from parent databases.");
                 var usages = strandedCommits.SelectMany(
                     (commit) =>
                     {
@@ -93,7 +93,7 @@ namespace HarmonizeGit
             }
             else
             {
-                harmonize.WriteLine("No config.  Skipping unregister step.");
+                harmonize.Logger.WriteLine("No config.  Skipping unregister step.");
             }
         }
 

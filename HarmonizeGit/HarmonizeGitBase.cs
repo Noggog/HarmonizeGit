@@ -1,4 +1,5 @@
 ﻿using FishingWithGit;
+using FishingWithGit.Common;
 using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
@@ -17,7 +18,8 @@ namespace HarmonizeGit
     {
         public ConfigLoader ConfigLoader { get; private set; }
         public ChildrenLoader ChildLoader { get; private set; }
-        public const string BranchName = "GitHarmonize";
+        public const string BranchName = "HarmonizeGit";
+        public const string AppName = "HarmonizeGit";
         public const string HarmonizeConfigPath = ".harmonize";
         public const string HarmonizeChildrenPath = ".git/.harmonize-children";
         public const string HarmonizePathingPath = ".git/.harmonize-pathing";
@@ -27,6 +29,7 @@ namespace HarmonizeGit
         public HarmonizeConfig Config;
         public bool Silent;
         public bool FileLock;
+        public Logger Logger;
 
         public HarmonizeGitBase(string targetPath)
         {
@@ -34,6 +37,29 @@ namespace HarmonizeGit
         }
 
         public async Task<bool> Handle(string[] args)
+        {
+            try
+            {
+                return await Handle_Internal(args);
+            }
+            catch (Exception)
+            {
+                if (!this.Logger?.ShouldLogToFile ?? false)
+                {
+                    this.Logger.ActivateAndFlushLogging();
+                }
+                throw;
+            }
+            finally
+            {
+                if (this.Logger?.ShouldLogToFile ?? false)
+                {
+                    this.Logger.LogResults();
+                }
+            }
+        }
+
+        private async Task<bool> Handle_Internal(string[] args)
         {
             if (args.Length < 2) return true;
 
@@ -104,7 +130,7 @@ namespace HarmonizeGit
             {
                 if (handler.NeedsConfig)
                 {
-                    this.WriteLine("No config present.  Exiting.");
+                    this.Logger.WriteLine("No config present.  Exiting.", error: true);
                     return true;
                 }
             }
@@ -119,26 +145,16 @@ namespace HarmonizeGit
 
         public void Init()
         {
+            this.Logger = new Logger(HarmonizeGitBase.AppName)
+            {
+                ConsoleSilent = this.Silent,
+                ShouldLogToFile = Settings.Instance.LogToFile,
+            };
+            this.Logger.ActivateAndFlushLogging();
             this.ChildLoader = new ChildrenLoader(this);
             this.ConfigLoader = new ConfigLoader();
             this.ConfigLoader.Init(this);
             this.Config = ConfigLoader.GetConfig(this.TargetPath);
-        }
-
-        public void WriteLine(string line)
-        {
-            if (!this.Silent)
-            {
-                System.Console.WriteLine(line);
-            }
-        }
-
-        public void WriteLine(object line)
-        {
-            if (!this.Silent)
-            {
-                System.Console.WriteLine(line);
-            }
         }
 
         public async Task<bool> CancelIfParentsHaveChanges()
@@ -146,10 +162,10 @@ namespace HarmonizeGit
             var uncomittedChangeRepos = await this.GetReposWithUncommittedChanges();
             if (uncomittedChangeRepos.Count > 0)
             {
-                this.WriteLine("Cancelling because repos had uncommitted changes:");
+                this.Logger.WriteLine("Cancelling because repos had uncommitted changes:", error: true);
                 foreach (var repo in uncomittedChangeRepos)
                 {
-                    this.WriteLine($"   -{repo.Item1.Nickname}: {repo.Item2}");
+                    this.Logger.WriteLine($"   -{repo.Item1.Nickname}: {repo.Item2}", error: true);
                 }
                 return true;
             }
@@ -164,12 +180,12 @@ namespace HarmonizeGit
                 var dirt = await IsDirty(repoListing.Path);
                 if (dirt.Succeeded)
                 {
-                    this.WriteLine($"{repoListing.Nickname} was dirty: {dirt.Reason}");
+                    this.Logger.WriteLine($"{repoListing.Nickname} was dirty: {dirt.Reason}");
                     ret.Add(new Tuple<RepoListing, string>(repoListing, dirt.Reason));
                 }
                 else
                 {
-                    this.WriteLine($"{repoListing.Nickname} was not dirty.");
+                    this.Logger.WriteLine($"{repoListing.Nickname} was not dirty.");
                 }
             }
             return ret;
@@ -242,7 +258,7 @@ namespace HarmonizeGit
 
         public async Task SyncConfigToParentShas()
         {
-            this.WriteLine("Syncing config to parent repo shas.");
+            this.Logger.WriteLine("Syncing config to parent repo shas.");
             await this.ConfigLoader.SyncAndWriteConfig(this.Config, this.TargetPath);
         }
 
@@ -267,7 +283,7 @@ namespace HarmonizeGit
                 }
                 catch (Exception ex)
                 {
-                    this.WriteLine($"Error syncing parent repo {listing.Nickname}: {ex}");
+                    this.Logger.WriteLine($"Error syncing parent repo {listing.Nickname}: {ex}", error: true);
                     passed = false;
                 }
             }
@@ -276,7 +292,7 @@ namespace HarmonizeGit
 
         private bool SyncParentRepo(RepoListing listing)
         {
-            this.WriteLine($"Processing {listing.Nickname} at path {listing.Path}. Trying to check out an existing branch at {listing.Sha}.");
+            this.Logger.WriteLine($"Processing {listing.Nickname} at path {listing.Path}. Trying to check out an existing branch at {listing.Sha}.");
             if (listing.Sha == null)
             {
                 throw new ArgumentException("Listing did not have a sha.");
@@ -287,13 +303,13 @@ namespace HarmonizeGit
                 repo.Discard(HarmonizeGitBase.HarmonizeConfigPath);
                 if (repo.RetrieveStatus().IsDirty)
                 {
-                    this.WriteLine($"Checking out existing branch error {listing.Nickname}: was still dirty after cleaning config.");
+                    this.Logger.WriteLine($"Checking out existing branch error {listing.Nickname}: was still dirty after cleaning config.", error: true);
                     return false;
                 }
 
                 if (repo.Head.Tip.Sha.Equals(listing.Sha))
                 {
-                    this.WriteLine("Repository already at desired commit.");
+                    this.Logger.WriteLine("Repository already at desired commit.");
                     return true;
                 }
 
@@ -318,7 +334,7 @@ namespace HarmonizeGit
 
                 if (existingBranch != null)
                 {
-                    this.WriteLine($"Checking out existing branch {listing.Nickname}:{existingBranch.FriendlyName}.");
+                    this.Logger.WriteLine($"Checking out existing branch {listing.Nickname}:{existingBranch.FriendlyName}.");
                     var branch = repo.Branches[existingBranch.Name()];
                     if (branch == null)
                     {
@@ -327,26 +343,26 @@ namespace HarmonizeGit
                     LibGit2Sharp.Commands.Checkout(repo, branch);
                     return true;
                 }
-                this.WriteLine("No branch found.  Allocating a Harmonize branch.");
+                this.Logger.WriteLine("No branch found.  Allocating a Harmonize branch.");
                 for (int i = 0; i < 100; i++)
                 {
                     var branchName = BranchName + (i == 0 ? "" : i.ToString());
                     var harmonizeBranch = repo.Branches[branchName];
                     if (harmonizeBranch == null)
                     { // Create new branch
-                        this.WriteLine($"Creating {listing.Nickname}:{branchName}.");
+                        this.Logger.WriteLine($"Creating {listing.Nickname}:{branchName}.");
                         var branch = repo.CreateBranch(branchName, listing.Sha);
                         Commands.Checkout(repo, branch);
                         return true;
                     }
                     else if (repo.IsLoneTip(harmonizeBranch))
                     {
-                        this.WriteLine(harmonizeBranch.FriendlyName + " was unsafe to move.");
+                        this.Logger.WriteLine(harmonizeBranch.FriendlyName + " was unsafe to move.");
                         continue;
                     }
                     else
                     {
-                        this.WriteLine($"Moving {listing.Nickname}:{harmonizeBranch.FriendlyName} to target commit.");
+                        this.Logger.WriteLine($"Moving {listing.Nickname}:{harmonizeBranch.FriendlyName} to target commit.");
                         Commands.Checkout(repo, harmonizeBranch);
                         repo.Reset(ResetMode.Hard, listing.Sha);
                         return true;
@@ -387,13 +403,13 @@ namespace HarmonizeGit
         public void CheckForCircularConfigs()
         {
             if (!Settings.Instance.CheckForCircularConfigs) return;
-            this.WriteLine("Checking for circular configs.");
+            this.Logger.WriteLine("Checking for circular configs.");
             var ret = CheckCircular(new HashSet<string>(), this.TargetPath);
             if (ret != null)
             {
                 throw new ArgumentException($"Found circular configurations:" + Environment.NewLine + ret);
             }
-            this.WriteLine("No circular configs detected.");
+            this.Logger.WriteLine("No circular configs detected.");
         }
 
         private string CheckCircular(HashSet<string> paths, string targetPath)
