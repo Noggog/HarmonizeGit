@@ -33,8 +33,32 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_54B02AC0D9974189ABB7C7132479DDEB"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_61D88A5E43D139A2F335EED1736EAE75"
         "OwnerKey" = "8:_C7DC964CF73546A3AFA3CC3AD661DC0F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_65488E74ADCA40EEA3CDC833233B3A20"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_697BBAA05E4B4920856C1EB5630794E2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6EECDF3CCCF544718628D53F28EE0CA3"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -52,12 +76,6 @@
         "Entry"
         {
         "MsmKey" = "8:_CA7B36C20C02126910B8D7602ED8B677"
-        "OwnerKey" = "8:_C7DC964CF73546A3AFA3CC3AD661DC0F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_D118E97CA059A4FD80AA32E766BB6C27"
         "OwnerKey" = "8:_C7DC964CF73546A3AFA3CC3AD661DC0F"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -81,6 +99,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_DA3C3C79487E4A9BB059153EFF177E3F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_E1B1A5FA3A715B1B3047399501805C65"
         "OwnerKey" = "8:_C7DC964CF73546A3AFA3CC3AD661DC0F"
         "MsmSig" = "8:_UNDEFINED"
@@ -99,6 +123,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_E43A537311E14DE3A31D66380BC5E442"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F9EA0F2729029D8027EB77A8DE3DFCC3"
+        "OwnerKey" = "8:_C7DC964CF73546A3AFA3CC3AD661DC0F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_C7DC964CF73546A3AFA3CC3AD661DC0F"
         "MsmSig" = "8:_UNDEFINED"
@@ -106,7 +142,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_D118E97CA059A4FD80AA32E766BB6C27"
+        "OwnerKey" = "8:_F9EA0F2729029D8027EB77A8DE3DFCC3"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -328,6 +364,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_54B02AC0D9974189ABB7C7132479DDEB"
+            {
+            "SourcePath" = "8:..\\HarmonizeGit\\bin\\Release\\lib\\win32\\x64\\git2-15e1193.dll"
+            "TargetName" = "8:git2-15e1193.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_12E07A031FE740369071D8B350082E85"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_61D88A5E43D139A2F335EED1736EAE75"
             {
             "AssemblyRegister" = "3:1"
@@ -357,6 +413,66 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_65488E74ADCA40EEA3CDC833233B3A20"
+            {
+            "SourcePath" = "8:..\\HarmonizeGit\\bin\\Release\\lib\\win32\\x86\\git2-15e1193.pdb"
+            "TargetName" = "8:git2-15e1193.pdb"
+            "Tag" = "8:"
+            "Folder" = "8:_CA9CD4DCAF014417B4416E7E3837BFA3"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_697BBAA05E4B4920856C1EB5630794E2"
+            {
+            "SourcePath" = "8:..\\HarmonizeGit\\bin\\Release\\x64\\SQLite.Interop.dll"
+            "TargetName" = "8:SQLite.Interop.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_D88CD05735564A679B0E77821FF615FF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6EECDF3CCCF544718628D53F28EE0CA3"
+            {
+            "SourcePath" = "8:..\\HarmonizeGit\\bin\\Release\\lib\\win32\\x64\\git2-15e1193.pdb"
+            "TargetName" = "8:git2-15e1193.pdb"
+            "Tag" = "8:"
+            "Folder" = "8:_12E07A031FE740369071D8B350082E85"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_7E7000D6902ED0A76F7DC5693C11C435"
@@ -421,37 +537,6 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_D118E97CA059A4FD80AA32E766BB6C27"
-            {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:FishingWithGit.Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
-                "ScatterAssemblies"
-                {
-                    "_D118E97CA059A4FD80AA32E766BB6C27"
-                    {
-                    "Name" = "8:FishingWithGit.Common.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:FishingWithGit.Common.dll"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_8F3752CF7355446E881EE1A9E1984F5B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_D83982357301472D8CF249FDBA2340D8"
             {
             "AssemblyRegister" = "3:1"
@@ -483,6 +568,26 @@
             "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DA3C3C79487E4A9BB059153EFF177E3F"
+            {
+            "SourcePath" = "8:..\\HarmonizeGit\\bin\\Release\\lib\\win32\\x86\\git2-15e1193.dll"
+            "TargetName" = "8:git2-15e1193.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_CA9CD4DCAF014417B4416E7E3837BFA3"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_E1B1A5FA3A715B1B3047399501805C65"
             {
             "AssemblyRegister" = "3:1"
@@ -497,6 +602,57 @@
                     }
                 }
             "SourcePath" = "8:EntityFramework.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_8F3752CF7355446E881EE1A9E1984F5B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_E43A537311E14DE3A31D66380BC5E442"
+            {
+            "SourcePath" = "8:..\\HarmonizeGit\\bin\\Release\\x86\\SQLite.Interop.dll"
+            "TargetName" = "8:SQLite.Interop.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_B0B9538DC8C0423290096389372223F9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_F9EA0F2729029D8027EB77A8DE3DFCC3"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:FishingWithGit.Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
+                "ScatterAssemblies"
+                {
+                    "_F9EA0F2729029D8027EB77A8DE3DFCC3"
+                    {
+                    "Name" = "8:FishingWithGit.Common.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:FishingWithGit.Common.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_8F3752CF7355446E881EE1A9E1984F5B"
@@ -552,6 +708,72 @@
             "Property" = "8:TARGETDIR"
                 "Folders"
                 {
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_B0B9538DC8C0423290096389372223F9"
+                    {
+                    "Name" = "8:x86"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_0E403F69A5ED4B6AA88181953D7346BF"
+                        "Folders"
+                        {
+                        }
+                    }
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_D88CD05735564A679B0E77821FF615FF"
+                    {
+                    "Name" = "8:x64"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_057965EF171643409802367E06E0C445"
+                        "Folders"
+                        {
+                        }
+                    }
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_E47DB3B3772549EB824234B21AA42F1A"
+                    {
+                    "Name" = "8:lib"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_242800C3BF4947C1922D71187A8C5BBA"
+                        "Folders"
+                        {
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_E9BF21AEFA2E435E8BCAFF38EC6EEF2E"
+                            {
+                            "Name" = "8:win32"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_AA9FD3D188CF44E1B18E28F4FD6A513F"
+                                "Folders"
+                                {
+                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_12E07A031FE740369071D8B350082E85"
+                                    {
+                                    "Name" = "8:x64"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_20A67C3AF94B45B781C0875A456E6CDB"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_CA9CD4DCAF014417B4416E7E3837BFA3"
+                                    {
+                                    "Name" = "8:x86"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_3CFD099B12FB447CB3968D298EB44194"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
