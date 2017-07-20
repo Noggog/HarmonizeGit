@@ -22,13 +22,13 @@
         "Entry"
         {
         "MsmKey" = "8:_3CA8611278DB2A768F5B0842F6BA436B"
-        "OwnerKey" = "8:_DC379CD0541E02CCE661DD02CDE639B8"
+        "OwnerKey" = "8:_9F55B7702F18A2A2CAA31F7CB9BAC6DD"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_3CA8611278DB2A768F5B0842F6BA436B"
-        "OwnerKey" = "8:_9F55B7702F18A2A2CAA31F7CB9BAC6DD"
+        "OwnerKey" = "8:_DC379CD0541E02CCE661DD02CDE639B8"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -118,13 +118,13 @@
         "Entry"
         {
         "MsmKey" = "8:_F96C0124F16B623E9F497CD5F3669424"
-        "OwnerKey" = "8:_FD5556ACE2461FE4831BEFF4F88B44E7"
+        "OwnerKey" = "8:_DC379CD0541E02CCE661DD02CDE639B8"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_F96C0124F16B623E9F497CD5F3669424"
-        "OwnerKey" = "8:_DC379CD0541E02CCE661DD02CDE639B8"
+        "OwnerKey" = "8:_FD5556ACE2461FE4831BEFF4F88B44E7"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -142,37 +142,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_3E1EC72C8BCC10D0C8649C483C4F6709"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_FD5556ACE2461FE4831BEFF4F88B44E7"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_DC379CD0541E02CCE661DD02CDE639B8"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_F96C0124F16B623E9F497CD5F3669424"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_49C0A403EEE29959992009D29D7AFE9C"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_9F55B7702F18A2A2CAA31F7CB9BAC6DD"
+        "OwnerKey" = "8:_5325925CBACAC43E7BAE733744723D27"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -184,7 +154,37 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_5325925CBACAC43E7BAE733744723D27"
+        "OwnerKey" = "8:_9F55B7702F18A2A2CAA31F7CB9BAC6DD"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_49C0A403EEE29959992009D29D7AFE9C"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_F96C0124F16B623E9F497CD5F3669424"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_DC379CD0541E02CCE661DD02CDE639B8"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_FD5556ACE2461FE4831BEFF4F88B44E7"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_3E1EC72C8BCC10D0C8649C483C4F6709"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -289,11 +289,6 @@
             "AssemblyAsmDisplayName" = "8:EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_3CA8611278DB2A768F5B0842F6BA436B"
-                    {
-                    "Name" = "8:EntityFramework.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:EntityFramework.dll"
             "TargetName" = "8:"
@@ -320,11 +315,6 @@
             "AssemblyAsmDisplayName" = "8:FishingWithGit.Common, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_3E1EC72C8BCC10D0C8649C483C4F6709"
-                    {
-                    "Name" = "8:FishingWithGit.Common.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:FishingWithGit.Common.dll"
             "TargetName" = "8:"
@@ -351,11 +341,6 @@
             "AssemblyAsmDisplayName" = "8:LibGit2Sharp, Version=0.24.0.0, Culture=neutral, PublicKeyToken=7cbde695407f0333, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_49C0A403EEE29959992009D29D7AFE9C"
-                    {
-                    "Name" = "8:LibGit2Sharp.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:LibGit2Sharp.dll"
             "TargetName" = "8:"
@@ -402,11 +387,6 @@
             "AssemblyAsmDisplayName" = "8:System.Net.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
                 "ScatterAssemblies"
                 {
-                    "_5325925CBACAC43E7BAE733744723D27"
-                    {
-                    "Name" = "8:System.Net.Http.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:System.Net.Http.dll"
             "TargetName" = "8:"
@@ -513,11 +493,6 @@
             "AssemblyAsmDisplayName" = "8:EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_9F55B7702F18A2A2CAA31F7CB9BAC6DD"
-                    {
-                    "Name" = "8:EntityFramework.SqlServer.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:EntityFramework.SqlServer.dll"
             "TargetName" = "8:"
@@ -564,11 +539,6 @@
             "AssemblyAsmDisplayName" = "8:System.Data.SQLite.EF6, Version=1.0.105.2, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_DC379CD0541E02CCE661DD02CDE639B8"
-                    {
-                    "Name" = "8:System.Data.SQLite.EF6.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:System.Data.SQLite.EF6.dll"
             "TargetName" = "8:"
@@ -615,11 +585,6 @@
             "AssemblyAsmDisplayName" = "8:System.Data.SQLite, Version=1.0.105.2, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_F96C0124F16B623E9F497CD5F3669424"
-                    {
-                    "Name" = "8:System.Data.SQLite.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:System.Data.SQLite.dll"
             "TargetName" = "8:"
@@ -646,11 +611,6 @@
             "AssemblyAsmDisplayName" = "8:System.Data.SQLite.Linq, Version=1.0.105.2, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_FD5556ACE2461FE4831BEFF4F88B44E7"
-                    {
-                    "Name" = "8:System.Data.SQLite.Linq.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:System.Data.SQLite.Linq.dll"
             "TargetName" = "8:"
@@ -809,7 +769,7 @@
         "ARPCONTACT" = "8:Justin Swanson"
         "Keywords" = "8:"
         "ARPCOMMENTS" = "8:A tool for managing multiple git repositories. Geared towards users who want to code a library in parallel with its users"
-        "ARPURLINFOABOUT" = "8:"
+        "ARPURLINFOABOUT" = "8:https://github.com/Noggog/"
         "ARPPRODUCTICON" = "8:_C7DC964CF73546A3AFA3CC3AD661DC0F"
         "ARPIconIndex" = "3:32512"
         "SearchPath" = "8:"

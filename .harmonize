@@ -2,10 +2,10 @@
    <ParentRepos>
       <RepoListing>
          <Nickname>FishingWithGit</Nickname>
-         <Sha>b3fc5b9993eab11a0425333266a2df60567cb947</Sha>
+         <Sha>d28c4627862df1b30cbd297490d798e385e929af</Sha>
          <Path>../FishingWithGit</Path>
-         <CommitDate>07-16-2017 18:58:42</CommitDate>
-         <Description>Bugfix for Wipe older logs setting.  Also supports off setting if &lt; 0</Description>
+         <CommitDate>07-19-2017 19:15:17</CommitDate>
+         <Description>IsFishing check, and PATH git querying</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
    </ParentRepos>
