@@ -2,10 +2,10 @@
    <ParentRepos>
       <RepoListing>
          <Nickname>FishingWithGit</Nickname>
-         <Sha>d28c4627862df1b30cbd297490d798e385e929af</Sha>
+         <Sha>399af2ddba864117b3f95b6ba54f0583e9c1c9bb</Sha>
          <Path>../FishingWithGit</Path>
-         <CommitDate>07-19-2017 19:15:17</CommitDate>
-         <Description>IsFishing check, and PATH git querying</Description>
+         <CommitDate>07-23-2017 18:53:34</CommitDate>
+         <Description>Added Mass Hooks to install.  Added Constant for it</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
    </ParentRepos>
