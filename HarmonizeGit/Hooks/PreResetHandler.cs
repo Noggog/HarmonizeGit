@@ -56,7 +56,7 @@ namespace HarmonizeGit
                 harmonize.Logger.WriteLine("Repositories:", error: true);
                 foreach (var usage in childUsages.ChildRepos.OrderBy((str) => str))
                 {
-                    harmonize.Logger.WriteLine($"   {usage}");
+                    harmonize.Logger.WriteLine($"   {usage}", error: true);
                 }
 
                 harmonize.Logger.WriteLine("Some Stranded Commits:", error: true);
