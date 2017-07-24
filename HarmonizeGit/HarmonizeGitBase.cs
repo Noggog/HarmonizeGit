@@ -303,17 +303,17 @@ namespace HarmonizeGit
 
             using (var repo = new Repository(listing.Path))
             {
+                if (repo.Head.Tip.Sha.Equals(listing.Sha))
+                {
+                    this.Logger.WriteLine("Repository already at desired commit.");
+                    return true;
+                }
+
                 repo.Discard(HarmonizeGitBase.HarmonizeConfigPath);
                 if (repo.RetrieveStatus().IsDirty)
                 {
                     this.Logger.WriteLine($"Checking out existing branch error {listing.Nickname}: was still dirty after cleaning config.", error: true);
                     return false;
-                }
-
-                if (repo.Head.Tip.Sha.Equals(listing.Sha))
-                {
-                    this.Logger.WriteLine("Repository already at desired commit.");
-                    return true;
                 }
 
                 var localBranches = new HashSet<string>(
