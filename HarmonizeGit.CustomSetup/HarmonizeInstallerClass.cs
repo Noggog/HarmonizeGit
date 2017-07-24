@@ -82,7 +82,11 @@ namespace HarmonizeGit.CustomSetup
         public bool CreateLink()
         {
             DestroyLink();
-            if (!GetMassHookDir(out var massHookDir))  return false;            
+            if (!GetMassHookDir(out var massHookDir)) return false;
+            if (!massHookDir.Parent.Exists)
+            {
+                massHookDir.Parent.Create();
+            }
             if (!CreateSymbolicLink(massHookDir.FullName.TrimEnd('\\'), TargetDir.TrimEnd('\\'), SymbolicLink.Directory))
             {
                 throw new ArgumentException($"Cannot make symbolic link from {TargetDir.TrimEnd('\\')} to {massHookDir.FullName.TrimEnd('\\')}.   {GetLastError()}");
