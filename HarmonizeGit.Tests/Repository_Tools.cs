@@ -57,9 +57,14 @@ namespace HarmonizeGit.Tests
             this.Harmonize.Init();
             this.ParentHarmonize.Init();
             this.SuperParentHarmonize.Init();
-            this.ChildToParentListing = this.Harmonize.Config.ParentRepos.Where((l) => l.Path.Equals(ParentRepo.Dir.FullName)).First();
-            this.ChildToSuperParentListing = this.Harmonize.Config.ParentRepos.Where((l) => l.Path.Equals(SuperParentRepo.Dir.FullName)).First();
-            this.ParentToSuperParentListing = this.ParentHarmonize.Config.ParentRepos.Where((l) => l.Path.Equals(SuperParentRepo.Dir.FullName)).First();
+            this.ChildToParentListing = this.Harmonize.Config.ParentRepos.Where((l) =>
+            {
+                var f = new DirectoryInfo(Path.Combine(this.Repo.Dir.FullName, l.Path));
+                var ret = f.FullName.TrimEnd('\\').Equals(ParentRepo.Dir.FullName.TrimEnd('\\'));
+                return ret;
+            }).First();
+            this.ChildToSuperParentListing = this.Harmonize.Config.ParentRepos.Where((l) => new DirectoryInfo(Path.Combine(this.Repo.Dir.FullName, l.Path)).FullName.TrimEnd('\\').Equals(SuperParentRepo.Dir.FullName.TrimEnd('\\'))).First();
+            this.ParentToSuperParentListing = this.ParentHarmonize.Config.ParentRepos.Where((l) => new DirectoryInfo(Path.Combine(this.Repo.Dir.FullName, l.Path)).FullName.TrimEnd('\\').Equals(SuperParentRepo.Dir.FullName.TrimEnd('\\'))).First();
             await Task.WhenAll(
                 this.Harmonize.ChildLoader.InitializeIntoParents(),
                 this.ParentHarmonize.ChildLoader.InitializeIntoParents());

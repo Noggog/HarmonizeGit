@@ -19,18 +19,18 @@ namespace HarmonizeGit.Tester
                 {
                     Stopwatch sw = new Stopwatch();
                     sw.Start();
-                    var item = new HarmonizeInstallerClass()
-                    {
-                        TargetDir = @"C:\Program Files (x86)\HarmonizeGit\"
-                    };
-                    var link = item.CreateLink();
+                    //var item = new HarmonizeInstallerClass()
+                    //{
+                    //    TargetDir = @"C:\Program Files (x86)\HarmonizeGit\"
+                    //};
+                    //var link = item.CreateLink();
                     //item.DestroyLink();
-                    //HarmonizeGitBase harmonize = new HarmonizeGitBase(Environment.CurrentDirectory);
-                    //var ret = await harmonize.Handle(args);
+                    HarmonizeGitBase harmonize = new HarmonizeGitBase(Environment.CurrentDirectory);
+                    var ret = await harmonize.Handle(args);
                     //Rerouter reroute = new Rerouter();
                     //var status = reroute.Reroute(args);
                     sw.Stop();
-                    System.Console.WriteLine($"DONE  {link} Took {sw.ElapsedMilliseconds}ms");
+                    System.Console.WriteLine($"DONE Took {sw.ElapsedMilliseconds}ms");
                 }
                 catch (Exception ex)
                 {

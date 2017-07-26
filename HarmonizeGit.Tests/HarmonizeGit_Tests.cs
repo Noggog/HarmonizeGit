@@ -144,5 +144,37 @@ namespace HarmonizeGit.Tests
             }
         }
         #endregion
+
+        #region Insert Usages
+        [Fact]
+        public async Task Typical_Seed()
+        {
+            using (var checkout = Repository_Tools.GetStandardConfigCheckout())
+            {
+                await checkout.Init();
+
+                await checkout.Harmonize.ChildLoader.InitializeIntoParents();
+                FileInfo dbFile = new FileInfo(Path.Combine(checkout.ParentRepo.Dir.FullName, HarmonizeGitBase.HarmonizeChildrenDBPath));
+                Assert.True(dbFile.Exists);
+                dbFile = new FileInfo(Path.Combine(checkout.SuperParentRepo.Dir.FullName, HarmonizeGitBase.HarmonizeChildrenDBPath));
+                Assert.True(dbFile.Exists);
+            }
+        }
+
+        [Fact]
+        public async Task Relative_Seed()
+        {
+            using (var checkout = Repository_Tools.GetStandardConfigCheckout())
+            {
+                await checkout.Init();
+
+                await checkout.Harmonize.ChildLoader.InitializeIntoParents();
+                FileInfo dbFile = new FileInfo(Path.Combine(checkout.ParentRepo.Dir.FullName, HarmonizeGitBase.HarmonizeChildrenDBPath));
+                Assert.True(dbFile.Exists);
+                dbFile = new FileInfo(Path.Combine(checkout.SuperParentRepo.Dir.FullName, HarmonizeGitBase.HarmonizeChildrenDBPath));
+                Assert.True(dbFile.Exists);
+            }
+        }
+        #endregion
     }
 }

@@ -22,6 +22,7 @@ namespace HarmonizeGit
         public const string AppName = "HarmonizeGit";
         public const string HarmonizeConfigPath = ".harmonize";
         public const string HarmonizeChildrenPath = ".git/.harmonize-children";
+        public const string HarmonizeChildrenDBPath = ".git/.harmonize-children.db";
         public const string HarmonizePathingPath = ".git/.harmonize-pathing";
         public const string HarmonizeEXEName = "HarmonizeGit.exe";
         public const string HarmonizeEXEPath = "HarmonizeGit/HarmonizeGit.exe";
