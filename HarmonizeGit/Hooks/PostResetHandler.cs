@@ -27,8 +27,10 @@ namespace HarmonizeGit
             var startingCommit = repo.Lookup<Commit>(args.StartingSha);
             if (startingCommit == null)
             {
-                this.harmonize.Logger.WriteLine($"Starting commit did not exist {args.StartingSha}", error: true);
-                return false;
+                return harmonize.Logger.LogError(
+                    $"Starting commit did not exist {args.StartingSha}",
+                    "Error",
+                    Settings.Instance.ShowMessageBoxes);
             }
 
             await repo.InsertStrandedCommitsIntoParent(

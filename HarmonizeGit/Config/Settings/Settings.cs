@@ -27,6 +27,7 @@ namespace HarmonizeGit
         public int WipeLogsOlderThanDays = 3;
         public ParentPushPreference ParentUnpushedPreference = ParentPushPreference.Block;
         public bool LogToFile = false;
+        public bool ShowMessageBoxes = true;
 
         Settings()
         {
@@ -84,6 +85,7 @@ namespace HarmonizeGit
                 ContinuePushingOnCredentialFailure = GetBool(xml.Root, nameof(ContinuePushingOnCredentialFailure), false),
                 TimeoutMS = GetInt(xml.Root, nameof(TimeoutMS), 45000),
                 LogToFile = GetBool(xml.Root, nameof(LogToFile), false),
+                ShowMessageBoxes = GetBool(xml.Root, nameof(ShowMessageBoxes), true),
                 WipeLogsOlderThanDays = GetInt(xml.Root, nameof(WipeLogsOlderThanDays), 3),
             };
 

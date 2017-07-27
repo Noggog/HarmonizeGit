@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace HarmonizeGit
 {
@@ -51,18 +52,28 @@ namespace HarmonizeGit
             if (childUsages.ChildRepos.Count > 0)
             {
                 #region Print
-                harmonize.Logger.WriteLine("Repositories:", error: true);
+                List<string> errs = new List<string>();
+                errs.Add("Repositories:");
                 foreach (var usage in childUsages.ChildRepos.OrderBy((str) => str))
                 {
-                    harmonize.Logger.WriteLine($"   {usage}", error: true);
+                    errs.Add($"   {usage}");
                 }
 
-                harmonize.Logger.WriteLine("Some Stranded Commits:", error: true);
+                errs.Add("Some Stranded Commits:");
                 foreach (var usage in childUsages.UsedCommits)
                 {
-                    harmonize.Logger.WriteLine($"   {usage}", error: true);
+                    errs.Add($"   {usage}");
                 }
-                harmonize.Logger.WriteLine("Child repositories marked stranded commits as used.  Stopping.", error: true);
+                errs.Add("Child repositories marked stranded commits as used.  Stopping.");
+                foreach (var err in errs)
+                {
+                    harmonize.Logger.WriteLine(err, error: true);
+                }
+
+                if (Settings.Instance.ShowMessageBoxes)
+                {
+                    return DialogResult.Yes == MessageBox.Show(string.Join("\n", errs), "Deleting used commits.  Are you sure?", MessageBoxButtons.YesNo);
+                }
                 #endregion
                 return false;
             }

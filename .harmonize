@@ -2,10 +2,10 @@
    <ParentRepos>
       <RepoListing>
          <Nickname>FishingWithGit</Nickname>
-         <Sha>3883b5367cf5036a134b2d549d1980bf96f92b1f</Sha>
+         <Sha>a80e7987cd29af87df87274c041b2414f6cfc472</Sha>
          <Path>../FishingWithGit</Path>
-         <CommitDate>07-26-2017 21:06:47</CommitDate>
-         <Description>Added standardize path logic to Utility class</Description>
+         <CommitDate>07-27-2017 18:51:04</CommitDate>
+         <Description>Logger has log error with message boxes</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
    </ParentRepos>

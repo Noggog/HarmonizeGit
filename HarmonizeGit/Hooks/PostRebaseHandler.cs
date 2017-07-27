@@ -26,15 +26,19 @@ namespace HarmonizeGit
             var originalCommit = repo.Lookup<Commit>(args.OriginalTipSha);
             if (originalCommit == null)
             {
-                harmonize.Logger.WriteLine($"Original commit {args.OriginalTipSha} could not be found.", error: true);
-                return false;
+                return harmonize.Logger.LogError(
+                    $"Original commit {args.OriginalTipSha} could not be found.",
+                    "Error",
+                    Settings.Instance.ShowMessageBoxes);
             }
 
             var landingCommit = repo.Lookup<Commit>(args.LandingSha);
             if (landingCommit == null)
             {
-                harmonize.Logger.WriteLine($"Target commit {args.LandingSha} could not be found.", error: true);
-                return false;
+                return harmonize.Logger.LogError(
+                    $"Target commit {args.LandingSha} could not be found.",
+                    "Error",
+                    Settings.Instance.ShowMessageBoxes);
             }
 
             // Remove old commits from usage
@@ -45,7 +49,10 @@ namespace HarmonizeGit
                 landingCommit,
                 out IEnumerable<Commit> strandedCommits))
             {
-                return false;
+                return this.harmonize.Logger.LogError(
+                    $"Expected to find stranded commits during a rebase.",
+                    "Error",
+                    Settings.Instance.ShowMessageBoxes);
             }
 
             await PreResetHandler.RemoveFromParentDatabase(
@@ -61,7 +68,10 @@ namespace HarmonizeGit
                 landingCommit,
                 out IEnumerable<Commit> newCommits))
             {
-                return false;
+                return this.harmonize.Logger.LogError(
+                    $"Expected to find stranded commits during a rebase.",
+                    "Error",
+                    Settings.Instance.ShowMessageBoxes);
             }
 
             await this.harmonize.ChildLoader.InsertChildEntries(

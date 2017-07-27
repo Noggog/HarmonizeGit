@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Serialization;
 using static System.Net.Mime.MediaTypeNames;
@@ -146,7 +147,7 @@ namespace HarmonizeGit
             }
             else
             {
-                this.CheckForCircularConfigs();
+                if (this.CheckForCircularConfigs()) return false;
                 await ChildLoader.InitializeIntoParents();
             }
 
@@ -173,12 +174,16 @@ namespace HarmonizeGit
             var uncomittedChangeRepos = await this.GetReposWithUncommittedChanges();
             if (uncomittedChangeRepos.Count > 0)
             {
-                this.Logger.WriteLine("Cancelling because repos had uncommitted changes:", error: true);
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine("Cancelling because repos had uncommitted changes:");
                 foreach (var repo in uncomittedChangeRepos)
                 {
-                    this.Logger.WriteLine($"   -{repo.Item1.Nickname}: {repo.Item2}", error: true);
+                    sb.AppendLine($"   -{repo.Item1.Nickname}: {repo.Item2}");
                 }
-                return true;
+                return this.Logger.LogErrorYesNo(
+                    sb.ToString(),
+                    "Parents Have Uncommitted Changes",
+                    Settings.Instance.ShowMessageBoxes);
             }
             return false;
         }
@@ -292,8 +297,11 @@ namespace HarmonizeGit
                 }
                 catch (Exception ex)
                 {
-                    this.Logger.WriteLine($"Error syncing parent repo {listing.Nickname}: {ex}", error: true);
-                    passed = false;
+                    passed = this.Logger.LogError(
+                        $"Error syncing parent repo {listing.Nickname}: {ex}",
+                        "Error Syncing Parents",
+                        Settings.Instance.ShowMessageBoxes)
+                        && passed;
                 }
             }
             return passed;
@@ -405,16 +413,20 @@ namespace HarmonizeGit
             return SyncParentRepos(targetConfig);
         }
 
-        public void CheckForCircularConfigs()
+        public bool CheckForCircularConfigs()
         {
-            if (!Settings.Instance.CheckForCircularConfigs) return;
+            if (!Settings.Instance.CheckForCircularConfigs) return false;
             this.Logger.WriteLine("Checking for circular configs.");
             var ret = CheckCircular(new HashSet<string>(), this.TargetPath);
             if (ret != null)
             {
-                throw new ArgumentException($"Found circular configurations:" + Environment.NewLine + ret);
+                return !this.Logger.LogError(
+                    $"Found circular configurations:" + Environment.NewLine + ret,
+                    "Circular Configs",
+                    Settings.Instance.ShowMessageBoxes);
             }
             this.Logger.WriteLine("No circular configs detected.");
+            return false;
         }
 
         private string CheckCircular(HashSet<string> paths, string targetPath)

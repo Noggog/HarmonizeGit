@@ -109,8 +109,16 @@ namespace HarmonizeGit.Tests
         public const string STANDARD_MERGE_BRANCH = "Merge";
         public const string STANDARD_DETATCHED_BRANCH = "Detached";
 
+        public static Settings GetSettings()
+        {
+            var ret = Settings.Instance;
+            ret.ShowMessageBoxes = false;
+            return ret;
+        }
+
         public static RepoCheckout GetStandardRepo()
         {
+            GetSettings();
             var signature = Utility.GetSignature();
             var dir = Utility.GetTemporaryDirectory();
             Repository.Init(dir.FullName);
@@ -159,6 +167,7 @@ namespace HarmonizeGit.Tests
 
         public static ConfigCheckout GetStandardConfigCheckout()
         {
+            GetSettings();
             var signature = Utility.GetSignature();
 
             var superParentRepoDir = Utility.GetTemporaryDirectory();
@@ -288,6 +297,7 @@ namespace HarmonizeGit.Tests
 
         public static CloneCheckout GetStandardCloneCheckout()
         {
+            GetSettings();
             var clone = new CloneCheckout()
             {
                 Local = GetStandardConfigCheckout()

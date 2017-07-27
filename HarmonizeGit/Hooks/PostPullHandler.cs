@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace HarmonizeGit
 {
@@ -25,8 +26,10 @@ namespace HarmonizeGit
             var ancestorCommit = repo.Lookup<Commit>(args.AncestorSha);
             if (ancestorCommit == null)
             {
-                this.harmonize.Logger.WriteLine($"Ancestor commit did not exist: {args.AncestorSha}", error: true);
-                return false;
+                return this.harmonize.Logger.LogError(
+                    $"Ancestor commit did not exist: {args.AncestorSha}",
+                    "Error",
+                    Settings.Instance.ShowMessageBoxes);
             }
 
             await repo.InsertStrandedCommitsIntoParent(

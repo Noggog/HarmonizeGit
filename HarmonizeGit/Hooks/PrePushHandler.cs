@@ -70,11 +70,18 @@ namespace HarmonizeGit
                             }
                         }
                     }
-                    catch (LibGit2SharpException ex)
-                    when (Settings.Instance.ContinuePushingOnCredentialFailure)
+                    catch (LibGit2SharpException)
+                        when (Settings.Instance.ContinuePushingOnCredentialFailure)
                     {
                         this.harmonize.Logger.WriteLine("Unable to fetch remotes and check push status.  Skipping safety check.");
                         return true;
+                    }
+                    catch (LibGit2SharpException)
+                    {
+                        if (!this.harmonize.Logger.LogErrorYesNo(
+                            "Unable to fetch remotes to see if all parent repos have also been pushed to the server.  Skip and push anyway?",
+                            "Confirm Skip Parent Repo Check",
+                            Settings.Instance.ShowMessageBoxes)) return false;
                     }
 
                     //  Try Again
@@ -86,12 +93,18 @@ namespace HarmonizeGit
 
 
                     // Have some remotes that don't know about our config's reference
-                    this.harmonize.Logger.WriteLine("Blocking because parent repositories need to push their branches first:", error: true);
+                    StringBuilder sb = new StringBuilder();
+                    sb.AppendLine("Blocking because parent repositories need to push their branches first:");
                     foreach (var remoteName in remoteNames)
                     {
-                        this.harmonize.Logger.WriteLine($"   {repoListing.Nickname} -> {config.Item1}", error: true);
+                        sb.AppendLine($"   {repoListing.Nickname} -> {config.Item1}");
                     }
-                    return false;
+                    sb.AppendLine();
+                    sb.AppendLine("Skip and push anyway?");
+                    return this.harmonize.Logger.LogErrorYesNo(
+                        sb.ToString(),
+                        "Confirm Skipping Parent Push",
+                        Settings.Instance.ShowMessageBoxes);
                 }
             }
 
