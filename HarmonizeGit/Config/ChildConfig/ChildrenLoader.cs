@@ -67,19 +67,17 @@ namespace HarmonizeGit
             string childRepoPath)
         {
             var usages = new List<ChildUsage>();
-            using (var childRepo = new Repository(childRepoPath))
+            var childRepo = this.harmonize.RepoLoader.GetRepo(childRepoPath);
+            foreach (var commit in childRepo.Commits)
             {
-                foreach (var commit in childRepo.Commits)
+                var parentUsage = GetUsages(
+                    childRepo,
+                    commit)
+                    .Where((usage) => usage.ParentRepoPath.Equals(parentRepoPath))
+                    .FirstOrDefault();
+                if (parentUsage != null)
                 {
-                    var parentUsage = GetUsages(
-                        childRepo,
-                        commit)
-                        .Where((usage) => usage.ParentRepoPath.Equals(parentRepoPath))
-                        .FirstOrDefault();
-                    if (parentUsage != null)
-                    {
-                        usages.Add(parentUsage);
-                    }
+                    usages.Add(parentUsage);
                 }
             }
             return usages;
@@ -273,10 +271,8 @@ namespace HarmonizeGit
         private IEnumerable<ChildUsage> GetCurrentConfigUsagesFromConfig()
         {
             string currentSha;
-            using (var repo = new Repository(this.harmonize.TargetPath))
-            {
-                currentSha = repo.Head.Tip.Sha;
-            }
+            var repo = this.harmonize.Repo;
+            currentSha = repo.Head.Tip.Sha;
             return GetUsagesFromConfig(
                 this.harmonize.Config,
                 currentSha);

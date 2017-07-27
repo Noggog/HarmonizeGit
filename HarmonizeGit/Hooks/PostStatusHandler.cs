@@ -21,10 +21,8 @@ namespace HarmonizeGit
 
         public override async Task<bool> Handle()
         {
-            using (var repo = new Repository(this.harmonize.TargetPath))
-            {
-                if (repo.Info.CurrentOperation != CurrentOperation.None) return true;
-            }
+            var repo = this.harmonize.Repo;
+            if (repo.Info.CurrentOperation != CurrentOperation.None) return true;
             try
             {
                 await this.harmonize.SyncConfigToParentShas();

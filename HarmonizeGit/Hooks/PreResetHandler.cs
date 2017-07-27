@@ -23,25 +23,23 @@ namespace HarmonizeGit
         public override async Task<bool> Handle()
         {
             List<Commit> strandedCommits;
-            using (var repo = new Repository(this.harmonize.TargetPath))
+            var repo = this.harmonize.Repo;
+            this.harmonize.Logger.WriteLine("Getting stranded commits: ");
+            Commit targetCommit = repo.Lookup<Commit>(args.TargetSha);
+            if (targetCommit == null)
             {
-                this.harmonize.Logger.WriteLine("Getting stranded commits: ");
-                Commit targetCommit = repo.Lookup<Commit>(args.TargetSha);
-                if (targetCommit == null)
-                {
-                    this.harmonize.Logger.WriteLine($"Target reset commit did not exist: {args.TargetSha}");
-                }
-
-                strandedCommits = repo.GetPotentiallyStrandedCommits(
-                    repo.Head.Tip,
-                    targetCommit).ToList();
-                foreach (var commit in strandedCommits)
-                {
-                    this.harmonize.Logger.WriteLine($"   {commit.Sha} -- {commit.MessageShort}");
-                }
-
-                return await DoResetTasks(harmonize, repo, strandedCommits);
+                this.harmonize.Logger.WriteLine($"Target reset commit did not exist: {args.TargetSha}");
             }
+
+            strandedCommits = repo.GetPotentiallyStrandedCommits(
+                repo.Head.Tip,
+                targetCommit).ToList();
+            foreach (var commit in strandedCommits)
+            {
+                this.harmonize.Logger.WriteLine($"   {commit.Sha} -- {commit.MessageShort}");
+            }
+
+            return await DoResetTasks(harmonize, repo, strandedCommits);
         }
 
         public static async Task<bool> BlockIfChildrenAreUsing(

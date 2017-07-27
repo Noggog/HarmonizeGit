@@ -23,20 +23,18 @@ namespace HarmonizeGit
         {
             if (!harmonize.SyncParentRepos()) return false;
 
-            using (var repo = new Repository(this.harmonize.TargetPath))
+            var repo = this.harmonize.Repo;
+            var startingCommit = repo.Lookup<Commit>(args.StartingSha);
+            if (startingCommit == null)
             {
-                var startingCommit = repo.Lookup<Commit>(args.StartingSha);
-                if (startingCommit == null)
-                {
-                    this.harmonize.Logger.WriteLine($"Starting commit did not exist {args.StartingSha}", error: true);
-                    return false;
-                }
-
-                await repo.InsertStrandedCommitsIntoParent(
-                    this.harmonize,
-                    repo.Head.Tip,
-                    startingCommit);
+                this.harmonize.Logger.WriteLine($"Starting commit did not exist {args.StartingSha}", error: true);
+                return false;
             }
+
+            await repo.InsertStrandedCommitsIntoParent(
+                this.harmonize,
+                repo.Head.Tip,
+                startingCommit);
             return true;
         }
     }

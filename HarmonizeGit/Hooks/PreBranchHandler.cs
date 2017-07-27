@@ -23,14 +23,12 @@ namespace HarmonizeGit
         {
             if (!args.Deleting) return true;
 
-            using (var repo = new Repository(this.harmonize.TargetPath))
-            {
-                var strandedCommits = repo.GetPotentiallyStrandedCommits(repo.Head.Tip);
-                return await PreResetHandler.DoResetTasks(
-                    this.harmonize,
-                    repo,
-                    strandedCommits);
-            }
+            var repo = this.harmonize.Repo;
+            var strandedCommits = repo.GetPotentiallyStrandedCommits(repo.Head.Tip);
+            return await PreResetHandler.DoResetTasks(
+                this.harmonize,
+                repo,
+                strandedCommits);
         }
     }
 }

@@ -21,24 +21,22 @@ namespace HarmonizeGit
 
         public override async Task<bool> Handle()
         {
-            using (var repo = new Repository(this.harmonize.TargetPath))
+            var repo = this.harmonize.Repo;
+            var configStatus = repo.RetrieveStatus(HarmonizeGitBase.HarmonizeConfigPath);
+            if (configStatus == FileStatus.Unaltered)
             {
-                var configStatus = repo.RetrieveStatus(HarmonizeGitBase.HarmonizeConfigPath);
-                if (configStatus == FileStatus.Unaltered)
-                {
-                    this.harmonize.Logger.WriteLine("Harmonize config unaltered. Continuing pull.");
-                    return true;
-                }
-                this.harmonize.Logger.WriteLine("Purging modified harmonize config to allow pull.");
-                repo.CheckoutPaths(
-                    repo.Head.Tip.Sha,
-                    new string[] { HarmonizeGitBase.HarmonizeConfigPath },
-                    new CheckoutOptions()
-                    {
-                        CheckoutModifiers = CheckoutModifiers.Force,
-                    });
+                this.harmonize.Logger.WriteLine("Harmonize config unaltered. Continuing pull.");
                 return true;
             }
+            this.harmonize.Logger.WriteLine("Purging modified harmonize config to allow pull.");
+            repo.CheckoutPaths(
+                repo.Head.Tip.Sha,
+                new string[] { HarmonizeGitBase.HarmonizeConfigPath },
+                new CheckoutOptions()
+                {
+                    CheckoutModifiers = CheckoutModifiers.Force,
+                });
+            return true;
         }
     }
 }

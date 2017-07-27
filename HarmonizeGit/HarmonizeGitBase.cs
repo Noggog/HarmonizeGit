@@ -18,6 +18,8 @@ namespace HarmonizeGit
     {
         public ConfigLoader ConfigLoader { get; private set; }
         public ChildrenLoader ChildLoader { get; private set; }
+        private Lazy<RepoLoader> _RepoLoader = new Lazy<RepoLoader>();
+        public RepoLoader RepoLoader => _RepoLoader.Value;
         public const string BranchName = "HarmonizeGit";
         public const string AppName = "HarmonizeGit";
         public const string HarmonizeConfigPath = ".harmonize";
@@ -33,6 +35,7 @@ namespace HarmonizeGit
         public bool Silent;
         public bool FileLock;
         public Logger Logger;
+        public Repository Repo => this.RepoLoader.GetRepo(this.TargetPath);
 
         public HarmonizeGitBase(string targetPath)
         {
@@ -55,6 +58,10 @@ namespace HarmonizeGit
             }
             finally
             {
+                if (this._RepoLoader.IsValueCreated)
+                {
+                    this._RepoLoader.Value.Dispose();
+                }
                 if (this.Logger?.ShouldLogToFile ?? false)
                 {
                     this.Logger.LogResults();
@@ -208,55 +215,53 @@ namespace HarmonizeGit
             ConfigExclusion configExclusion = ConfigExclusion.Full,
             bool regenerateConfig = true)
         {
-            using (var repo = new Repository(path))
+            var repo = this.RepoLoader.GetRepo(path);
+            var repoStatus = repo.RetrieveStatus(new StatusOptions()
             {
-                var repoStatus = repo.RetrieveStatus(new StatusOptions()
-                {
-                    IncludeIgnored = false,
-                    IncludeUnaltered = false,
-                    RecurseIgnoredDirs = false,
-                    ExcludeSubmodules = true
-                });
-                if (!repoStatus.IsDirty)
-                {
-                    return new ErrorResponse();
-                }
+                IncludeIgnored = false,
+                IncludeUnaltered = false,
+                RecurseIgnoredDirs = false,
+                ExcludeSubmodules = true
+            });
+            if (!repoStatus.IsDirty)
+            {
+                return new ErrorResponse();
+            }
 
-                if (regenerateConfig)
+            if (regenerateConfig)
+            {
+                // Regenerate harmonize config, see if that cleans it
+                var status = repo.RetrieveStatus(HarmonizeConfigPath);
+                if (status != FileStatus.Unaltered
+                    && status != FileStatus.Nonexistent)
                 {
-                    // Regenerate harmonize config, see if that cleans it
-                    var status = repo.RetrieveStatus(HarmonizeConfigPath);
-                    if (status != FileStatus.Unaltered
-                        && status != FileStatus.Nonexistent)
+                    var parentConfig = ConfigLoader.GetConfig(path);
+                    if (parentConfig != null)
                     {
-                        var parentConfig = ConfigLoader.GetConfig(path);
-                        if (parentConfig != null)
+                        await this.ConfigLoader.SyncAndWriteConfig(parentConfig, path);
+                        repoStatus = repo.RetrieveStatus();
+                        if (!repoStatus.IsDirty)
                         {
-                            await this.ConfigLoader.SyncAndWriteConfig(parentConfig, path);
-                            repoStatus = repo.RetrieveStatus();
-                            if (!repoStatus.IsDirty)
-                            {
-                                return new ErrorResponse();
-                            }
+                            return new ErrorResponse();
                         }
                     }
                 }
-
-                foreach (var statusEntry in repoStatus)
-                {
-                    if (statusEntry.FilePath.Equals(HarmonizeConfigPath) && configExclusion == ConfigExclusion.Full) continue;
-                    if (statusEntry.State == FileStatus.Unaltered) continue;
-                    if (statusEntry.State.HasFlag(FileStatus.Ignored)) continue;
-
-                    // Wasn't just harmonize config, it's dirty
-                    return new ErrorResponse()
-                    {
-                        Succeeded = true,
-                        Reason = $"{statusEntry.State} - {statusEntry.FilePath}"
-                    };
-                }
-                return new ErrorResponse();
             }
+
+            foreach (var statusEntry in repoStatus)
+            {
+                if (statusEntry.FilePath.Equals(HarmonizeConfigPath) && configExclusion == ConfigExclusion.Full) continue;
+                if (statusEntry.State == FileStatus.Unaltered) continue;
+                if (statusEntry.State.HasFlag(FileStatus.Ignored)) continue;
+
+                // Wasn't just harmonize config, it's dirty
+                return new ErrorResponse()
+                {
+                    Succeeded = true,
+                    Reason = $"{statusEntry.State} - {statusEntry.FilePath}"
+                };
+            }
+            return new ErrorResponse();
         }
         #endregion
 
@@ -302,75 +307,73 @@ namespace HarmonizeGit
                 throw new ArgumentException("Listing did not have a sha.");
             }
 
-            using (var repo = new Repository(listing.Path))
+            var repo = this.RepoLoader.GetRepo(listing.Path);
+            if (repo.Head.Tip.Sha.Equals(listing.Sha))
             {
-                if (repo.Head.Tip.Sha.Equals(listing.Sha))
+                this.Logger.WriteLine("Repository already at desired commit.");
+                return true;
+            }
+
+            repo.Discard(HarmonizeGitBase.HarmonizeConfigPath);
+            if (repo.RetrieveStatus().IsDirty)
+            {
+                this.Logger.WriteLine($"Checking out existing branch error {listing.Nickname}: was still dirty after cleaning config.", error: true);
+                return false;
+            }
+
+            var localBranches = new HashSet<string>(
+                repo.Branches
+                .Where((b) => !b.IsRemote)
+                .Select((b) => b.Name()));
+
+            var potentialBranches = repo.Branches
+                .Where((b) => b.Tip.Sha.Equals(listing.Sha))
+                .Where((b) => !b.Name().Equals("HEAD"))
+                .Where((b) => !b.IsRemote || !localBranches.Contains(b.Name()))
+                .OrderBy((b) => b.FriendlyName.Contains(BranchName) ? 0 : 1);
+
+            var existingBranch = potentialBranches
+                .Where((b) => !b.IsRemote)
+                .FirstOrDefault();
+            if (existingBranch == null)
+            {
+                existingBranch = potentialBranches.FirstOrDefault();
+            }
+
+            if (existingBranch != null)
+            {
+                this.Logger.WriteLine($"Checking out existing branch {listing.Nickname}:{existingBranch.FriendlyName}.");
+                var branch = repo.Branches[existingBranch.Name()];
+                if (branch == null)
                 {
-                    this.Logger.WriteLine("Repository already at desired commit.");
+                    branch = repo.CreateBranch(existingBranch.Name(), existingBranch.Tip);
+                }
+                LibGit2Sharp.Commands.Checkout(repo, branch);
+                return true;
+            }
+            this.Logger.WriteLine("No branch found.  Allocating a Harmonize branch.");
+            for (int i = 0; i < 100; i++)
+            {
+                var branchName = BranchName + (i == 0 ? "" : i.ToString());
+                var harmonizeBranch = repo.Branches[branchName];
+                if (harmonizeBranch == null)
+                { // Create new branch
+                    this.Logger.WriteLine($"Creating {listing.Nickname}:{branchName}.");
+                    var branch = repo.CreateBranch(branchName, listing.Sha);
+                    Commands.Checkout(repo, branch);
                     return true;
                 }
-
-                repo.Discard(HarmonizeGitBase.HarmonizeConfigPath);
-                if (repo.RetrieveStatus().IsDirty)
+                else if (repo.IsLoneTip(harmonizeBranch))
                 {
-                    this.Logger.WriteLine($"Checking out existing branch error {listing.Nickname}: was still dirty after cleaning config.", error: true);
-                    return false;
+                    this.Logger.WriteLine(harmonizeBranch.FriendlyName + " was unsafe to move.");
+                    continue;
                 }
-
-                var localBranches = new HashSet<string>(
-                    repo.Branches
-                    .Where((b) => !b.IsRemote)
-                    .Select((b) => b.Name()));
-
-                var potentialBranches = repo.Branches
-                    .Where((b) => b.Tip.Sha.Equals(listing.Sha))
-                    .Where((b) => !b.Name().Equals("HEAD"))
-                    .Where((b) => !b.IsRemote || !localBranches.Contains(b.Name()))
-                    .OrderBy((b) => b.FriendlyName.Contains(BranchName) ? 0 : 1);
-
-                var existingBranch = potentialBranches
-                    .Where((b) => !b.IsRemote)
-                    .FirstOrDefault();
-                if (existingBranch == null)
+                else
                 {
-                    existingBranch = potentialBranches.FirstOrDefault();
-                }
-
-                if (existingBranch != null)
-                {
-                    this.Logger.WriteLine($"Checking out existing branch {listing.Nickname}:{existingBranch.FriendlyName}.");
-                    var branch = repo.Branches[existingBranch.Name()];
-                    if (branch == null)
-                    {
-                        branch = repo.CreateBranch(existingBranch.Name(), existingBranch.Tip);
-                    }
-                    LibGit2Sharp.Commands.Checkout(repo, branch);
+                    this.Logger.WriteLine($"Moving {listing.Nickname}:{harmonizeBranch.FriendlyName} to target commit.");
+                    Commands.Checkout(repo, harmonizeBranch);
+                    repo.Reset(ResetMode.Hard, listing.Sha);
                     return true;
-                }
-                this.Logger.WriteLine("No branch found.  Allocating a Harmonize branch.");
-                for (int i = 0; i < 100; i++)
-                {
-                    var branchName = BranchName + (i == 0 ? "" : i.ToString());
-                    var harmonizeBranch = repo.Branches[branchName];
-                    if (harmonizeBranch == null)
-                    { // Create new branch
-                        this.Logger.WriteLine($"Creating {listing.Nickname}:{branchName}.");
-                        var branch = repo.CreateBranch(branchName, listing.Sha);
-                        Commands.Checkout(repo, branch);
-                        return true;
-                    }
-                    else if (repo.IsLoneTip(harmonizeBranch))
-                    {
-                        this.Logger.WriteLine(harmonizeBranch.FriendlyName + " was unsafe to move.");
-                        continue;
-                    }
-                    else
-                    {
-                        this.Logger.WriteLine($"Moving {listing.Nickname}:{harmonizeBranch.FriendlyName} to target commit.");
-                        Commands.Checkout(repo, harmonizeBranch);
-                        repo.Reset(ResetMode.Hard, listing.Sha);
-                        return true;
-                    }
                 }
             }
             throw new NotImplementedException("Delete some branches.  You have over 100.");
@@ -379,28 +382,26 @@ namespace HarmonizeGit
         public bool SyncParentReposToSha(string targetCommitSha)
         {
             HarmonizeConfig targetConfig;
-            using (var repo = new Repository(this.TargetPath))
+            var repo = this.Repo;
+            var targetCommit = repo.Lookup<Commit>(targetCommitSha);
+            if (targetCommit == null)
             {
-                var targetCommit = repo.Lookup<Commit>(targetCommitSha);
+                foreach (var origin in repo.Network.Remotes)
+                {
+                    repo.Fetch(origin.Name);
+                }
+                targetCommit = repo.Lookup<Commit>(targetCommitSha);
                 if (targetCommit == null)
                 {
-                    foreach (var origin in repo.Network.Remotes)
-                    {
-                        repo.Fetch(origin.Name);
-                    }
-                    targetCommit = repo.Lookup<Commit>(targetCommitSha);
-                    if (targetCommit == null)
-                    {
-                        throw new ArgumentException("Target commit does not exist. " + targetCommitSha);
-                    }
+                    throw new ArgumentException("Target commit does not exist. " + targetCommitSha);
                 }
-
-                targetConfig = HarmonizeConfig.Factory(
-                    this,
-                    this.TargetPath,
-                    targetCommit);
-                if (targetConfig == null) return true;
             }
+
+            targetConfig = HarmonizeConfig.Factory(
+                this,
+                this.TargetPath,
+                targetCommit);
+            if (targetConfig == null) return true;
             return SyncParentRepos(targetConfig);
         }
 

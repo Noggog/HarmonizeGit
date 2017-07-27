@@ -23,23 +23,21 @@ namespace HarmonizeGit
         public override async Task<bool> Handle()
         {
             List<string> strandedCommitShas;
-            using (var repo = new Repository(this.harmonize.TargetPath))
+            var repo = this.harmonize.Repo;
+            var targetBranch = repo.Branches[args.TargetBranch];
+            if (targetBranch == null)
             {
-                var targetBranch = repo.Branches[args.TargetBranch];
-                if (targetBranch == null)
-                {
-                    harmonize.Logger.WriteLine($"Target branch {args.TargetBranch} could not be found.");
-                    return false;
-                }
-                if (!GetStrandedCommits(
-                    this.harmonize,
-                    repo,
-                    repo.Head.Tip,
-                    targetBranch.Tip,
-                    out IEnumerable<Commit> strandedCommits)) return false;
-
-                strandedCommitShas = strandedCommits.Select((c) => c.Sha).ToList();
+                harmonize.Logger.WriteLine($"Target branch {args.TargetBranch} could not be found.");
+                return false;
             }
+            if (!GetStrandedCommits(
+                this.harmonize,
+                repo,
+                repo.Head.Tip,
+                targetBranch.Tip,
+                out IEnumerable<Commit> strandedCommits)) return false;
+
+            strandedCommitShas = strandedCommits.Select((c) => c.Sha).ToList();
 
             return await PreResetHandler.BlockIfChildrenAreUsing(
                 this.harmonize,

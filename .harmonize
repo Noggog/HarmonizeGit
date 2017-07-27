@@ -2,10 +2,10 @@
    <ParentRepos>
       <RepoListing>
          <Nickname>FishingWithGit</Nickname>
-         <Sha>f4731426919754381fbd4e59449b1113e2432aaf</Sha>
+         <Sha>3883b5367cf5036a134b2d549d1980bf96f92b1f</Sha>
          <Path>../FishingWithGit</Path>
-         <CommitDate>07-26-2017 19:39:48</CommitDate>
-         <Description>Checkout support for raw HEAD checkouts</Description>
+         <CommitDate>07-26-2017 21:06:47</CommitDate>
+         <Description>Added standardize path logic to Utility class</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
    </ParentRepos>

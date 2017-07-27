@@ -32,14 +32,12 @@ namespace HarmonizeGit
             if (args.Amending)
             {
                 this.harmonize.Logger.WriteLine("Running amending commit tasks.");
-                using (var repo = new Repository(this.harmonize.TargetPath))
-                {
-                    var resetRet = await PreResetHandler.DoResetTasks(
-                        this.harmonize,
-                        repo,
-                        new Commit[] { repo.Head.Tip });
-                    if (!resetRet) return false;
-                }
+                var repo = this.harmonize.Repo;
+                var resetRet = await PreResetHandler.DoResetTasks(
+                    this.harmonize,
+                    repo,
+                    new Commit[] { repo.Head.Tip });
+                if (!resetRet) return false;
             }
 
             await DoCommitTasks();
@@ -49,10 +47,7 @@ namespace HarmonizeGit
         private async Task DoCommitTasks()
         {
             await this.harmonize.SyncConfigToParentShas();
-            using (var repo = new Repository(this.harmonize.TargetPath))
-            {
-                Commands.Stage(repo, HarmonizeGitBase.HarmonizeConfigPath);
-            }
+            Commands.Stage(this.harmonize.Repo, HarmonizeGitBase.HarmonizeConfigPath);
         }
     }
 }

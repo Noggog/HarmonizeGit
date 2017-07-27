@@ -25,77 +25,73 @@ namespace HarmonizeGit
 
             var branchesBeingPushed = new HashSet<string>(args.RefSpecs.Select((r) => r.Item1));
             var pushingConfigs = new List<Tuple<string, HarmonizeConfig>>();
-            using (var repo = new Repository(this.harmonize.TargetPath))
+            var repo = this.harmonize.Repo;
+            var branches = repo.Branches
+                .Where((b) => branchesBeingPushed.Contains(b.Name()))
+                .Where((b) => !b.IsRemote)
+                .ToArray();
+            pushingConfigs.AddRange(branches.Select((b) =>
             {
-                var branches = repo.Branches
-                    .Where((b) => branchesBeingPushed.Contains(b.Name()))
-                    .Where((b) => !b.IsRemote)
-                    .ToArray();
-                pushingConfigs.AddRange(branches.Select((b) =>
-                {
-                    return new Tuple<string, HarmonizeConfig>(
-                        b.Name(),
-                        this.harmonize.ConfigLoader.GetConfigFromRepo(repo, b.Tip));
-                })
-                .Where((i) => i.Item2 != null));
-            }
+                return new Tuple<string, HarmonizeConfig>(
+                    b.Name(),
+                    this.harmonize.ConfigLoader.GetConfigFromRepo(repo, b.Tip));
+            })
+            .Where((i) => i.Item2 != null));
 
             HashSet<string> fetchedRemotes = new HashSet<string>();
             foreach (var config in pushingConfigs)
             {
                 foreach (var repoListing in config.Item2.ParentRepos)
                 {
-                    using (var parentRepo = new Repository(repoListing.Path))
+                    var parentRepo = this.harmonize.RepoLoader.GetRepo(repoListing.Path);
+                    var remoteNames = new HashSet<string>(parentRepo.Network.Remotes.Select((r) => r.Name));
+                    if (remoteNames.Count == 0) continue;
+
+                    var branchesTouchingCommit = parentRepo.ListBranchesContainingCommit(repoListing.Sha)
+                        .Where((b) => b.IsRemote)
+                        .ToArray();
+
+                    // Remove remotes who have branches touching the desired commit
+                    foreach (var branch in branchesTouchingCommit)
                     {
-                        var remoteNames = new HashSet<string>(parentRepo.Network.Remotes.Select((r) => r.Name));
-                        if (remoteNames.Count == 0) continue;
+                        remoteNames.Remove(branch.RemoteName);
+                    }
+                    if (remoteNames.Count == 0) continue;
 
-                        var branchesTouchingCommit = parentRepo.ListBranchesContainingCommit(repoListing.Sha)
-                            .Where((b) => b.IsRemote)
-                            .ToArray();
-
-                        // Remove remotes who have branches touching the desired commit
-                        foreach (var branch in branchesTouchingCommit)
+                    // Fetch failed remotes
+                    try
+                    {
+                        foreach (var remote in parentRepo.Network.Remotes
+                            .Where((r) => remoteNames.Contains(r.Name)))
                         {
-                            remoteNames.Remove(branch.RemoteName);
-                        }
-                        if (remoteNames.Count == 0) continue;
-
-                        // Fetch failed remotes
-                        try
-                        {
-                            foreach (var remote in parentRepo.Network.Remotes
-                                .Where((r) => remoteNames.Contains(r.Name)))
+                            if (fetchedRemotes.Add(remote.Name))
                             {
-                                if (fetchedRemotes.Add(remote.Name))
-                                {
-                                    parentRepo.Network.Fetch(remote);
-                                }
+                                parentRepo.Network.Fetch(remote);
                             }
                         }
-                        catch (LibGit2SharpException ex)
-                        when (Settings.Instance.ContinuePushingOnCredentialFailure)
-                        {
-                            this.harmonize.Logger.WriteLine("Unable to fetch remotes and check push status.  Skipping safety check.");
-                            return true;
-                        }
-
-                        //  Try Again
-                        foreach (var branch in branchesTouchingCommit)
-                        {
-                            remoteNames.Remove(branch.RemoteName);
-                        }
-                        if (remoteNames.Count == 0) continue;
-
-
-                        // Have some remotes that don't know about our config's reference
-                        this.harmonize.Logger.WriteLine("Blocking because parent repositories need to push their branches first:", error: true);
-                        foreach (var remoteName in remoteNames)
-                        {
-                            this.harmonize.Logger.WriteLine($"   {repoListing.Nickname} -> {config.Item1}", error: true);
-                        }
-                        return false;
                     }
+                    catch (LibGit2SharpException ex)
+                    when (Settings.Instance.ContinuePushingOnCredentialFailure)
+                    {
+                        this.harmonize.Logger.WriteLine("Unable to fetch remotes and check push status.  Skipping safety check.");
+                        return true;
+                    }
+
+                    //  Try Again
+                    foreach (var branch in branchesTouchingCommit)
+                    {
+                        remoteNames.Remove(branch.RemoteName);
+                    }
+                    if (remoteNames.Count == 0) continue;
+
+
+                    // Have some remotes that don't know about our config's reference
+                    this.harmonize.Logger.WriteLine("Blocking because parent repositories need to push their branches first:", error: true);
+                    foreach (var remoteName in remoteNames)
+                    {
+                        this.harmonize.Logger.WriteLine($"   {repoListing.Nickname} -> {config.Item1}", error: true);
+                    }
+                    return false;
                 }
             }
 

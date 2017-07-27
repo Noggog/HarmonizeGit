@@ -21,20 +21,18 @@ namespace HarmonizeGit
 
         public override async Task<bool> Handle()
         {
-            using (var repo = new Repository(this.harmonize.TargetPath))
+            var repo = this.harmonize.Repo;
+            var ancestorCommit = repo.Lookup<Commit>(args.AncestorSha);
+            if (ancestorCommit == null)
             {
-                var ancestorCommit = repo.Lookup<Commit>(args.AncestorSha);
-                if (ancestorCommit == null)
-                {
-                    this.harmonize.Logger.WriteLine($"Ancestor commit did not exist: {args.AncestorSha}", error: true);
-                    return false;
-                }
-
-                await repo.InsertStrandedCommitsIntoParent(
-                    this.harmonize,
-                    repo.Head.Tip,
-                    ancestorCommit);
+                this.harmonize.Logger.WriteLine($"Ancestor commit did not exist: {args.AncestorSha}", error: true);
+                return false;
             }
+
+            await repo.InsertStrandedCommitsIntoParent(
+                this.harmonize,
+                repo.Head.Tip,
+                ancestorCommit);
 
             return harmonize.SyncParentReposToSha(args.TargetSha);
         }
