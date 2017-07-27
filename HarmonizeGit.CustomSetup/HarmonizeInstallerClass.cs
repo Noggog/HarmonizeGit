@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace HarmonizeGit.CustomSetup
 {
@@ -89,7 +90,19 @@ namespace HarmonizeGit.CustomSetup
             }
             if (!CreateSymbolicLink(massHookDir.FullName.TrimEnd('\\'), TargetDir.TrimEnd('\\'), SymbolicLink.Directory))
             {
-                throw new ArgumentException($"Cannot make symbolic link from {TargetDir.TrimEnd('\\')} to {massHookDir.FullName.TrimEnd('\\')}.   {GetLastError()}");
+                var errText = $"Cannot make symbolic link from {TargetDir.TrimEnd('\\')} to {massHookDir.FullName.TrimEnd('\\')}.   {GetLastError()}";
+                var result = MessageBox.Show(errText, "Cannot make symbolic link", MessageBoxButtons.AbortRetryIgnore);
+                switch (result)
+                {
+                    case DialogResult.Retry:
+                        return CreateLink();
+                    case DialogResult.Ignore:
+                        return true;
+                    case DialogResult.Abort:
+                    default:
+                        throw new InstallException(errText);
+                }
+                throw new InstallException(errText);
             }
             return true;
         }
