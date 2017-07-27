@@ -23,7 +23,8 @@ namespace HarmonizeGit
         {
             this.harmonize = harmonize;
             this.Config = GetConfig(harmonize.TargetPath);
-            if (this.Config == null) return;
+            if (this.Config == null
+                || this.Config.IsMidMerge) return;
             this.Config.Pathing.WriteToPath(harmonize.TargetPath);
         }
 

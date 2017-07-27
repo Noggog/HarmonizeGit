@@ -17,6 +17,7 @@ namespace HarmonizeGit
         public List<RepoListing> ParentRepos = new List<RepoListing>();
         public PathingConfig Pathing;
         public HarmonizeConfig OriginalConfig;
+        public bool IsMidMerge;
 
         public static HarmonizeConfig Factory(
             HarmonizeGitBase harmonize,
@@ -25,6 +26,18 @@ namespace HarmonizeGit
             PathingConfig pathing)
         {
             HarmonizeConfig ret = new HarmonizeConfig();
+
+            var repo = harmonize.RepoLoader.GetRepo(path);
+            if (!repo.Index.IsFullyMerged)
+            {
+                var harmonizeStatus = repo.RetrieveStatus(HarmonizeGitBase.HarmonizeConfigPath);
+                if (harmonizeStatus.HasFlag(FileStatus.Conflicted))
+                {
+                    ret.IsMidMerge = true;
+                    return ret;
+                }
+            }
+
             XDocument xml;
             using (var reader = new StreamReader(stream))
             {
