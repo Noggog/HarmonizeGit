@@ -359,7 +359,26 @@ namespace HarmonizeGit
                 LibGit2Sharp.Commands.Checkout(repo, branch);
                 return true;
             }
+
             this.Logger.WriteLine("No branch found.  Allocating a Harmonize branch.");
+
+            var targetCommit = repo.Lookup<Commit>(listing.Sha);
+            if (targetCommit == null)
+            {
+                this.Logger.WriteLine("Fetching to locate target commit.");
+                foreach (var remote in repo.Network.Remotes)
+                {
+                    repo.Fetch(remote.Name);
+                }
+
+                targetCommit = repo.Lookup<Commit>(listing.Sha);
+                if (targetCommit == null)
+                {
+                    this.Logger.WriteLine("No branch found.  Could not allocate new branch as target commit could not be located.", error: true);
+                    return false;
+                }
+            }
+
             for (int i = 0; i < 100; i++)
             {
                 var branchName = BranchName + (i == 0 ? "" : i.ToString());
