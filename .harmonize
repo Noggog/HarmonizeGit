@@ -2,10 +2,10 @@
    <ParentRepos>
       <RepoListing>
          <Nickname>FishingWithGit</Nickname>
-         <Sha>a80e7987cd29af87df87274c041b2414f6cfc472</Sha>
+         <Sha>26936b4ba3bec6667a49bf7f6e0750b01b7c0214</Sha>
          <Path>../FishingWithGit</Path>
-         <CommitDate>07-27-2017 18:51:04</CommitDate>
-         <Description>Logger has log error with message boxes</Description>
+         <CommitDate>08-02-2017 23:11:29</CommitDate>
+         <Description>Added Retry log messagebox option</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
    </ParentRepos>

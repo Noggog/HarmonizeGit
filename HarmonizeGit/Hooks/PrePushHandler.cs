@@ -80,7 +80,7 @@ namespace HarmonizeGit
                     {
                         if (!this.harmonize.Logger.LogErrorYesNo(
                             "Unable to fetch remotes to see if all parent repos have also been pushed to the server.  Skip and push anyway?",
-                            "Confirm Skip Parent Repo Check",
+                            "Confirm Safety Bypass",
                             Settings.Instance.ShowMessageBoxes)) return false;
                     }
 
@@ -99,12 +99,15 @@ namespace HarmonizeGit
                     {
                         sb.AppendLine($"   {repoListing.Nickname} -> {config.Item1}");
                     }
-                    sb.AppendLine();
-                    sb.AppendLine("Skip and push anyway?");
-                    return this.harmonize.Logger.LogErrorYesNo(
+                    var ret = this.harmonize.Logger.LogErrorRetry(
                         sb.ToString(),
-                        "Confirm Skipping Parent Push",
+                        "Confirm Safety Bypass",
                         Settings.Instance.ShowMessageBoxes);
+                    if (ret == null)
+                    {
+                        return await this.Handle();
+                    }
+                    return ret.Value;
                 }
             }
 

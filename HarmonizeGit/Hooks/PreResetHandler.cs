@@ -53,6 +53,8 @@ namespace HarmonizeGit
             {
                 #region Print
                 List<string> errs = new List<string>();
+                errs.Add("Child repositories marked target commits as used.  Stopping.");
+                errs.Add("");
                 errs.Add("Repositories:");
                 foreach (var usage in childUsages.ChildRepos.OrderBy((str) => str))
                 {
@@ -64,18 +66,20 @@ namespace HarmonizeGit
                 {
                     errs.Add($"   {usage}");
                 }
-                errs.Add("Child repositories marked stranded commits as used.  Stopping.");
                 foreach (var err in errs)
                 {
                     harmonize.Logger.WriteLine(err, error: true);
                 }
 
-                if (Settings.Instance.ShowMessageBoxes)
+                var ret = harmonize.Logger.LogErrorRetry(
+                    string.Join("\n", errs),
+                    "Confirm Safety Bypass", Settings.Instance.ShowMessageBoxes);
+                if (ret == null)
                 {
-                    return DialogResult.Yes == MessageBox.Show(string.Join("\n", errs), "Deleting used commits.  Are you sure?", MessageBoxButtons.YesNo);
+                    return await BlockIfChildrenAreUsing(harmonize, strandedCommitShas);
                 }
+                return ret.Value;
                 #endregion
-                return false;
             }
             return true;
         }

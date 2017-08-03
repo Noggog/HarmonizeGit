@@ -180,10 +180,15 @@ namespace HarmonizeGit
                 {
                     sb.AppendLine($"   -{repo.Item1.Nickname}: {repo.Item2}");
                 }
-                return this.Logger.LogErrorYesNo(
+                var ret = this.Logger.LogErrorRetry(
                     sb.ToString(),
-                    "Parents Have Uncommitted Changes",
+                    "Confirm Safety Bypass",
                     Settings.Instance.ShowMessageBoxes);
+                if (ret == null)
+                {
+                    return await CancelIfParentsHaveChanges();
+                }
+                return !ret.Value;
             }
             return false;
         }
