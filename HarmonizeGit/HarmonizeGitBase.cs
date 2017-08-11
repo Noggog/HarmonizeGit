@@ -330,8 +330,12 @@ namespace HarmonizeGit
             repo.Discard(HarmonizeGitBase.HarmonizeConfigPath);
             if (repo.RetrieveStatus().IsDirty)
             {
-                this.Logger.WriteLine($"Checking out existing branch error {listing.Nickname}: was still dirty after cleaning config.", error: true);
-                return false;
+                var ret = Logger.LogErrorRetry(
+                    $"{listing.Nickname} Parent is dirty and cannot be synced.",
+                    $"Confim Skip {listing.Nickname} Sync",
+                    Settings.Instance.ShowMessageBoxes);
+                if (ret == null) return SyncParentRepo(listing);
+                return ret.Value;
             }
 
             var localBranches = new HashSet<string>(
