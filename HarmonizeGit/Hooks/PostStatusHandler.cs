@@ -21,8 +21,7 @@ namespace HarmonizeGit
 
         public override async Task<bool> Handle()
         {
-            var repo = this.harmonize.Repo;
-            if (repo.Info.CurrentOperation != CurrentOperation.None) return true;
+            if (!CheckRepoStatus()) return false;
             try
             {
                 await this.harmonize.SyncConfigToParentShas();
@@ -32,6 +31,21 @@ namespace HarmonizeGit
                 this.harmonize.Logger.WriteLine("Failed up sync config. " + ex, error: true);
             }
             return true;
+        }
+
+        public bool CheckRepoStatus()
+        {
+            switch (this.harmonize.Repo.Info.CurrentOperation)
+            {
+                case CurrentOperation.None:
+                    return true;
+                case CurrentOperation.Merge:
+                    return !this.harmonize.Repo.RetrieveStatus(
+                        HarmonizeGitBase.HarmonizeConfigPath)
+                        .HasFlag(FileStatus.Conflicted);
+                default:
+                    return false;
+            }
         }
     }
 }
