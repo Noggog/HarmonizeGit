@@ -1,0 +1,15 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="HarmonizeGit.RepoTranslator.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="SourceReposRoot" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\Users\Leviathan1753\Documents\Repos</Value>
+    </Setting>
+    <Setting Name="RepoOUtputPath" Type="System.String" Scope="Application">
+      <Value Profile="(Default)">C:\Users\Leviathan1753\Documents\ReposOutput</Value>
+    </Setting>
+    <Setting Name="Setting" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+  </Settings>
+</SettingsFile>

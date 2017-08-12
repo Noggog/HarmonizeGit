@@ -8,5 +8,13 @@
          <Description>Added Retry log messagebox option</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
+      <RepoListing>
+         <Nickname>CSharpExt</Nickname>
+         <Sha>a5f1c15bc1bcb50905f4ccc171e0985c00c502e0</Sha>
+         <Path>../CSharpExt</Path>
+         <CommitDate>08-12-2017 16:44:49</CommitDate>
+         <Description>Downgraded .NET to 4.5.2.   Marked release build to allow unsafe code</Description>
+         <Author>Justin Swanson</Author>
+      </RepoListing>
    </ParentRepos>
 </HarmonizeConfig>

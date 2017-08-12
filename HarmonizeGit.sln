@@ -19,6 +19,10 @@ Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup\Setup.vdproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HarmonizeGit.CustomSetup", "HarmonizeGit.CustomSetup\HarmonizeGit.CustomSetup.csproj", "{6B8A7C4D-D563-414E-8574-A083CE87B950}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HarmonizeGit.RepoTranslator", "HarmonizeGit.RepoTranslator\HarmonizeGit.RepoTranslator.csproj", "{65DE349E-5CA6-4A6F-874C-3DB441DC3EF7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CSharpExt", "..\CSharpExt\CSharpExt\CSharpExt.csproj", "{C56B9607-41CF-4F59-9EEF-F79D57309EDA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +55,14 @@ Global
 		{6B8A7C4D-D563-414E-8574-A083CE87B950}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6B8A7C4D-D563-414E-8574-A083CE87B950}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6B8A7C4D-D563-414E-8574-A083CE87B950}.Release|Any CPU.Build.0 = Release|Any CPU
+		{65DE349E-5CA6-4A6F-874C-3DB441DC3EF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{65DE349E-5CA6-4A6F-874C-3DB441DC3EF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{65DE349E-5CA6-4A6F-874C-3DB441DC3EF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{65DE349E-5CA6-4A6F-874C-3DB441DC3EF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C56B9607-41CF-4F59-9EEF-F79D57309EDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C56B9607-41CF-4F59-9EEF-F79D57309EDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C56B9607-41CF-4F59-9EEF-F79D57309EDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C56B9607-41CF-4F59-9EEF-F79D57309EDA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -58,5 +70,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{49385417-D1F6-4C8D-827C-8CE6D79203F9} = {53233E8C-3868-4F6A-806B-C2122B76197E}
 		{A99553E3-D288-482A-9BC8-AE0BF4F32ACF} = {53233E8C-3868-4F6A-806B-C2122B76197E}
+		{C56B9607-41CF-4F59-9EEF-F79D57309EDA} = {53233E8C-3868-4F6A-806B-C2122B76197E}
 	EndGlobalSection
 EndGlobal
