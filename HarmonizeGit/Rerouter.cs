@@ -34,7 +34,7 @@ namespace HarmonizeGit
 
         public bool TryGetReroutePath(out string reroutePath)
         {
-            FileInfo pathingFileLocation = new FileInfo("./" + HarmonizeGitBase.HarmonizePathingPath);
+            FileInfo pathingFileLocation = new FileInfo("./" + Constants.HarmonizePathingPath);
             PathingConfig pathing;
             try
             {
@@ -56,7 +56,7 @@ namespace HarmonizeGit
                 FileInfo harmonizeExe = new FileInfo(
                     Path.Combine(
                         Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles),
-                        HarmonizeGitBase.HarmonizeEXEPath));
+                        Constants.HarmonizeEXEPath));
                 if (harmonizeExe.Exists)
                 {
                     reroutePath = harmonizeExe.FullName;
@@ -65,7 +65,7 @@ namespace HarmonizeGit
                 harmonizeExe = new FileInfo(
                     Path.Combine(
                         Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86),
-                        HarmonizeGitBase.HarmonizeEXEPath));
+                        Constants.HarmonizeEXEPath));
                 if (harmonizeExe.Exists)
                 {
                     reroutePath = harmonizeExe.FullName;

@@ -41,7 +41,7 @@ namespace HarmonizeGit
                     return true;
                 case CurrentOperation.Merge:
                     return !this.harmonize.Repo.RetrieveStatus(
-                        HarmonizeGitBase.HarmonizeConfigPath)
+                        Constants.HarmonizeConfigPath)
                         .HasFlag(FileStatus.Conflicted);
                 default:
                     return false;

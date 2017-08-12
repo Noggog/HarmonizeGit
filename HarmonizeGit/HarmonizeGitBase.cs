@@ -21,17 +21,8 @@ namespace HarmonizeGit
         public ChildrenLoader ChildLoader { get; private set; }
         private Lazy<RepoLoader> _RepoLoader = new Lazy<RepoLoader>();
         public RepoLoader RepoLoader => _RepoLoader.Value;
-        public const string BranchName = "HarmonizeGit";
-        public const string AppName = "HarmonizeGit";
-        public const string HarmonizeConfigPath = ".harmonize";
-        public const string HarmonizeChildrenPath = ".git/.harmonize-children";
-        public const string HarmonizeChildrenDBPath = ".git/.harmonize-children.db";
-        public const string HarmonizePathingPath = ".git/.harmonize-pathing";
-        public const string HarmonizeEXEName = "HarmonizeGit.exe";
-        public const string HarmonizeEXEPath = "HarmonizeGit/HarmonizeGit.exe";
-        public const string GitIgnorePath = ".gitignore";
         public readonly string TargetPath;
-        public string ConfigPath => Path.Combine(TargetPath, HarmonizeConfigPath);
+        public string ConfigPath => Path.Combine(TargetPath, Constants.HarmonizeConfigPath);
         public HarmonizeConfig Config;
         public bool Silent;
         public bool FileLock;
@@ -156,7 +147,7 @@ namespace HarmonizeGit
 
         public void Init()
         {
-            this.Logger = new Logger(HarmonizeGitBase.AppName)
+            this.Logger = new Logger(Constants.AppName)
             {
                 ConsoleSilent = this.Silent,
                 ShouldLogToFile = Settings.Instance.LogToFile,
@@ -241,7 +232,7 @@ namespace HarmonizeGit
             if (regenerateConfig)
             {
                 // Regenerate harmonize config, see if that cleans it
-                var status = repo.RetrieveStatus(HarmonizeConfigPath);
+                var status = repo.RetrieveStatus(Constants.HarmonizeConfigPath);
                 if (status != FileStatus.Unaltered
                     && status != FileStatus.Nonexistent)
                 {
@@ -260,7 +251,7 @@ namespace HarmonizeGit
 
             foreach (var statusEntry in repoStatus)
             {
-                if (statusEntry.FilePath.Equals(HarmonizeConfigPath) && configExclusion == ConfigExclusion.Full) continue;
+                if (statusEntry.FilePath.Equals(Constants.HarmonizeConfigPath) && configExclusion == ConfigExclusion.Full) continue;
                 if (statusEntry.State == FileStatus.Unaltered) continue;
                 if (statusEntry.State.HasFlag(FileStatus.Ignored)) continue;
 
@@ -327,7 +318,7 @@ namespace HarmonizeGit
                 return true;
             }
 
-            repo.Discard(HarmonizeGitBase.HarmonizeConfigPath);
+            repo.Discard(Constants.HarmonizeConfigPath);
             if (repo.RetrieveStatus().IsDirty)
             {
                 var ret = Logger.LogErrorRetry(
@@ -347,7 +338,7 @@ namespace HarmonizeGit
                 .Where((b) => b.Tip.Sha.Equals(listing.Sha))
                 .Where((b) => !b.Name().Equals("HEAD"))
                 .Where((b) => !b.IsRemote || !localBranches.Contains(b.Name()))
-                .OrderBy((b) => b.FriendlyName.Contains(BranchName) ? 0 : 1);
+                .OrderBy((b) => b.FriendlyName.Contains(Constants.BranchName) ? 0 : 1);
 
             var existingBranch = potentialBranches
                 .Where((b) => !b.IsRemote)
@@ -390,7 +381,7 @@ namespace HarmonizeGit
 
             for (int i = 0; i < 100; i++)
             {
-                var branchName = BranchName + (i == 0 ? "" : i.ToString());
+                var branchName = Constants.BranchName + (i == 0 ? "" : i.ToString());
                 var harmonizeBranch = repo.Branches[branchName];
                 if (harmonizeBranch == null)
                 { // Create new branch

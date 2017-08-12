@@ -49,7 +49,7 @@ namespace HarmonizeGit
         {
             using (LockManager.GetLock(LockType.Pathing, path))
             {
-                FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizePathingPath);
+                FileInfo file = new FileInfo(path + "/" + Constants.HarmonizePathingPath);
                 if (!file.Exists)
                 {
                     return new PathingConfig();
@@ -75,7 +75,7 @@ namespace HarmonizeGit
 
             using (LockManager.GetLock(LockType.Pathing, path))
             {
-                path = Path.Combine(path, HarmonizeGitBase.HarmonizePathingPath);
+                path = Path.Combine(path, Constants.HarmonizePathingPath);
 
                 using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite))
                 {

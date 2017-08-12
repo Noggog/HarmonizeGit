@@ -52,7 +52,7 @@ namespace HarmonizeGit.Tests
                     Path.Combine(repo.Repo.Info.WorkingDirectory, Utility.STANDARD_FILE),
                     "dirty work");
                 File.WriteAllText(
-                    Path.Combine(repo.Repo.Info.WorkingDirectory, HarmonizeGitBase.HarmonizeConfigPath),
+                    Path.Combine(repo.Repo.Info.WorkingDirectory, Constants.HarmonizeConfigPath),
                     "dirty work");
                 HarmonizeGitBase gitBase = GetHarmonize(repo.Repo.Info.WorkingDirectory);
                 Assert.True((await gitBase.IsDirty(configExclusion: ConfigExclusion.Full, regenerateConfig: false)).Succeeded);
@@ -65,7 +65,7 @@ namespace HarmonizeGit.Tests
             using (var repo = Repository_Tools.GetStandardRepo())
             {
                 File.WriteAllText(
-                    Path.Combine(repo.Repo.Info.WorkingDirectory, HarmonizeGitBase.HarmonizeConfigPath),
+                    Path.Combine(repo.Repo.Info.WorkingDirectory, Constants.HarmonizeConfigPath),
                     "dirty work");
                 HarmonizeGitBase gitBase = GetHarmonize(repo.Repo.Info.WorkingDirectory);
                 Assert.True((await gitBase.IsDirty(configExclusion: ConfigExclusion.None, regenerateConfig: false)).Succeeded);
@@ -78,7 +78,7 @@ namespace HarmonizeGit.Tests
             using (var repo = Repository_Tools.GetStandardRepo())
             {
                 File.WriteAllText(
-                    Path.Combine(repo.Repo.Info.WorkingDirectory, HarmonizeGitBase.HarmonizeConfigPath),
+                    Path.Combine(repo.Repo.Info.WorkingDirectory, Constants.HarmonizeConfigPath),
                     "dirty work");
                 HarmonizeGitBase gitBase = GetHarmonize(repo.Repo.Info.WorkingDirectory);
                 Assert.False((await gitBase.IsDirty(configExclusion: ConfigExclusion.Full, regenerateConfig: false)).Succeeded);
@@ -121,7 +121,7 @@ namespace HarmonizeGit.Tests
                 await checkout.Init();
                 var superParentCommit = checkout.SuperParentRepo.Repo.Lookup<Commit>(checkout.SuperParent_FirstSha);
                 checkout.ParentHarmonize.Config.ParentRepos[0].SetToCommit(superParentCommit);
-                checkout.ParentHarmonize.Config.WriteToPath(checkout.ParentRepo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath);
+                checkout.ParentHarmonize.Config.WriteToPath(checkout.ParentRepo.Repo.Info.WorkingDirectory + Constants.HarmonizeConfigPath);
                 Assert.True(checkout.ParentRepo.Repo.RetrieveStatus().IsDirty);
                 var changes = await checkout.Harmonize.GetReposWithUncommittedChanges();
                 Assert.Equal(0, changes.Count);
@@ -154,9 +154,9 @@ namespace HarmonizeGit.Tests
                 await checkout.Init();
 
                 await checkout.Harmonize.ChildLoader.InitializeIntoParents();
-                FileInfo dbFile = new FileInfo(Path.Combine(checkout.ParentRepo.Dir.FullName, HarmonizeGitBase.HarmonizeChildrenDBPath));
+                FileInfo dbFile = new FileInfo(Path.Combine(checkout.ParentRepo.Dir.FullName, Constants.HarmonizeChildrenDBPath));
                 Assert.True(dbFile.Exists);
-                dbFile = new FileInfo(Path.Combine(checkout.SuperParentRepo.Dir.FullName, HarmonizeGitBase.HarmonizeChildrenDBPath));
+                dbFile = new FileInfo(Path.Combine(checkout.SuperParentRepo.Dir.FullName, Constants.HarmonizeChildrenDBPath));
                 Assert.True(dbFile.Exists);
             }
         }
@@ -169,9 +169,9 @@ namespace HarmonizeGit.Tests
                 await checkout.Init();
 
                 await checkout.Harmonize.ChildLoader.InitializeIntoParents();
-                FileInfo dbFile = new FileInfo(Path.Combine(checkout.ParentRepo.Dir.FullName, HarmonizeGitBase.HarmonizeChildrenDBPath));
+                FileInfo dbFile = new FileInfo(Path.Combine(checkout.ParentRepo.Dir.FullName, Constants.HarmonizeChildrenDBPath));
                 Assert.True(dbFile.Exists);
-                dbFile = new FileInfo(Path.Combine(checkout.SuperParentRepo.Dir.FullName, HarmonizeGitBase.HarmonizeChildrenDBPath));
+                dbFile = new FileInfo(Path.Combine(checkout.SuperParentRepo.Dir.FullName, Constants.HarmonizeChildrenDBPath));
                 Assert.True(dbFile.Exists);
             }
         }

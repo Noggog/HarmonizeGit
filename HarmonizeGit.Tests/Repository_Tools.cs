@@ -200,7 +200,7 @@ namespace HarmonizeGit.Tests
             Repository.Init(parentRepoDir.FullName);
             var parentRepo = new Repository(parentRepoDir.FullName);
             var parentFile = new FileInfo(Path.Combine(parentRepoDir.FullName, Utility.STANDARD_FILE));
-            var parentHarmonizeFile = new FileInfo(Path.Combine(parentRepoDir.FullName, HarmonizeGitBase.HarmonizeConfigPath));
+            var parentHarmonizeFile = new FileInfo(Path.Combine(parentRepoDir.FullName, Constants.HarmonizeConfigPath));
             parentConfig.WriteToPath(parentHarmonizeFile.FullName);
             Commands.Stage(parentRepo, parentHarmonizeFile.FullName);
             File.WriteAllText(parentFile.FullName, "Testing123\n");
@@ -225,7 +225,7 @@ namespace HarmonizeGit.Tests
             var childRepoDir = Utility.GetTemporaryDirectory();
             Repository.Init(childRepoDir.FullName);
             var childRepo = new Repository(childRepoDir.FullName);
-            var childHarmonizeFile = new FileInfo(Path.Combine(childRepoDir.FullName, HarmonizeGitBase.HarmonizeConfigPath));
+            var childHarmonizeFile = new FileInfo(Path.Combine(childRepoDir.FullName, Constants.HarmonizeConfigPath));
             var parentListing = new RepoListing()
             {
                 Nickname = "ParentRepo",

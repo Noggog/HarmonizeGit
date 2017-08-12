@@ -39,7 +39,7 @@ namespace HarmonizeGit.Tests
                 PostStatusHandler handler = new PostStatusHandler(checkout.Harmonize, new StatusArgs());
                 var result = await handler.Handle();
                 Assert.True(result);
-                var configStatus = checkout.Repo.Repo.RetrieveStatus(HarmonizeGitBase.HarmonizeConfigPath);
+                var configStatus = checkout.Repo.Repo.RetrieveStatus(Constants.HarmonizeConfigPath);
                 Assert.Equal(FileStatus.Unaltered, configStatus);
             }
         }
@@ -54,7 +54,7 @@ namespace HarmonizeGit.Tests
                 PostStatusHandler handler = new PostStatusHandler(checkout.Harmonize, new StatusArgs());
                 var result = await handler.Handle();
                 Assert.True(result);
-                var configStatus = checkout.Repo.Repo.RetrieveStatus(HarmonizeGitBase.HarmonizeConfigPath);
+                var configStatus = checkout.Repo.Repo.RetrieveStatus(Constants.HarmonizeConfigPath);
                 Assert.Equal(FileStatus.ModifiedInWorkdir, configStatus);
             }
         }

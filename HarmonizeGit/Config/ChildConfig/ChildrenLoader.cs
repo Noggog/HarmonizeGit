@@ -114,7 +114,7 @@ namespace HarmonizeGit
 
         private string GetDBPath(string pathToRepo)
         {
-            return pathToRepo + "/" + HarmonizeGitBase.HarmonizeChildrenPath + ".db";
+            return pathToRepo + "/" + Constants.HarmonizeChildrenPath + ".db";
         }
 
         private async Task<SQLiteConnection> GetConnection(string pathToRepo)

@@ -21,7 +21,7 @@ namespace HarmonizeGit.Tests
                 await checkout.Init();
                 var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(checkout.Parent_SecondSha);
                 checkout.Harmonize.Config.ParentRepos[0].SetToCommit(parentCommit);
-                checkout.Harmonize.Config.WriteToPath(checkout.Repo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath);
+                checkout.Harmonize.Config.WriteToPath(checkout.Repo.Repo.Info.WorkingDirectory + Constants.HarmonizeConfigPath);
                 Assert.True(checkout.Repo.Repo.RetrieveStatus().IsDirty);
                 CheckoutArgs args = new CheckoutArgs()
                 {
@@ -42,7 +42,7 @@ namespace HarmonizeGit.Tests
                 await checkout.Init();
                 var superParentCommit = checkout.SuperParentRepo.Repo.Lookup<Commit>(checkout.SuperParent_FirstSha);
                 checkout.ParentHarmonize.Config.ParentRepos[0].SetToCommit(superParentCommit);
-                checkout.ParentHarmonize.Config.WriteToPath(checkout.ParentRepo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath);
+                checkout.ParentHarmonize.Config.WriteToPath(checkout.ParentRepo.Repo.Info.WorkingDirectory + Constants.HarmonizeConfigPath);
                 Assert.True(checkout.ParentRepo.Repo.RetrieveStatus().IsDirty);
                 CheckoutArgs args = new CheckoutArgs()
                 {

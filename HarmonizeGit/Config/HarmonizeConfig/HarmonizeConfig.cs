@@ -30,7 +30,7 @@ namespace HarmonizeGit
             var repo = harmonize.RepoLoader.GetRepo(path);
             if (!repo.Index.IsFullyMerged)
             {
-                var harmonizeStatus = repo.RetrieveStatus(HarmonizeGitBase.HarmonizeConfigPath);
+                var harmonizeStatus = repo.RetrieveStatus(Constants.HarmonizeConfigPath);
                 if (harmonizeStatus.HasFlag(FileStatus.Conflicted))
                 {
                     ret.IsMidMerge = true;
@@ -74,7 +74,7 @@ namespace HarmonizeGit
             string path,
             Commit commit)
         {
-            var entry = commit[HarmonizeGitBase.HarmonizeConfigPath];
+            var entry = commit[Constants.HarmonizeConfigPath];
             var blob = entry?.Target as Blob;
             if (blob == null)
             {

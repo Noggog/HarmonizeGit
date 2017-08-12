@@ -50,7 +50,7 @@ namespace HarmonizeGit
             {
                 await this.harmonize.SyncConfigToParentShas();
             }
-            Commands.Stage(this.harmonize.Repo, HarmonizeGitBase.HarmonizeConfigPath);
+            Commands.Stage(this.harmonize.Repo, Constants.HarmonizeConfigPath);
         }
     }
 }

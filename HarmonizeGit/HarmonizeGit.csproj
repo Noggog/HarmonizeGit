@@ -69,6 +69,7 @@
     <Compile Include="Config\PathingConfig\PathingListing.cs" />
     <Compile Include="Config\Settings\ParentPushPreference.cs" />
     <Compile Include="Config\Settings\Settings.cs" />
+    <Compile Include="Constants.cs" />
     <Compile Include="Extensions\ElementWrapper.cs" />
     <Compile Include="Extensions\HashHelper.cs" />
     <Compile Include="Hooks\PostMergeHandler.cs" />

@@ -22,7 +22,7 @@ namespace HarmonizeGit.Tests
                 await checkout.Init();
                 var superParentCommit = checkout.SuperParentRepo.Repo.Lookup<Commit>(checkout.SuperParent_FirstSha);
                 checkout.ParentHarmonize.Config.ParentRepos[0].SetToCommit(superParentCommit);
-                checkout.ParentHarmonize.Config.WriteToPath(checkout.ParentRepo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath);
+                checkout.ParentHarmonize.Config.WriteToPath(checkout.ParentRepo.Repo.Info.WorkingDirectory + Constants.HarmonizeConfigPath);
                 Assert.True(checkout.ParentRepo.Repo.RetrieveStatus().IsDirty);
                 CommitArgs args = new CommitArgs();
                 PreCommitHandler handler = new PreCommitHandler(checkout.Harmonize, args);
@@ -72,21 +72,21 @@ namespace HarmonizeGit.Tests
             {
                 await checkout.Init();
 
-                var stat = checkout.Repo.Repo.RetrieveStatus(HarmonizeGitBase.HarmonizeConfigPath);
+                var stat = checkout.Repo.Repo.RetrieveStatus(Constants.HarmonizeConfigPath);
                 Assert.Equal(FileStatus.Unaltered, stat);
 
                 var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(checkout.Parent_SecondSha);
                 checkout.ChildToParentListing.SetToCommit(parentCommit);
-                checkout.Harmonize.Config.WriteToPath(checkout.Repo.Repo.Info.WorkingDirectory + HarmonizeGitBase.HarmonizeConfigPath);
+                checkout.Harmonize.Config.WriteToPath(checkout.Repo.Repo.Info.WorkingDirectory + Constants.HarmonizeConfigPath);
                 Assert.True(checkout.Repo.Repo.RetrieveStatus().IsDirty);
 
-                stat = checkout.Repo.Repo.RetrieveStatus(HarmonizeGitBase.HarmonizeConfigPath);
+                stat = checkout.Repo.Repo.RetrieveStatus(Constants.HarmonizeConfigPath);
                 Assert.Equal(FileStatus.ModifiedInWorkdir, stat);
                 CommitArgs args = new CommitArgs();
                 PreCommitHandler handler = new PreCommitHandler(checkout.Harmonize, args);
                 var ret = await handler.Handle();
                 Assert.True(ret);
-                stat = checkout.Repo.Repo.RetrieveStatus(HarmonizeGitBase.HarmonizeConfigPath);
+                stat = checkout.Repo.Repo.RetrieveStatus(Constants.HarmonizeConfigPath);
                 Assert.Equal(FileStatus.ModifiedInIndex, stat);
             }
         }

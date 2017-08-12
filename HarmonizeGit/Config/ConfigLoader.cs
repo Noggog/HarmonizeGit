@@ -62,7 +62,7 @@ namespace HarmonizeGit
             using (LockManager.GetLock(LockType.Harmonize, path))
             {
                 this.harmonize.Logger.WriteLine($"Loading config at path {path}");
-                FileInfo file = new FileInfo(path + "/" + HarmonizeGitBase.HarmonizeConfigPath);
+                FileInfo file = new FileInfo(path + "/" + Constants.HarmonizeConfigPath);
                 if (!file.Exists) return null;
                 var pathing = PathingConfig.Factory(path);
                 using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
@@ -112,7 +112,7 @@ namespace HarmonizeGit
         {
             if (object.Equals(config, config?.OriginalConfig)) return false;
 
-            path = path + "/" + HarmonizeGitBase.HarmonizeConfigPath;
+            path = path + "/" + Constants.HarmonizeConfigPath;
             this.harmonize.Logger.WriteLine($"Updating config at {path}");
 
             using (LockManager.GetLock(LockType.Harmonize, path))
@@ -137,7 +137,7 @@ namespace HarmonizeGit
             string path,
             string toAdd)
         {
-            path = path + "/" + HarmonizeGitBase.GitIgnorePath;
+            path = path + "/" + Constants.GitIgnorePath;
 
             using (LockManager.GetLock(LockType.GitIgnore, path))
             {
