@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Loqui xmlns="http://tempuri.org/LoquiSource.xsd">
+  <Object name="TranslatorSpec" GUID="d5c73cf3-5ff8-4259-8dad-7cf9bb10083f" ID="1">
+    <Fields>
+      <Enum name="Type" enumName="TranslationType" />
+      <DirectoryPath name="ExportFolder "/>
+      <List name="TargetRepos">
+        <DirectoryPath />
+      </List>
+    </Fields>
+  </Object>
+</Loqui>

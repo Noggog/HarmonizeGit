@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<xs:schema id="TranslatorSpec" targetNamespace="HarmonizeGitRepoTranslator/TranslatorSpec.xsd" elementFormDefault="qualified" xmlns="HarmonizeGitRepoTranslator/TranslatorSpec.xsd" xmlns:mstns="HarmonizeGitRepoTranslator/TranslatorSpec.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   <xs:element name="TranslatorSpec" type="TranslatorSpecType" />
+   <xs:complexType name="TranslatorSpecType">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+         <xs:element name="Type" type="StringType" minOccurs="0" maxOccurs="1" />
+         <xs:element name="ExportFolder " type="DirectoryPathType" minOccurs="0" maxOccurs="1" />
+         <xs:element name="TargetRepos" type="TargetReposType" minOccurs="0" maxOccurs="1" />
+      </xs:choice>
+   </xs:complexType>
+   <xs:complexType name="StringType">
+      <xs:attribute name="value" use="required" />
+   </xs:complexType>
+   <xs:complexType name="DirectoryPathType">
+      <xs:attribute name="value" use="required" />
+   </xs:complexType>
+   <xs:complexType name="TargetReposType">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+         <xs:element name="Item" type="DirectoryPathType" />
+      </xs:choice>
+   </xs:complexType>
+</xs:schema>

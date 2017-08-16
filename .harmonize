@@ -10,10 +10,18 @@
       </RepoListing>
       <RepoListing>
          <Nickname>CSharpExt</Nickname>
-         <Sha>a5f1c15bc1bcb50905f4ccc171e0985c00c502e0</Sha>
+         <Sha>875d031277958948fa24e98b481bf1d1d404cd4e</Sha>
          <Path>../CSharpExt</Path>
-         <CommitDate>08-12-2017 16:44:49</CommitDate>
-         <Description>Downgraded .NET to 4.5.2.   Marked release build to allow unsafe code</Description>
+         <CommitDate>08-15-2017 21:17:39</CommitDate>
+         <Description>Null fix for FilePath systems</Description>
+         <Author>Justin Swanson</Author>
+      </RepoListing>
+      <RepoListing>
+         <Nickname>Loqui</Nickname>
+         <Sha>f00288044b16f72776d6971093a358fdf85fefa1</Sha>
+         <Path>../Loqui</Path>
+         <CommitDate>08-15-2017 21:18:08</CommitDate>
+         <Description>Directory/FilePath generation.  No unit tests</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
    </ParentRepos>

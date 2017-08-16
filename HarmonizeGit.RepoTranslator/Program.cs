@@ -10,8 +10,10 @@ namespace HarmonizeGit.RepoTranslator
     {
         static void Main(string[] args)
         {
-            var translator = new RepoTranslator();
-            translator.GetHarmonizeRepos().ToArray();
+            using (var translator = new RepoTranslator(args[0].TrimStart('\"').TrimEnd('\"')))
+            {
+                translator.Translate().Wait();
+            }
         }
     }
 }

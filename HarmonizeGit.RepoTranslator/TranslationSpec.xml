@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<TranslatorSpec xmlns="HarmonizeGitRepoTranslator/TranslatorSpec.xsd">
+  <ExportFolder value="C:\Users\Noggog\Documents\Target Repo" />
+  <Type value="DirectoryRepo" />
+  <TargetRepos>
+    <Item value="C:\Users\Noggog\Documents\Repos\Mutagen"/>
+    <Item value="C:\Users\Noggog\Documents\Repos\Loqui"/>
+    <Item value="C:\Users\Noggog\Documents\Repos\CSharpExt"/>
+  </TargetRepos>
+</TranslatorSpec>

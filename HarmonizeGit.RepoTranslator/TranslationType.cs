@@ -8,7 +8,7 @@ namespace HarmonizeGit.RepoTranslator
 {
     public enum TranslationType
     {
-        SubmoduleDirectory,
+        DirectoryRepo,
         Monolithic,
     }
 }
