@@ -21,7 +21,7 @@ namespace HarmonizeGit
 
         public override async Task<bool> Handle()
         {
-            if (!CheckRepoStatus()) return false;
+            if (!CheckRepoStatus()) return true;
             try
             {
                 await this.harmonize.SyncConfigToParentShas();
