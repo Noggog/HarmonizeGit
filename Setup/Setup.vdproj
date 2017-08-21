@@ -142,6 +142,12 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_F9EA0F2729029D8027EB77A8DE3DFCC3"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_CA7B36C20C02126910B8D7602ED8B677"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -173,12 +179,6 @@
         {
         "MsmKey" = "8:_UNDEFINED"
         "OwnerKey" = "8:_E1B1A5FA3A715B1B3047399501805C65"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_F9EA0F2729029D8027EB77A8DE3DFCC3"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -259,6 +259,62 @@
     {
         "CustomAction"
         {
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_2566521EFB934D0FA3C1E0EC666E8FE8"
+            {
+            "Name" = "8:Primary output from HarmonizeGit (Active)"
+            "Condition" = "8:"
+            "Object" = "8:_C7DC964CF73546A3AFA3CC3AD661DC0F"
+            "FileType" = "3:2"
+            "InstallAction" = "3:4"
+            "Arguments" = "8:"
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_1FCF25DB_E17A_478A_8B16_5F4AA1721AD1"
+            "InstallerClass" = "11:TRUE"
+            "CustomActionData" = "8:/targetdir=\"[TARGETDIR]\\\""
+            }
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_69F798B16555409F9CBEC82E36E62061"
+            {
+            "Name" = "8:Primary output from HarmonizeGit (Active)"
+            "Condition" = "8:"
+            "Object" = "8:_C7DC964CF73546A3AFA3CC3AD661DC0F"
+            "FileType" = "3:2"
+            "InstallAction" = "3:1"
+            "Arguments" = "8:"
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_A0EE3F59_B1C0_4F78_A519_2CAAEC9260CE"
+            "InstallerClass" = "11:TRUE"
+            "CustomActionData" = "8:/targetdir=\"[TARGETDIR]\\\""
+            }
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_B7F072CC2FD7415FA855E4F3900D03AF"
+            {
+            "Name" = "8:Primary output from HarmonizeGit (Active)"
+            "Condition" = "8:"
+            "Object" = "8:_C7DC964CF73546A3AFA3CC3AD661DC0F"
+            "FileType" = "3:2"
+            "InstallAction" = "3:2"
+            "Arguments" = "8:"
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_E680AD63_246E_41F4_B358_A9D852BDBBF4"
+            "InstallerClass" = "11:TRUE"
+            "CustomActionData" = "8:/targetdir=\"[TARGETDIR]\\\""
+            }
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_E8EA5553DAE04FFC8426932FD861BCFD"
+            {
+            "Name" = "8:Primary output from HarmonizeGit (Active)"
+            "Condition" = "8:"
+            "Object" = "8:_C7DC964CF73546A3AFA3CC3AD661DC0F"
+            "FileType" = "3:2"
+            "InstallAction" = "3:3"
+            "Arguments" = "8:"
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_66D21DA2_E914_48CD_87C0_D9B609AE49BD"
+            "InstallerClass" = "11:TRUE"
+            "CustomActionData" = "8:/targetdir=\"[TARGETDIR]\\\""
+            }
         }
         "DefaultFeature"
         {
@@ -800,7 +856,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:HarmonizeGit"
         "ProductCode" = "8:{31E1E580-6584-4E4E-899E-828145813890}"
-        "PackageCode" = "8:{C2ECB31D-137E-423E-BAFB-1C734BB6FBBE}"
+        "PackageCode" = "8:{5630AE94-59AB-4EF0-B9C6-BF600DBD3F6D}"
         "UpgradeCode" = "8:{7D8D32CE-B110-43CE-AA9A-EF8C5F9D2C71}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
