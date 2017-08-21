@@ -59,10 +59,6 @@
       <Project>{a99553e3-d288-482a-9bc8-ae0bf4f32acf}</Project>
       <Name>FishingWithGit.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\HarmonizeGit.CustomSetup\HarmonizeGit.CustomSetup.csproj">
-      <Project>{6b8a7c4d-d563-414e-8574-a083ce87b950}</Project>
-      <Name>HarmonizeGit.CustomSetup</Name>
-    </ProjectReference>
     <ProjectReference Include="..\HarmonizeGit\HarmonizeGit.csproj">
       <Project>{8d8330ab-b1f9-4769-846e-5a606543dcaa}</Project>
       <Name>HarmonizeGit</Name>
