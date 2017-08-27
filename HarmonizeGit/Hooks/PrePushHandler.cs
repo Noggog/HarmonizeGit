@@ -97,7 +97,7 @@ namespace HarmonizeGit
                     sb.AppendLine("Blocking because parent repositories need to push their branches first:");
                     foreach (var remoteName in remoteNames)
                     {
-                        sb.AppendLine($"   {repoListing.Nickname} -> {config.Item1}");
+                        sb.AppendLine($"   {repoListing.Nickname}");
                     }
                     var ret = this.harmonize.Logger.LogErrorRetry(
                         sb.ToString(),
