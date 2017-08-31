@@ -38,10 +38,26 @@ namespace HarmonizeGit
                 }
             }
 
-            XDocument xml;
+            string xmlStr;
             using (var reader = new StreamReader(stream))
             {
-                xml = XDocument.Parse(reader.ReadToEnd());
+                xmlStr = reader.ReadToEnd();
+            }
+            XDocument xml;
+            try
+            {
+                xml = XDocument.Parse(xmlStr);
+            }
+            catch (XmlException)
+            {
+                if (xmlStr.Contains(@"<<<<<<< HEAD")
+                    && xmlStr.Contains(@"=======")
+                    && xmlStr.Contains(@">>>>>>>"))
+                {
+                    ret.IsMidMerge = true;
+                    return ret;
+                }
+                throw;
             }
 
             if (int.TryParse(xml.Root.Attribute(XName.Get(nameof(Version)))?.Value, out int ver))
