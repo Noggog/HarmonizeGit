@@ -49,6 +49,7 @@ namespace HarmonizeGit
         public static IEnumerable<Branch> ListBranchesContainingCommit(this Repository repo, string commitSha)
         {
             var targetCommit = repo.Lookup<Commit>(commitSha);
+            if (targetCommit == null) yield break;
             foreach (var branch in repo.Branches)
             {
                 foreach (var commit in repo.Commits.QueryBy(
