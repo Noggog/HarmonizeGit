@@ -46,10 +46,7 @@ namespace HarmonizeGit
 
         private async Task DoCommitTasks()
         {
-            if (Settings.Instance.CheckoutSyncsParents)
-            {
-                await this.harmonize.SyncConfigToParentShas();
-            }
+            await this.harmonize.SyncConfigToParentShas();
             Commands.Stage(this.harmonize.Repo, Constants.HarmonizeConfigPath);
         }
     }

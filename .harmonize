@@ -2,10 +2,10 @@
    <ParentRepos>
       <RepoListing>
          <Nickname>FishingWithGit</Nickname>
-         <Sha>26936b4ba3bec6667a49bf7f6e0750b01b7c0214</Sha>
+         <Sha>53281b2b2dfcbcd989970ecc03efc9d7946e6521</Sha>
          <Path>../FishingWithGit</Path>
-         <CommitDate>08-02-2017 23:11:29</CommitDate>
-         <Description>Added Retry log messagebox option</Description>
+         <CommitDate>08-31-2017 17:23:16</CommitDate>
+         <Description>Rebase skip support</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
    </ParentRepos>
