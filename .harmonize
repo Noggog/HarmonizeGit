@@ -2,10 +2,10 @@
    <ParentRepos>
       <RepoListing>
          <Nickname>FishingWithGit</Nickname>
-         <Sha>53281b2b2dfcbcd989970ecc03efc9d7946e6521</Sha>
+         <Sha>e7e103f88f07f6667e08f5e20b1a7cee7410be4e</Sha>
          <Path>../FishingWithGit</Path>
-         <CommitDate>08-31-2017 17:23:16</CommitDate>
-         <Description>Rebase skip support</Description>
+         <CommitDate>08-31-2017 17:59:03</CommitDate>
+         <Description>Support for Rebases on raw shas</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
    </ParentRepos>

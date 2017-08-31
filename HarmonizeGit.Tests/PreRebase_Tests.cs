@@ -59,7 +59,7 @@ namespace HarmonizeGit.Tests
                 await checkout.Init();
                 RebaseArgs args = new RebaseArgs()
                 {
-                    TargetBranch = "Nothing"
+                    Target = "Nothing"
                 };
                 PreRebaseHandler handler = new PreRebaseHandler(checkout.Harmonize, args);
                 var ret = await handler.Handle();
@@ -75,7 +75,7 @@ namespace HarmonizeGit.Tests
                 await checkout.Init();
                 RebaseArgs args = new RebaseArgs()
                 {
-                    TargetBranch = TARGET_BRANCH_NAME
+                    Target = TARGET_BRANCH_NAME
                 };
                 PreRebaseHandler handler = new PreRebaseHandler(checkout.Harmonize, args);
                 var ret = await handler.Handle();
@@ -92,7 +92,7 @@ namespace HarmonizeGit.Tests
                 var targetBranch = checkout.ParentRepo.Repo.CreateBranch(TARGET_BRANCH_NAME, checkout.Parent_SecondSha);
                 RebaseArgs args = new RebaseArgs()
                 {
-                    TargetBranch = TARGET_BRANCH_NAME
+                    Target = TARGET_BRANCH_NAME
                 };
                 PreRebaseHandler handler = new PreRebaseHandler(checkout.ParentHarmonize, args);
                 var ret = await handler.Handle();

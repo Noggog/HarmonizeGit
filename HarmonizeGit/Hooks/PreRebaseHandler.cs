@@ -24,17 +24,22 @@ namespace HarmonizeGit
         {
             List<string> strandedCommitShas;
             var repo = this.harmonize.Repo;
-            var targetBranch = repo.Branches[args.TargetBranch];
-            if (targetBranch == null)
+            Commit targetCommit = repo.Lookup<Commit>(args.Target);
+            if (targetCommit == null)
             {
-                harmonize.Logger.WriteLine($"Target branch {args.TargetBranch} could not be found.");
-                return false;
+                var targetBranch = repo.Branches[args.Target];
+                if (targetBranch == null)
+                {
+                    harmonize.Logger.WriteLine($"Target {args.Target} could not be found.", error: true);
+                    return false;
+                }
+                targetCommit = targetBranch.Tip;
             }
             if (!GetStrandedCommits(
                 this.harmonize,
                 repo,
                 repo.Head.Tip,
-                targetBranch.Tip,
+                targetCommit,
                 out IEnumerable<Commit> strandedCommits)) return false;
 
             strandedCommitShas = strandedCommits.Select((c) => c.Sha).ToList();
