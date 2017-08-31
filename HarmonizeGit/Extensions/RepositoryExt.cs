@@ -9,6 +9,17 @@ namespace HarmonizeGit
 {
     public static class RepositoryExt
     {
+        public static void Discard(this IRepository repo, params string[] paths)
+        {
+            repo.CheckoutPaths(
+                committishOrBranchSpec: repo.Head.Tip.Sha,
+                paths: paths,
+                checkoutOptions: new CheckoutOptions()
+                {
+                    CheckoutModifiers = CheckoutModifiers.Force
+                });
+        }
+
         public static IEnumerable<Commit> GetPotentiallyStrandedCommits(
             this Repository repo,
             Commit tip,

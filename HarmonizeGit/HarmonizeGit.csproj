@@ -93,9 +93,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Hooks\PostResetHandler.cs" />
     <Compile Include="Hooks\TypicalHandlerBase.cs" />
-    <Compile Include="Extensions\RepoExt.cs" />
     <Compile Include="RepoLoader.cs" />
-    <Compile Include="RepositoryExt.cs" />
+    <Compile Include="Extensions\RepositoryExt.cs" />
     <Compile Include="Rerouter.cs" />
     <Compile Include="Tuples\ChildUsages.cs" />
     <Compile Include="Tuples\ErrorResponse.cs" />
