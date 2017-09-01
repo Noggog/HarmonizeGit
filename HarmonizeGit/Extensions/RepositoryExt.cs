@@ -67,9 +67,10 @@ namespace HarmonizeGit
                     new CommitFilter()
                     {
                         IncludeReachableFrom = branch.Tip.Sha,
+                        SortBy = CommitSortStrategies.Time
                     }))
                 {
-                    if (commit.Author.When < targetCommit.Author.When)
+                    if (commit.Committer.When < targetCommit.Committer.When)
                     { // Not going to be found earlier than target commit
                         break;
                     }
