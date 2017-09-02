@@ -2,10 +2,10 @@
    <ParentRepos>
       <RepoListing>
          <Nickname>FishingWithGit</Nickname>
-         <Sha>e7e103f88f07f6667e08f5e20b1a7cee7410be4e</Sha>
+         <Sha>9c397bd88a9b6daca00ec5dd2f40d1274845d5db</Sha>
          <Path>../FishingWithGit</Path>
-         <CommitDate>08-31-2017 17:59:03</CommitDate>
-         <Description>Support for Rebases on raw shas</Description>
+         <CommitDate>09-01-2017 16:38:12</CommitDate>
+         <Description>Moved overall timing log to end for clarity</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
    </ParentRepos>

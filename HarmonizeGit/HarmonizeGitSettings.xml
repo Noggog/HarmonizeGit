@@ -10,4 +10,5 @@
 	<ContinuePushingOnCredentialFailure value="True" />
 	<ParentUnpushedPreference value="Block" />
 	<LogToFile value="False" />
+  <CheckoutSyncsParents value="False" />
 </HarmonizeGitSettings>
