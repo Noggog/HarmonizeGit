@@ -21,7 +21,8 @@ namespace HarmonizeGit
 
         public override async Task<bool> Handle()
         {
-            if (!harmonize.SyncParentRepos()) return false;
+            if (Settings.Instance.MovingSyncsParents
+                && !harmonize.SyncParentRepos()) return false;
 
             var repo = this.harmonize.Repo;
             var startingCommit = repo.Lookup<Commit>(args.StartingSha);

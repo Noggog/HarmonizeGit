@@ -28,7 +28,7 @@ namespace HarmonizeGit
         public ParentPushPreference ParentUnpushedPreference = ParentPushPreference.Block;
         public bool LogToFile = false;
         public bool ShowMessageBoxes = true;
-        public bool CheckoutSyncsParents = false;
+        public bool MovingSyncsParents = false;
 
         Settings()
         {
@@ -88,7 +88,7 @@ namespace HarmonizeGit
                 LogToFile = GetBool(xml.Root, nameof(LogToFile), false),
                 ShowMessageBoxes = GetBool(xml.Root, nameof(ShowMessageBoxes), true),
                 WipeLogsOlderThanDays = GetInt(xml.Root, nameof(WipeLogsOlderThanDays), 3),
-                CheckoutSyncsParents = GetBool(xml.Root, nameof(CheckoutSyncsParents), false),
+                MovingSyncsParents = GetBool(xml.Root, nameof(MovingSyncsParents), false),
             };
 
             var parentPushAttr = xml.Root.Element(nameof(ParentUnpushedPreference))?.Attribute(VALUE);

@@ -36,7 +36,7 @@ namespace HarmonizeGit
             }
             
             this.harmonize.Repo.Discard(Path.Combine(harmonize.TargetPath, Constants.HarmonizeConfigPath));
-            if (Settings.Instance.CheckoutSyncsParents)
+            if (Settings.Instance.MovingSyncsParents)
             {
                 if (harmonize.SyncParentReposToSha(args.TargetSha)) return false;
             }
