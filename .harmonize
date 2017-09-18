@@ -8,5 +8,13 @@
          <Description>Moved overall timing log to end for clarity</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
+      <RepoListing>
+         <Nickname>CSharpExt</Nickname>
+         <Sha>13da7df844c3bc4ee0706ef9579154c8e6170ed7</Sha>
+         <Path>../CSharpExt</Path>
+         <CommitDate>09-18-2017 16:34:02</CommitDate>
+         <Description>ArgsQueryManager</Description>
+         <Author>Justin Swanson</Author>
+      </RepoListing>
    </ParentRepos>
 </HarmonizeConfig>

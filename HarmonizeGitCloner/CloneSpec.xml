@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Loqui xmlns="http://tempuri.org/LoquiSource.xsd">
+  <Protocol Namespace="HarmonizeGitCloner" />
+  <Object name="CloneSpec" notifyingDefault="Notifying" GUID="651b1c2a-304e-4f21-85cb-d1088f16dc21" ID="1">
+    <Fields>
+      <List name="ExplicitClones">
+        <Ref>
+          <Direct refName="Clone" />
+        </Ref>
+      </List>
+    </Fields>
+  </Object>
+</Loqui>

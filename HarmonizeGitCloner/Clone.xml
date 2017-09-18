@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Loqui xmlns="http://tempuri.org/LoquiSource.xsd">
+  <Protocol Namespace="HarmonizeGitCloner" />
+  <Object name="Clone" GUID="0bfc02a5-d0a6-4133-a58a-de62dd81525c" ID="2">
+    <Fields>
+      <String name="Nickname" />
+      <String name="ClonePath" />
+    </Fields>
+  </Object>
+</Loqui>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<xs:schema id="CloneSpec" targetNamespace="HarmonizeGitCloner/CloneSpec.xsd" elementFormDefault="qualified" xmlns="HarmonizeGitCloner/CloneSpec.xsd" xmlns:mstns="HarmonizeGitCloner/CloneSpec.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   <xs:element name="CloneSpec" type="CloneSpecType" />
+   <xs:complexType name="CloneSpecType">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+         <xs:element name="ExplicitClones" type="ExplicitClonesType" minOccurs="0" maxOccurs="1" />
+      </xs:choice>
+   </xs:complexType>
+   <xs:complexType name="ExplicitClonesType">
+      <xs:choice minOccurs="0" maxOccurs="unbounded" />
+   </xs:complexType>
+</xs:schema>

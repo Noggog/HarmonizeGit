@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<xs:schema id="Clone" targetNamespace="HarmonizeGitCloner/Clone.xsd" elementFormDefault="qualified" xmlns="HarmonizeGitCloner/Clone.xsd" xmlns:mstns="HarmonizeGitCloner/Clone.xsd" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   <xs:element name="Clone" type="CloneType" />
+   <xs:complexType name="CloneType">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+         <xs:element name="Nickname" type="StringType" minOccurs="0" maxOccurs="1" />
+         <xs:element name="ClonePath" type="StringType" minOccurs="0" maxOccurs="1" />
+      </xs:choice>
+   </xs:complexType>
+   <xs:complexType name="StringType">
+      <xs:attribute name="value" use="optional" />
+   </xs:complexType>
+</xs:schema>
