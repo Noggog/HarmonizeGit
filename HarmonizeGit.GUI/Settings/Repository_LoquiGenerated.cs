@@ -12,6 +12,7 @@ using Loqui;
 using Noggog;
 using Noggog.Notifying;
 using HarmonizeGit.GUI.Internals;
+using Noggog.WPF;
 using ReactiveUI;
 using System.Xml;
 using System.Xml.Linq;
@@ -26,7 +27,7 @@ namespace HarmonizeGit.GUI
 {
     #region Class
     public partial class Repository :
-        LoquiNotifyingObject,
+        ViewModel,
         IRepository,
         ILoquiObjectSetter<Repository>,
         IEquatable<Repository>,

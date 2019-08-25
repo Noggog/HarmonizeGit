@@ -2,6 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -11,10 +15,15 @@ namespace HarmonizeGit.GUI
 {
     public partial class Repository
     {
-        public ICommand OpenRepoFolderDialogCommand { get; private set; }
-        public ICommand RefreshCommand { get; private set; }
+        public IReactiveCommand OpenRepoFolderDialogCommand { get; private set; }
+        public IReactiveCommand ResyncCommand { get; private set; }
+        public IReactiveCommand DeleteCommand { get; private set; }
+        public IReactiveCommand AutoSyncCommand { get; private set; }
 
-        partial void CustomCtor()
+        private ObservableAsPropertyHelper<bool> _Resyncing;
+        public bool Resyncing => _Resyncing.Value;
+        
+        public void Init(MainVM mvm)
         {
             this.OpenRepoFolderDialogCommand = ReactiveCommand.Create(
                 execute: () =>
@@ -31,14 +40,42 @@ namespace HarmonizeGit.GUI
                         }
                     }
                 });
-            this.RefreshCommand = ReactiveCommand.Create(
-                execute: async () =>
+            this.ResyncCommand = ReactiveCommand.CreateFromTask(Resync);
+            this.AutoSyncCommand = ReactiveCommand.Create(() =>
+            {
+                this.AutoSync = !this.AutoSync;
+            });
+
+            _Resyncing = this.ResyncCommand.IsExecuting
+                .ToProperty(this, nameof(Resyncing));
+            this.DeleteCommand = ReactiveCommand.Create(
+                execute: () =>
                 {
-                    HarmonizeGit.Settings.Instance.LogToFile = false;
-                    HarmonizeGitBase harmonize = new HarmonizeGitBase(this.Path);
-                    harmonize.Init();
-                    await harmonize.SyncConfigToParentShas();
+                    mvm.Settings.Repositories.Remove(this);
                 });
+
+            // Set up autosync
+            mvm.SyncPulse
+                .StartWith(Unit.Default)
+                .FilterSwitch(
+                    Observable.CombineLatest(
+                        mvm.WhenAny(x => x.Settings.AutoSync),
+                        this.WhenAny(x => x.AutoSync),
+                        resultSelector: (main, individual) => main || individual)
+                    .DistinctUntilChanged())
+                .Merge(mvm.ResyncCommand.IsExecuting
+                    .Where(b => b)
+                    .Unit())
+                .InvokeCommand(this.ResyncCommand)
+                .DisposeWith(this.CompositeDisposable);
+        }
+
+        public async Task Resync()
+        {
+            HarmonizeGit.Settings.Instance.LogToFile = false;
+            HarmonizeGitBase harmonize = new HarmonizeGitBase(this.Path);
+            harmonize.Init();
+            await harmonize.SyncConfigToParentShas();
         }
     }
 }

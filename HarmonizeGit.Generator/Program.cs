@@ -26,6 +26,7 @@ namespace HarmonizeGit.Generator
                 {
                     DefaultNamespace = "HarmonizeGit.GUI",
                 });
+            proto.RxBaseOptionDefault = RxBaseOption.ViewModel;
             proto.AddProjectToModify(
                 new FileInfo(Path.Combine(proto.GenerationFolder.FullName, "HarmonizeGit.GUI.csproj")));
 

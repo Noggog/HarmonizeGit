@@ -8,17 +8,18 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <!--  MahApps.Metro resource dictionaries. Make sure that all file names are Case Sensitive!  -->
+                <!--  MahApps.Metro resource dictionaries.  -->
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.Buttons.xaml" />
                 <!--  Accent and AppTheme setting  -->
-                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Indigo.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Yellow.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseDark.xaml" />
+                <!-- Noggog Theming -->
+                <ResourceDictionary Source="pack://application:,,,/Noggog.WPF;component/TypicalTheming.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Noggog.WPF;component/Converters/Converters.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
-
     </Application.Resources>
 </Application>
