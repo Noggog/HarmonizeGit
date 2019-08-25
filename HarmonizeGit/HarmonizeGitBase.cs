@@ -3,6 +3,7 @@ using FishingWithGit.Common;
 using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -19,7 +20,7 @@ namespace HarmonizeGit
     {
         public ConfigLoader ConfigLoader { get; private set; }
         public ChildrenLoader ChildLoader { get; private set; }
-        private Lazy<RepoLoader> _RepoLoader = new Lazy<RepoLoader>();
+        private readonly Lazy<RepoLoader> _RepoLoader;
         public RepoLoader RepoLoader => _RepoLoader.Value;
         public readonly string TargetPath;
         public string ConfigPath => Path.Combine(TargetPath, Constants.HarmonizeConfigPath);
@@ -32,10 +33,13 @@ namespace HarmonizeGit
         public HarmonizeGitBase(string targetPath)
         {
             this.TargetPath = targetPath;
+            this._RepoLoader = new Lazy<RepoLoader>(() => new RepoLoader(this.TargetPath));
         }
 
         public async Task<bool> Handle(string[] args)
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             try
             {
                 return await Handle_Internal(args);
@@ -56,7 +60,7 @@ namespace HarmonizeGit
                 }
                 if (this.Logger?.ShouldLogToFile ?? false)
                 {
-                    this.Logger.LogResults();
+                    this.Logger.LogResults(sw, "HarmonizeGit");
                 }
             }
         }

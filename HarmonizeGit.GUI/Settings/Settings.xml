@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<Loqui xmlns="http://tempuri.org/LoquiSource.xsd">
+  <Object name="Settings" GUID="5d6eeb31-060e-48ce-b224-2b4c2b802cde" ID="1">
+    <Fields>
+      <RefList name="Repositories" refName="Repository" />
+      <String name="LastReferencedDirectory" />
+    </Fields>
+  </Object>
+  <Object name="Repository" GUID="257a1e5e-e6be-4675-a3e4-a186db23e839" ID="2">
+    <Fields>
+      <String name="Nickname" />
+      <String name="Path" />
+    </Fields>
+  </Object>
+</Loqui>

@@ -2,10 +2,34 @@
    <ParentRepos>
       <RepoListing>
          <Nickname>FishingWithGit</Nickname>
-         <Sha>9c397bd88a9b6daca00ec5dd2f40d1274845d5db</Sha>
+         <Sha>b0bb6e4b22e29d3552846987fc2d295ce082ceda</Sha>
          <Path>../FishingWithGit</Path>
-         <CommitDate>09-01-2017 16:38:12</CommitDate>
-         <Description>Moved overall timing log to end for clarity</Description>
+         <CommitDate>08-24-2019 22:40:15</CommitDate>
+         <Description>StandardizePath now takes in desired relative root</Description>
+         <Author>Justin Swanson</Author>
+      </RepoListing>
+      <RepoListing>
+         <Nickname>CSharpExt</Nickname>
+         <Sha>d5d70f5af5ef594a7e02844f5be9611316099c75</Sha>
+         <Path>../CSharpExt</Path>
+         <CommitDate>08-20-2019 21:16:49</CommitDate>
+         <Description>Some MemoryTributary improvements</Description>
+         <Author>Justin Swanson</Author>
+      </RepoListing>
+      <RepoListing>
+         <Nickname>DynamicData</Nickname>
+         <Sha>88349576612d32f9bb24293a0c14936d4a5e1638</Sha>
+         <Path>../DynamicData</Path>
+         <CommitDate>06-23-2019 18:15:12</CommitDate>
+         <Description>IReadOnlyCache</Description>
+         <Author>Justin Swanson</Author>
+      </RepoListing>
+      <RepoListing>
+         <Nickname>Loqui</Nickname>
+         <Sha>e0b0abb05baf50806e2addaaac55f0b22e861d15</Sha>
+         <Path>../Loqui</Path>
+         <CommitDate>08-24-2019 15:44:45</CommitDate>
+         <Description>FunctionWrapper wheres removed from ctor</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
    </ParentRepos>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<xs:schema id="Repository" targetNamespace="HarmonizeGit" elementFormDefault="qualified" xmlns="HarmonizeGit" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   <xs:include schemaLocation="..\Common.xsd" />
+   <xs:element name="Repository" type="RepositoryType" />
+   <xs:complexType name="RepositoryType">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+         <xs:element name="Nickname" type="NullableValueType" minOccurs="0" maxOccurs="1" />
+         <xs:element name="Path" type="NullableValueType" minOccurs="0" maxOccurs="1" />
+      </xs:choice>
+   </xs:complexType>
+</xs:schema>

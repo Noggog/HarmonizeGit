@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="us-ascii"?>
+<xs:schema id="Settings" targetNamespace="HarmonizeGit" elementFormDefault="qualified" xmlns="HarmonizeGit" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+   <xs:include schemaLocation="..\Common.xsd" />
+   <xs:include schemaLocation="Repository.xsd" />
+   <xs:element name="Settings" type="SettingsType" />
+   <xs:complexType name="SettingsType">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+         <xs:element name="Repositories" type="RepositoriesType" minOccurs="0" maxOccurs="1" />
+         <xs:element name="LastReferencedDirectory" type="NullableValueType" minOccurs="0" maxOccurs="1" />
+      </xs:choice>
+   </xs:complexType>
+   <xs:complexType name="RepositoriesType">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+         <xs:element name="Item" type="RepositoryType" />
+      </xs:choice>
+   </xs:complexType>
+</xs:schema>
