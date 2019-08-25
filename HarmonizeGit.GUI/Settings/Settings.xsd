@@ -7,6 +7,7 @@
       <xs:choice minOccurs="0" maxOccurs="unbounded">
          <xs:element name="Repositories" type="RepositoriesType" minOccurs="0" maxOccurs="1" />
          <xs:element name="LastReferencedDirectory" type="NullableValueType" minOccurs="0" maxOccurs="1" />
+         <xs:element name="AutoSync" type="ValueType" minOccurs="0" maxOccurs="1" />
       </xs:choice>
    </xs:complexType>
    <xs:complexType name="RepositoriesType">

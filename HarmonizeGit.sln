@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.8
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{53233E8C-3868-4F6A-806B-C2122B76197E}"
 EndProject
@@ -31,7 +31,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Loqui.Presentation", "..\Lo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Loqui", "..\Loqui\Loqui\Loqui.csproj", "{AC73A836-AB97-463C-9C51-765214654ACC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HarmonizeGit.Generator", "HarmonizeGit.Generator\HarmonizeGit.Generator.csproj", "{AF015E31-9070-4653-A66D-3FAE4CAC3758}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HarmonizeGit.Generator", "HarmonizeGit.Generator\HarmonizeGit.Generator.csproj", "{AF015E31-9070-4653-A66D-3FAE4CAC3758}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HarmonizeGitCloner", "HarmonizeGitCloner\HarmonizeGitCloner.csproj", "{A6D45FD6-0BB2-433D-9E40-0C7DC8FB8755}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -93,6 +95,10 @@ Global
 		{AF015E31-9070-4653-A66D-3FAE4CAC3758}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AF015E31-9070-4653-A66D-3FAE4CAC3758}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AF015E31-9070-4653-A66D-3FAE4CAC3758}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6D45FD6-0BB2-433D-9E40-0C7DC8FB8755}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6D45FD6-0BB2-433D-9E40-0C7DC8FB8755}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6D45FD6-0BB2-433D-9E40-0C7DC8FB8755}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6D45FD6-0BB2-433D-9E40-0C7DC8FB8755}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

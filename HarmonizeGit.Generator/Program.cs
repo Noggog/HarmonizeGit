@@ -17,6 +17,7 @@ namespace HarmonizeGit.Generator
                 HasBeenSetDefault = false,
                 ToStringDefault = false,
             };
+
             var proto = gen.AddProtocol(
                 new ProtocolGeneration(
                     gen,
@@ -27,6 +28,18 @@ namespace HarmonizeGit.Generator
                 });
             proto.AddProjectToModify(
                 new FileInfo(Path.Combine(proto.GenerationFolder.FullName, "HarmonizeGit.GUI.csproj")));
+
+            proto = gen.AddProtocol(
+                new ProtocolGeneration(
+                    gen,
+                    new ProtocolKey("HarmonizeGitCloner"),
+                    new DirectoryInfo("../../../../HarmonizeGitCloner"))
+                {
+                    DefaultNamespace = "HarmonizeGitCloner",
+                });
+            proto.AddProjectToModify(
+                new FileInfo(Path.Combine(proto.GenerationFolder.FullName, "HarmonizeGitCloner.csproj")));
+
             gen.Generate().Wait();
         }
     }

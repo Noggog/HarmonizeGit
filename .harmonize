@@ -10,10 +10,10 @@
       </RepoListing>
       <RepoListing>
          <Nickname>CSharpExt</Nickname>
-         <Sha>d5d70f5af5ef594a7e02844f5be9611316099c75</Sha>
+         <Sha>48a762c122637283df4f3454b91f8450de4a9424</Sha>
          <Path>../CSharpExt</Path>
-         <CommitDate>08-20-2019 21:16:49</CommitDate>
-         <Description>Some MemoryTributary improvements</Description>
+         <CommitDate>08-24-2019 23:03:39</CommitDate>
+         <Description>WPF: EditableTextBlock</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
       <RepoListing>
@@ -26,10 +26,18 @@
       </RepoListing>
       <RepoListing>
          <Nickname>Loqui</Nickname>
-         <Sha>e0b0abb05baf50806e2addaaac55f0b22e861d15</Sha>
+         <Sha>0a58ab22416658853bb7f075ffcabf6322f3b7c6</Sha>
          <Path>../Loqui</Path>
-         <CommitDate>08-24-2019 15:44:45</CommitDate>
+         <CommitDate>08-25-2019 00:11:20</CommitDate>
          <Description>FunctionWrapper wheres removed from ctor</Description>
+         <Author>Justin Swanson</Author>
+      </RepoListing>
+      <RepoListing>
+         <Nickname>CSharpExt</Nickname>
+         <Sha>48a762c122637283df4f3454b91f8450de4a9424</Sha>
+         <Path>../CSharpExt</Path>
+         <CommitDate>08-24-2019 23:03:39</CommitDate>
+         <Description>WPF: EditableTextBlock</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
    </ParentRepos>

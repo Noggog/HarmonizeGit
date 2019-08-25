@@ -3,4 +3,7 @@
    <xs:complexType name="NullableValueType">
       <xs:attribute name="value" use="optional" />
    </xs:complexType>
+   <xs:complexType name="ValueType">
+      <xs:attribute name="value" use="required" />
+   </xs:complexType>
 </xs:schema>

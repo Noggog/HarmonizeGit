@@ -11,7 +11,7 @@ using System.Text;
 using Loqui;
 using Noggog;
 using Noggog.Notifying;
-using HarmonizeGit.GUI.Internals;
+using HarmonizeGitCloner.Internals;
 using ReactiveUI;
 using System.Xml;
 using System.Xml.Linq;
@@ -22,24 +22,24 @@ using Loqui.Internal;
 using System.Diagnostics;
 using System.Collections.Specialized;
 
-namespace HarmonizeGit.GUI
+namespace HarmonizeGitCloner
 {
     #region Class
-    public partial class Repository :
+    public partial class Clone :
         LoquiNotifyingObject,
-        IRepository,
-        ILoquiObjectSetter<Repository>,
-        IEquatable<Repository>,
+        IClone,
+        ILoquiObjectSetter<Clone>,
+        IEquatable<Clone>,
         IEqualsMask
     {
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        ILoquiRegistration ILoquiObject.Registration => Repository_Registration.Instance;
-        public static Repository_Registration Registration => Repository_Registration.Instance;
-        protected object CommonInstance => RepositoryCommon.Instance;
+        ILoquiRegistration ILoquiObject.Registration => Clone_Registration.Instance;
+        public static Clone_Registration Registration => Clone_Registration.Instance;
+        protected object CommonInstance => CloneCommon.Instance;
         object ILoquiObject.CommonInstance => this.CommonInstance;
 
         #region Ctor
-        public Repository()
+        public Clone()
         {
             _hasBeenSetTracker = new BitArray(((ILoquiObject)this).Registration.FieldCount);
             CustomCtor();
@@ -55,31 +55,23 @@ namespace HarmonizeGit.GUI
             set => this.RaiseAndSetIfReferenceChanged(ref this._Nickname, value, nameof(Nickname));
         }
         #endregion
-        #region Path
-        private String _Path;
-        public String Path
+        #region ClonePath
+        private String _ClonePath;
+        public String ClonePath
         {
-            get => this._Path;
-            set => this.RaiseAndSetIfReferenceChanged(ref this._Path, value, nameof(Path));
-        }
-        #endregion
-        #region AutoSync
-        private Boolean _AutoSync;
-        public Boolean AutoSync
-        {
-            get => this._AutoSync;
-            set => this.RaiseAndSetIfChanged(ref this._AutoSync, value, nameof(AutoSync));
+            get => this._ClonePath;
+            set => this.RaiseAndSetIfReferenceChanged(ref this._ClonePath, value, nameof(ClonePath));
         }
         #endregion
 
-        IMask<bool> IEqualsMask.GetEqualsIMask(object rhs, EqualsMaskHelper.Include include) => this.GetEqualsMask((IRepositoryGetter)rhs, include);
+        IMask<bool> IEqualsMask.GetEqualsIMask(object rhs, EqualsMaskHelper.Include include) => this.GetEqualsMask((ICloneGetter)rhs, include);
         #region To String
 
         public void ToString(
             FileGeneration fg,
             string name = null)
         {
-            RepositoryMixIn.ToString(
+            CloneMixIn.ToString(
                 item: this,
                 name: name);
         }
@@ -90,28 +82,28 @@ namespace HarmonizeGit.GUI
         #region Equals and Hash
         public override bool Equals(object obj)
         {
-            if (!(obj is IRepositoryGetter rhs)) return false;
-            return ((RepositoryCommon)((ILoquiObject)this).CommonInstance).Equals(this, rhs);
+            if (!(obj is ICloneGetter rhs)) return false;
+            return ((CloneCommon)((ILoquiObject)this).CommonInstance).Equals(this, rhs);
         }
 
-        public bool Equals(Repository obj)
+        public bool Equals(Clone obj)
         {
-            return ((RepositoryCommon)((ILoquiObject)this).CommonInstance).Equals(this, obj);
+            return ((CloneCommon)((ILoquiObject)this).CommonInstance).Equals(this, obj);
         }
 
-        public override int GetHashCode() => ((RepositoryCommon)((ILoquiObject)this).CommonInstance).GetHashCode(this);
+        public override int GetHashCode() => ((CloneCommon)((ILoquiObject)this).CommonInstance).GetHashCode(this);
 
         #endregion
 
         #region Xml Translation
-        protected object XmlWriteTranslator => RepositoryXmlWriteTranslation.Instance;
+        protected object XmlWriteTranslator => CloneXmlWriteTranslation.Instance;
         object IXmlItem.XmlWriteTranslator => this.XmlWriteTranslator;
         #region Xml Create
         [DebuggerStepThrough]
-        public static Repository CreateFromXml(
+        public static Clone CreateFromXml(
             XElement node,
             MissingCreate missing = MissingCreate.New,
-            Repository_TranslationMask translationMask = null)
+            Clone_TranslationMask translationMask = null)
         {
             return CreateFromXml(
                 missing: missing,
@@ -121,11 +113,11 @@ namespace HarmonizeGit.GUI
         }
 
         [DebuggerStepThrough]
-        public static Repository CreateFromXml(
+        public static Clone CreateFromXml(
             XElement node,
-            out Repository_ErrorMask errorMask,
+            out Clone_ErrorMask errorMask,
             bool doMasks = true,
-            Repository_TranslationMask translationMask = null,
+            Clone_TranslationMask translationMask = null,
             MissingCreate missing = MissingCreate.New)
         {
             ErrorMaskBuilder errorMaskBuilder = doMasks ? new ErrorMaskBuilder() : null;
@@ -134,11 +126,11 @@ namespace HarmonizeGit.GUI
                 node: node,
                 errorMask: errorMaskBuilder,
                 translationMask: translationMask.GetCrystal());
-            errorMask = Repository_ErrorMask.Factory(errorMaskBuilder);
+            errorMask = Clone_ErrorMask.Factory(errorMaskBuilder);
             return ret;
         }
 
-        public static Repository CreateFromXml(
+        public static Clone CreateFromXml(
             XElement node,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask,
@@ -148,17 +140,17 @@ namespace HarmonizeGit.GUI
             {
                 case MissingCreate.New:
                 case MissingCreate.Null:
-                    if (node == null) return missing == MissingCreate.New ? new Repository() : null;
+                    if (node == null) return missing == MissingCreate.New ? new Clone() : null;
                     break;
                 default:
                     break;
             }
-            var ret = new Repository();
+            var ret = new Clone();
             try
             {
                 foreach (var elem in node.Elements())
                 {
-                    RepositoryXmlCreateTranslation.FillPublicElementXml(
+                    CloneXmlCreateTranslation.FillPublicElementXml(
                         item: ret,
                         node: elem,
                         name: elem.Name.LocalName,
@@ -174,10 +166,10 @@ namespace HarmonizeGit.GUI
             return ret;
         }
 
-        public static Repository CreateFromXml(
+        public static Clone CreateFromXml(
             string path,
             MissingCreate missing = MissingCreate.New,
-            Repository_TranslationMask translationMask = null)
+            Clone_TranslationMask translationMask = null)
         {
             var node = System.IO.File.Exists(path) ? XDocument.Load(path).Root : null;
             return CreateFromXml(
@@ -186,10 +178,10 @@ namespace HarmonizeGit.GUI
                 translationMask: translationMask);
         }
 
-        public static Repository CreateFromXml(
+        public static Clone CreateFromXml(
             string path,
-            out Repository_ErrorMask errorMask,
-            Repository_TranslationMask translationMask = null,
+            out Clone_ErrorMask errorMask,
+            Clone_TranslationMask translationMask = null,
             MissingCreate missing = MissingCreate.New)
         {
             var node = System.IO.File.Exists(path) ? XDocument.Load(path).Root : null;
@@ -200,10 +192,10 @@ namespace HarmonizeGit.GUI
                 translationMask: translationMask);
         }
 
-        public static Repository CreateFromXml(
+        public static Clone CreateFromXml(
             string path,
             ErrorMaskBuilder errorMask,
-            Repository_TranslationMask translationMask = null,
+            Clone_TranslationMask translationMask = null,
             MissingCreate missing = MissingCreate.New)
         {
             var node = System.IO.File.Exists(path) ? XDocument.Load(path).Root : null;
@@ -214,10 +206,10 @@ namespace HarmonizeGit.GUI
                 translationMask: translationMask?.GetCrystal());
         }
 
-        public static Repository CreateFromXml(
+        public static Clone CreateFromXml(
             Stream stream,
             MissingCreate missing = MissingCreate.New,
-            Repository_TranslationMask translationMask = null)
+            Clone_TranslationMask translationMask = null)
         {
             var node = XDocument.Load(stream).Root;
             return CreateFromXml(
@@ -226,10 +218,10 @@ namespace HarmonizeGit.GUI
                 translationMask: translationMask);
         }
 
-        public static Repository CreateFromXml(
+        public static Clone CreateFromXml(
             Stream stream,
-            out Repository_ErrorMask errorMask,
-            Repository_TranslationMask translationMask = null,
+            out Clone_ErrorMask errorMask,
+            Clone_TranslationMask translationMask = null,
             MissingCreate missing = MissingCreate.New)
         {
             var node = XDocument.Load(stream).Root;
@@ -240,10 +232,10 @@ namespace HarmonizeGit.GUI
                 translationMask: translationMask);
         }
 
-        public static Repository CreateFromXml(
+        public static Clone CreateFromXml(
             Stream stream,
             ErrorMaskBuilder errorMask,
-            Repository_TranslationMask translationMask = null,
+            Clone_TranslationMask translationMask = null,
             MissingCreate missing = MissingCreate.New)
         {
             var node = XDocument.Load(stream).Root;
@@ -270,8 +262,8 @@ namespace HarmonizeGit.GUI
 
         public virtual void CopyInXml(
             XElement node,
-            out Repository_ErrorMask errorMask,
-            Repository_TranslationMask translationMask = null,
+            out Clone_ErrorMask errorMask,
+            Clone_TranslationMask translationMask = null,
             MissingCreate missing = MissingCreate.New,
             bool doMasks = true)
         {
@@ -281,7 +273,7 @@ namespace HarmonizeGit.GUI
                 node: node,
                 errorMask: errorMaskBuilder,
                 translationMask: translationMask?.GetCrystal());
-            errorMask = Repository_ErrorMask.Factory(errorMaskBuilder);
+            errorMask = Clone_ErrorMask.Factory(errorMaskBuilder);
         }
 
         protected void CopyInXml_Internal(
@@ -290,7 +282,7 @@ namespace HarmonizeGit.GUI
             TranslationCrystal translationMask,
             MissingCreate missing = MissingCreate.New)
         {
-            LoquiXmlTranslation<Repository>.Instance.CopyIn(
+            LoquiXmlTranslation<Clone>.Instance.CopyIn(
                 missing: missing,
                 node: node,
                 item: this,
@@ -311,8 +303,8 @@ namespace HarmonizeGit.GUI
 
         public void CopyInXml(
             string path,
-            out Repository_ErrorMask errorMask,
-            Repository_TranslationMask translationMask,
+            out Clone_ErrorMask errorMask,
+            Clone_TranslationMask translationMask,
             MissingCreate missing = MissingCreate.New,
             bool doMasks = true)
         {
@@ -337,8 +329,8 @@ namespace HarmonizeGit.GUI
 
         public void CopyInXml(
             Stream stream,
-            out Repository_ErrorMask errorMask,
-            Repository_TranslationMask translationMask,
+            out Clone_ErrorMask errorMask,
+            Clone_TranslationMask translationMask,
             MissingCreate missing = MissingCreate.New,
             bool doMasks = true)
         {
@@ -358,40 +350,39 @@ namespace HarmonizeGit.GUI
         protected readonly BitArray _hasBeenSetTracker;
         protected bool GetHasBeenSet(int index)
         {
-            switch ((Repository_FieldIndex)index)
+            switch ((Clone_FieldIndex)index)
             {
-                case Repository_FieldIndex.Nickname:
-                case Repository_FieldIndex.Path:
-                case Repository_FieldIndex.AutoSync:
+                case Clone_FieldIndex.Nickname:
+                case Clone_FieldIndex.ClonePath:
                     return true;
                 default:
                     throw new ArgumentException($"Unknown field index: {index}");
             }
         }
 
-        public Repository Copy(
-            Repository_CopyMask copyMask = null,
-            Repository def = null)
+        public Clone Copy(
+            Clone_CopyMask copyMask = null,
+            Clone def = null)
         {
-            return Repository.Copy(
+            return Clone.Copy(
                 this,
                 copyMask: copyMask,
                 def: def);
         }
 
-        public static Repository Copy(
-            Repository item,
-            Repository_CopyMask copyMask = null,
-            Repository def = null)
+        public static Clone Copy(
+            Clone item,
+            Clone_CopyMask copyMask = null,
+            Clone def = null)
         {
-            Repository ret;
-            if (item.GetType().Equals(typeof(Repository)))
+            Clone ret;
+            if (item.GetType().Equals(typeof(Clone)))
             {
-                ret = new Repository();
+                ret = new Clone();
             }
             else
             {
-                ret = (Repository)System.Activator.CreateInstance(item.GetType());
+                ret = (Clone)System.Activator.CreateInstance(item.GetType());
             }
             ret.CopyFieldsFrom(
                 item,
@@ -400,19 +391,19 @@ namespace HarmonizeGit.GUI
             return ret;
         }
 
-        public static Repository Copy_ToLoqui(
-            Repository item,
-            Repository_CopyMask copyMask = null,
-            Repository def = null)
+        public static Clone Copy_ToLoqui(
+            Clone item,
+            Clone_CopyMask copyMask = null,
+            Clone def = null)
         {
-            Repository ret;
-            if (item.GetType().Equals(typeof(Repository)))
+            Clone ret;
+            if (item.GetType().Equals(typeof(Clone)))
             {
-                ret = new Repository() as Repository;
+                ret = new Clone() as Clone;
             }
             else
             {
-                ret = (Repository)System.Activator.CreateInstance(item.GetType());
+                ret = (Clone)System.Activator.CreateInstance(item.GetType());
             }
             ret.CopyFieldsFrom(
                 item,
@@ -421,7 +412,7 @@ namespace HarmonizeGit.GUI
             return ret;
         }
 
-        public void CopyFieldsFrom(Repository rhs)
+        public void CopyFieldsFrom(Clone rhs)
         {
             this.CopyFieldsFrom(
                 rhs: rhs,
@@ -432,9 +423,9 @@ namespace HarmonizeGit.GUI
         }
 
         public void CopyFieldsFrom(
-            Repository rhs,
-            Repository_CopyMask copyMask,
-            Repository def = null)
+            Clone rhs,
+            Clone_CopyMask copyMask,
+            Clone def = null)
         {
             this.CopyFieldsFrom(
                 rhs: rhs,
@@ -445,29 +436,29 @@ namespace HarmonizeGit.GUI
         }
 
         public void CopyFieldsFrom(
-            Repository rhs,
-            out Repository_ErrorMask errorMask,
-            Repository_CopyMask copyMask = null,
-            Repository def = null,
+            Clone rhs,
+            out Clone_ErrorMask errorMask,
+            Clone_CopyMask copyMask = null,
+            Clone def = null,
             bool doMasks = true)
         {
             var errorMaskBuilder = new ErrorMaskBuilder();
-            RepositoryCommon.CopyFieldsFrom(
+            CloneCommon.CopyFieldsFrom(
                 item: this,
                 rhs: rhs,
                 def: def,
                 errorMask: errorMaskBuilder,
                 copyMask: copyMask);
-            errorMask = Repository_ErrorMask.Factory(errorMaskBuilder);
+            errorMask = Clone_ErrorMask.Factory(errorMaskBuilder);
         }
 
         public void CopyFieldsFrom(
-            Repository rhs,
+            Clone rhs,
             ErrorMaskBuilder errorMask,
-            Repository_CopyMask copyMask = null,
-            Repository def = null)
+            Clone_CopyMask copyMask = null,
+            Clone def = null)
         {
-            RepositoryCommon.CopyFieldsFrom(
+            CloneCommon.CopyFieldsFrom(
                 item: this,
                 rhs: rhs,
                 def: def,
@@ -477,17 +468,14 @@ namespace HarmonizeGit.GUI
 
         protected void SetNthObject(ushort index, object obj)
         {
-            Repository_FieldIndex enu = (Repository_FieldIndex)index;
+            Clone_FieldIndex enu = (Clone_FieldIndex)index;
             switch (enu)
             {
-                case Repository_FieldIndex.Nickname:
+                case Clone_FieldIndex.Nickname:
                     this.Nickname = (String)obj;
                     break;
-                case Repository_FieldIndex.Path:
-                    this.Path = (String)obj;
-                    break;
-                case Repository_FieldIndex.AutoSync:
-                    this.AutoSync = (Boolean)obj;
+                case Clone_FieldIndex.ClonePath:
+                    this.ClonePath = (String)obj;
                     break;
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
@@ -496,35 +484,32 @@ namespace HarmonizeGit.GUI
 
         public void Clear()
         {
-            RepositoryCommon.Instance.Clear(this);
+            CloneCommon.Instance.Clear(this);
         }
 
-        public static Repository Create(IEnumerable<KeyValuePair<ushort, object>> fields)
+        public static Clone Create(IEnumerable<KeyValuePair<ushort, object>> fields)
         {
-            var ret = new Repository();
+            var ret = new Clone();
             foreach (var pair in fields)
             {
-                CopyInInternal_Repository(ret, pair);
+                CopyInInternal_Clone(ret, pair);
             }
             return ret;
         }
 
-        protected static void CopyInInternal_Repository(Repository obj, KeyValuePair<ushort, object> pair)
+        protected static void CopyInInternal_Clone(Clone obj, KeyValuePair<ushort, object> pair)
         {
-            if (!EnumExt.TryParse(pair.Key, out Repository_FieldIndex enu))
+            if (!EnumExt.TryParse(pair.Key, out Clone_FieldIndex enu))
             {
                 throw new ArgumentException($"Unknown index: {pair.Key}");
             }
             switch (enu)
             {
-                case Repository_FieldIndex.Nickname:
+                case Clone_FieldIndex.Nickname:
                     obj.Nickname = (String)pair.Value;
                     break;
-                case Repository_FieldIndex.Path:
-                    obj.Path = (String)pair.Value;
-                    break;
-                case Repository_FieldIndex.AutoSync:
-                    obj.AutoSync = (Boolean)pair.Value;
+                case Clone_FieldIndex.ClonePath:
+                    obj.ClonePath = (String)pair.Value;
                     break;
                 default:
                     throw new ArgumentException($"Unknown enum type: {enu}");
@@ -534,38 +519,32 @@ namespace HarmonizeGit.GUI
     #endregion
 
     #region Interface
-    public partial interface IRepository :
-        IRepositoryGetter,
-        ILoquiObjectSetter<IRepository>
+    public partial interface IClone :
+        ICloneGetter,
+        ILoquiObjectSetter<IClone>
     {
         new String Nickname { get; set; }
 
-        new String Path { get; set; }
-
-        new Boolean AutoSync { get; set; }
+        new String ClonePath { get; set; }
 
         void CopyFieldsFrom(
-            Repository rhs,
+            Clone rhs,
             ErrorMaskBuilder errorMask = null,
-            Repository_CopyMask copyMask = null,
-            Repository def = null);
+            Clone_CopyMask copyMask = null,
+            Clone def = null);
     }
 
-    public partial interface IRepositoryGetter :
+    public partial interface ICloneGetter :
         ILoquiObject,
-        ILoquiObject<IRepositoryGetter>,
+        ILoquiObject<ICloneGetter>,
         IXmlItem
     {
         #region Nickname
         String Nickname { get; }
 
         #endregion
-        #region Path
-        String Path { get; }
-
-        #endregion
-        #region AutoSync
-        Boolean AutoSync { get; }
+        #region ClonePath
+        String ClonePath { get; }
 
         #endregion
 
@@ -574,42 +553,42 @@ namespace HarmonizeGit.GUI
     #endregion
 
     #region Common MixIn
-    public static class RepositoryMixIn
+    public static class CloneMixIn
     {
-        public static void Clear(this IRepository item)
+        public static void Clear(this IClone item)
         {
-            ((RepositoryCommon)((ILoquiObject)item).CommonInstance).Clear(item: item);
+            ((CloneCommon)((ILoquiObject)item).CommonInstance).Clear(item: item);
         }
 
-        public static Repository_Mask<bool> GetEqualsMask(
-            this IRepositoryGetter item,
-            IRepositoryGetter rhs,
+        public static Clone_Mask<bool> GetEqualsMask(
+            this ICloneGetter item,
+            ICloneGetter rhs,
             EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
         {
-            return ((RepositoryCommon)((ILoquiObject)item).CommonInstance).GetEqualsMask(
+            return ((CloneCommon)((ILoquiObject)item).CommonInstance).GetEqualsMask(
                 item: item,
                 rhs: rhs,
                 include: include);
         }
 
         public static string ToString(
-            this IRepositoryGetter item,
+            this ICloneGetter item,
             string name = null,
-            Repository_Mask<bool> printMask = null)
+            Clone_Mask<bool> printMask = null)
         {
-            return ((RepositoryCommon)((ILoquiObject)item).CommonInstance).ToString(
+            return ((CloneCommon)((ILoquiObject)item).CommonInstance).ToString(
                 item: item,
                 name: name,
                 printMask: printMask);
         }
 
         public static void ToString(
-            this IRepositoryGetter item,
+            this ICloneGetter item,
             FileGeneration fg,
             string name = null,
-            Repository_Mask<bool> printMask = null)
+            Clone_Mask<bool> printMask = null)
         {
-            ((RepositoryCommon)((ILoquiObject)item).CommonInstance).ToString(
+            ((CloneCommon)((ILoquiObject)item).CommonInstance).ToString(
                 item: item,
                 fg: fg,
                 name: name,
@@ -617,28 +596,28 @@ namespace HarmonizeGit.GUI
         }
 
         public static bool HasBeenSet(
-            this IRepositoryGetter item,
-            Repository_Mask<bool?> checkMask)
+            this ICloneGetter item,
+            Clone_Mask<bool?> checkMask)
         {
-            return ((RepositoryCommon)((ILoquiObject)item).CommonInstance).HasBeenSet(
+            return ((CloneCommon)((ILoquiObject)item).CommonInstance).HasBeenSet(
                 item: item,
                 checkMask: checkMask);
         }
 
-        public static Repository_Mask<bool> GetHasBeenSetMask(this IRepositoryGetter item)
+        public static Clone_Mask<bool> GetHasBeenSetMask(this ICloneGetter item)
         {
-            var ret = new Repository_Mask<bool>();
-            ((RepositoryCommon)((ILoquiObject)item).CommonInstance).FillHasBeenSetMask(
+            var ret = new Clone_Mask<bool>();
+            ((CloneCommon)((ILoquiObject)item).CommonInstance).FillHasBeenSetMask(
                 item: item,
                 mask: ret);
             return ret;
         }
 
         public static bool Equals(
-            this IRepositoryGetter item,
-            IRepositoryGetter rhs)
+            this ICloneGetter item,
+            ICloneGetter rhs)
         {
-            return ((RepositoryCommon)((ILoquiObject)item).CommonInstance).Equals(
+            return ((CloneCommon)((ILoquiObject)item).CommonInstance).Equals(
                 lhs: item,
                 rhs: rhs);
         }
@@ -648,56 +627,55 @@ namespace HarmonizeGit.GUI
 
 }
 
-namespace HarmonizeGit.GUI.Internals
+namespace HarmonizeGitCloner.Internals
 {
     #region Field Index
-    public enum Repository_FieldIndex
+    public enum Clone_FieldIndex
     {
         Nickname = 0,
-        Path = 1,
-        AutoSync = 2,
+        ClonePath = 1,
     }
     #endregion
 
     #region Registration
-    public class Repository_Registration : ILoquiRegistration
+    public class Clone_Registration : ILoquiRegistration
     {
-        public static readonly Repository_Registration Instance = new Repository_Registration();
+        public static readonly Clone_Registration Instance = new Clone_Registration();
 
-        public static ProtocolKey ProtocolKey => ProtocolDefinition_HarmonizeGit.ProtocolKey;
+        public static ProtocolKey ProtocolKey => ProtocolDefinition_HarmonizeGitCloner.ProtocolKey;
 
         public static readonly ObjectKey ObjectKey = new ObjectKey(
-            protocolKey: ProtocolDefinition_HarmonizeGit.ProtocolKey,
+            protocolKey: ProtocolDefinition_HarmonizeGitCloner.ProtocolKey,
             msgID: 2,
             version: 0);
 
-        public const string GUID = "257a1e5e-e6be-4675-a3e4-a186db23e839";
+        public const string GUID = "0bfc02a5-d0a6-4133-a58a-de62dd81525c";
 
-        public const ushort AdditionalFieldCount = 3;
+        public const ushort AdditionalFieldCount = 2;
 
-        public const ushort FieldCount = 3;
+        public const ushort FieldCount = 2;
 
-        public static readonly Type MaskType = typeof(Repository_Mask<>);
+        public static readonly Type MaskType = typeof(Clone_Mask<>);
 
-        public static readonly Type ErrorMaskType = typeof(Repository_ErrorMask);
+        public static readonly Type ErrorMaskType = typeof(Clone_ErrorMask);
 
-        public static readonly Type ClassType = typeof(Repository);
+        public static readonly Type ClassType = typeof(Clone);
 
-        public static readonly Type GetterType = typeof(IRepositoryGetter);
+        public static readonly Type GetterType = typeof(ICloneGetter);
 
         public static readonly Type InternalGetterType = null;
 
-        public static readonly Type SetterType = typeof(IRepository);
+        public static readonly Type SetterType = typeof(IClone);
 
         public static readonly Type InternalSetterType = null;
 
-        public static readonly Type CommonType = typeof(RepositoryCommon);
+        public static readonly Type CommonType = typeof(CloneCommon);
 
-        public const string FullName = "HarmonizeGit.GUI.Repository";
+        public const string FullName = "HarmonizeGitCloner.Clone";
 
-        public const string Name = "Repository";
+        public const string Name = "Clone";
 
-        public const string Namespace = "HarmonizeGit.GUI";
+        public const string Namespace = "HarmonizeGitCloner";
 
         public const byte GenericCount = 0;
 
@@ -708,11 +686,9 @@ namespace HarmonizeGit.GUI.Internals
             switch (str.Upper)
             {
                 case "NICKNAME":
-                    return (ushort)Repository_FieldIndex.Nickname;
-                case "PATH":
-                    return (ushort)Repository_FieldIndex.Path;
-                case "AUTOSYNC":
-                    return (ushort)Repository_FieldIndex.AutoSync;
+                    return (ushort)Clone_FieldIndex.Nickname;
+                case "CLONEPATH":
+                    return (ushort)Clone_FieldIndex.ClonePath;
                 default:
                     return null;
             }
@@ -720,12 +696,11 @@ namespace HarmonizeGit.GUI.Internals
 
         public static bool GetNthIsEnumerable(ushort index)
         {
-            Repository_FieldIndex enu = (Repository_FieldIndex)index;
+            Clone_FieldIndex enu = (Clone_FieldIndex)index;
             switch (enu)
             {
-                case Repository_FieldIndex.Nickname:
-                case Repository_FieldIndex.Path:
-                case Repository_FieldIndex.AutoSync:
+                case Clone_FieldIndex.Nickname:
+                case Clone_FieldIndex.ClonePath:
                     return false;
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
@@ -734,12 +709,11 @@ namespace HarmonizeGit.GUI.Internals
 
         public static bool GetNthIsLoqui(ushort index)
         {
-            Repository_FieldIndex enu = (Repository_FieldIndex)index;
+            Clone_FieldIndex enu = (Clone_FieldIndex)index;
             switch (enu)
             {
-                case Repository_FieldIndex.Nickname:
-                case Repository_FieldIndex.Path:
-                case Repository_FieldIndex.AutoSync:
+                case Clone_FieldIndex.Nickname:
+                case Clone_FieldIndex.ClonePath:
                     return false;
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
@@ -748,12 +722,11 @@ namespace HarmonizeGit.GUI.Internals
 
         public static bool GetNthIsSingleton(ushort index)
         {
-            Repository_FieldIndex enu = (Repository_FieldIndex)index;
+            Clone_FieldIndex enu = (Clone_FieldIndex)index;
             switch (enu)
             {
-                case Repository_FieldIndex.Nickname:
-                case Repository_FieldIndex.Path:
-                case Repository_FieldIndex.AutoSync:
+                case Clone_FieldIndex.Nickname:
+                case Clone_FieldIndex.ClonePath:
                     return false;
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
@@ -762,15 +735,13 @@ namespace HarmonizeGit.GUI.Internals
 
         public static string GetNthName(ushort index)
         {
-            Repository_FieldIndex enu = (Repository_FieldIndex)index;
+            Clone_FieldIndex enu = (Clone_FieldIndex)index;
             switch (enu)
             {
-                case Repository_FieldIndex.Nickname:
+                case Clone_FieldIndex.Nickname:
                     return "Nickname";
-                case Repository_FieldIndex.Path:
-                    return "Path";
-                case Repository_FieldIndex.AutoSync:
-                    return "AutoSync";
+                case Clone_FieldIndex.ClonePath:
+                    return "ClonePath";
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
             }
@@ -778,12 +749,11 @@ namespace HarmonizeGit.GUI.Internals
 
         public static bool IsNthDerivative(ushort index)
         {
-            Repository_FieldIndex enu = (Repository_FieldIndex)index;
+            Clone_FieldIndex enu = (Clone_FieldIndex)index;
             switch (enu)
             {
-                case Repository_FieldIndex.Nickname:
-                case Repository_FieldIndex.Path:
-                case Repository_FieldIndex.AutoSync:
+                case Clone_FieldIndex.Nickname:
+                case Clone_FieldIndex.ClonePath:
                     return false;
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
@@ -792,12 +762,11 @@ namespace HarmonizeGit.GUI.Internals
 
         public static bool IsProtected(ushort index)
         {
-            Repository_FieldIndex enu = (Repository_FieldIndex)index;
+            Clone_FieldIndex enu = (Clone_FieldIndex)index;
             switch (enu)
             {
-                case Repository_FieldIndex.Nickname:
-                case Repository_FieldIndex.Path:
-                case Repository_FieldIndex.AutoSync:
+                case Clone_FieldIndex.Nickname:
+                case Clone_FieldIndex.ClonePath:
                     return false;
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
@@ -806,21 +775,19 @@ namespace HarmonizeGit.GUI.Internals
 
         public static Type GetNthType(ushort index)
         {
-            Repository_FieldIndex enu = (Repository_FieldIndex)index;
+            Clone_FieldIndex enu = (Clone_FieldIndex)index;
             switch (enu)
             {
-                case Repository_FieldIndex.Nickname:
+                case Clone_FieldIndex.Nickname:
                     return typeof(String);
-                case Repository_FieldIndex.Path:
+                case Clone_FieldIndex.ClonePath:
                     return typeof(String);
-                case Repository_FieldIndex.AutoSync:
-                    return typeof(Boolean);
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
             }
         }
 
-        public static readonly Type XmlWriteTranslation = typeof(RepositoryXmlWriteTranslation);
+        public static readonly Type XmlWriteTranslation = typeof(CloneXmlWriteTranslation);
         #region Interface
         ProtocolKey ILoquiRegistration.ProtocolKey => ProtocolKey;
         ObjectKey ILoquiRegistration.ObjectKey => ObjectKey;
@@ -854,21 +821,21 @@ namespace HarmonizeGit.GUI.Internals
     #endregion
 
     #region Common
-    public partial class RepositoryCommon
+    public partial class CloneCommon
     {
-        public static readonly RepositoryCommon Instance = new RepositoryCommon();
+        public static readonly CloneCommon Instance = new CloneCommon();
 
         #region Copy Fields From
         public static void CopyFieldsFrom(
-            Repository item,
-            Repository rhs,
-            Repository def,
+            Clone item,
+            Clone rhs,
+            Clone def,
             ErrorMaskBuilder errorMask,
-            Repository_CopyMask copyMask)
+            Clone_CopyMask copyMask)
         {
             if (copyMask?.Nickname ?? true)
             {
-                errorMask?.PushIndex((int)Repository_FieldIndex.Nickname);
+                errorMask?.PushIndex((int)Clone_FieldIndex.Nickname);
                 try
                 {
                     item.Nickname = rhs.Nickname;
@@ -883,29 +850,12 @@ namespace HarmonizeGit.GUI.Internals
                     errorMask?.PopIndex();
                 }
             }
-            if (copyMask?.Path ?? true)
+            if (copyMask?.ClonePath ?? true)
             {
-                errorMask?.PushIndex((int)Repository_FieldIndex.Path);
+                errorMask?.PushIndex((int)Clone_FieldIndex.ClonePath);
                 try
                 {
-                    item.Path = rhs.Path;
-                }
-                catch (Exception ex)
-                when (errorMask != null)
-                {
-                    errorMask.ReportException(ex);
-                }
-                finally
-                {
-                    errorMask?.PopIndex();
-                }
-            }
-            if (copyMask?.AutoSync ?? true)
-            {
-                errorMask?.PushIndex((int)Repository_FieldIndex.AutoSync);
-                try
-                {
-                    item.AutoSync = rhs.AutoSync;
+                    item.ClonePath = rhs.ClonePath;
                 }
                 catch (Exception ex)
                 when (errorMask != null)
@@ -923,21 +873,20 @@ namespace HarmonizeGit.GUI.Internals
 
         partial void ClearPartial();
 
-        public virtual void Clear(IRepository item)
+        public virtual void Clear(IClone item)
         {
             ClearPartial();
             item.Nickname = default(String);
-            item.Path = default(String);
-            item.AutoSync = default(Boolean);
+            item.ClonePath = default(String);
         }
 
-        public Repository_Mask<bool> GetEqualsMask(
-            IRepositoryGetter item,
-            IRepositoryGetter rhs,
+        public Clone_Mask<bool> GetEqualsMask(
+            ICloneGetter item,
+            ICloneGetter rhs,
             EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
         {
-            var ret = new Repository_Mask<bool>();
-            ((RepositoryCommon)((ILoquiObject)item).CommonInstance).FillEqualsMask(
+            var ret = new Clone_Mask<bool>();
+            ((CloneCommon)((ILoquiObject)item).CommonInstance).FillEqualsMask(
                 item: item,
                 rhs: rhs,
                 ret: ret,
@@ -946,21 +895,20 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public void FillEqualsMask(
-            IRepositoryGetter item,
-            IRepositoryGetter rhs,
-            Repository_Mask<bool> ret,
+            ICloneGetter item,
+            ICloneGetter rhs,
+            Clone_Mask<bool> ret,
             EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
         {
             if (rhs == null) return;
             ret.Nickname = string.Equals(item.Nickname, rhs.Nickname);
-            ret.Path = string.Equals(item.Path, rhs.Path);
-            ret.AutoSync = item.AutoSync == rhs.AutoSync;
+            ret.ClonePath = string.Equals(item.ClonePath, rhs.ClonePath);
         }
 
         public string ToString(
-            IRepositoryGetter item,
+            ICloneGetter item,
             string name = null,
-            Repository_Mask<bool> printMask = null)
+            Clone_Mask<bool> printMask = null)
         {
             var fg = new FileGeneration();
             ToString(
@@ -972,18 +920,18 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public void ToString(
-            IRepositoryGetter item,
+            ICloneGetter item,
             FileGeneration fg,
             string name = null,
-            Repository_Mask<bool> printMask = null)
+            Clone_Mask<bool> printMask = null)
         {
             if (name == null)
             {
-                fg.AppendLine($"Repository =>");
+                fg.AppendLine($"Clone =>");
             }
             else
             {
-                fg.AppendLine($"{name} (Repository) =>");
+                fg.AppendLine($"{name} (Clone) =>");
             }
             fg.AppendLine("[");
             using (new DepthWrapper(fg))
@@ -997,59 +945,52 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         protected static void ToStringFields(
-            IRepositoryGetter item,
+            ICloneGetter item,
             FileGeneration fg,
-            Repository_Mask<bool> printMask = null)
+            Clone_Mask<bool> printMask = null)
         {
             if (printMask?.Nickname ?? true)
             {
                 fg.AppendLine($"Nickname => {item.Nickname}");
             }
-            if (printMask?.Path ?? true)
+            if (printMask?.ClonePath ?? true)
             {
-                fg.AppendLine($"Path => {item.Path}");
-            }
-            if (printMask?.AutoSync ?? true)
-            {
-                fg.AppendLine($"AutoSync => {item.AutoSync}");
+                fg.AppendLine($"ClonePath => {item.ClonePath}");
             }
         }
 
         public bool HasBeenSet(
-            IRepositoryGetter item,
-            Repository_Mask<bool?> checkMask)
+            ICloneGetter item,
+            Clone_Mask<bool?> checkMask)
         {
             return true;
         }
 
         public void FillHasBeenSetMask(
-            IRepositoryGetter item,
-            Repository_Mask<bool> mask)
+            ICloneGetter item,
+            Clone_Mask<bool> mask)
         {
             mask.Nickname = true;
-            mask.Path = true;
-            mask.AutoSync = true;
+            mask.ClonePath = true;
         }
 
         #region Equals and Hash
         public virtual bool Equals(
-            IRepositoryGetter lhs,
-            IRepositoryGetter rhs)
+            ICloneGetter lhs,
+            ICloneGetter rhs)
         {
             if (lhs == null && rhs == null) return false;
             if (lhs == null || rhs == null) return false;
             if (!string.Equals(lhs.Nickname, rhs.Nickname)) return false;
-            if (!string.Equals(lhs.Path, rhs.Path)) return false;
-            if (lhs.AutoSync != rhs.AutoSync) return false;
+            if (!string.Equals(lhs.ClonePath, rhs.ClonePath)) return false;
             return true;
         }
 
-        public virtual int GetHashCode(IRepositoryGetter item)
+        public virtual int GetHashCode(ICloneGetter item)
         {
             int ret = 0;
             ret = HashHelper.GetHashCode(item.Nickname).CombineHashCode(ret);
-            ret = HashHelper.GetHashCode(item.Path).CombineHashCode(ret);
-            ret = HashHelper.GetHashCode(item.AutoSync).CombineHashCode(ret);
+            ret = HashHelper.GetHashCode(item.ClonePath).CombineHashCode(ret);
             return ret;
         }
 
@@ -1061,57 +1002,48 @@ namespace HarmonizeGit.GUI.Internals
 
     #region Modules
     #region Xml Translation
-    public partial class RepositoryXmlWriteTranslation : IXmlWriteTranslator
+    public partial class CloneXmlWriteTranslation : IXmlWriteTranslator
     {
-        public readonly static RepositoryXmlWriteTranslation Instance = new RepositoryXmlWriteTranslation();
+        public readonly static CloneXmlWriteTranslation Instance = new CloneXmlWriteTranslation();
 
         public static void WriteToNodeXml(
-            IRepositoryGetter item,
+            ICloneGetter item,
             XElement node,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask)
         {
-            if ((translationMask?.GetShouldTranslate((int)Repository_FieldIndex.Nickname) ?? true))
+            if ((translationMask?.GetShouldTranslate((int)Clone_FieldIndex.Nickname) ?? true))
             {
                 StringXmlTranslation.Instance.Write(
                     node: node,
                     name: nameof(item.Nickname),
                     item: item.Nickname,
-                    fieldIndex: (int)Repository_FieldIndex.Nickname,
+                    fieldIndex: (int)Clone_FieldIndex.Nickname,
                     errorMask: errorMask);
             }
-            if ((translationMask?.GetShouldTranslate((int)Repository_FieldIndex.Path) ?? true))
+            if ((translationMask?.GetShouldTranslate((int)Clone_FieldIndex.ClonePath) ?? true))
             {
                 StringXmlTranslation.Instance.Write(
                     node: node,
-                    name: nameof(item.Path),
-                    item: item.Path,
-                    fieldIndex: (int)Repository_FieldIndex.Path,
-                    errorMask: errorMask);
-            }
-            if ((translationMask?.GetShouldTranslate((int)Repository_FieldIndex.AutoSync) ?? true))
-            {
-                BooleanXmlTranslation.Instance.Write(
-                    node: node,
-                    name: nameof(item.AutoSync),
-                    item: item.AutoSync,
-                    fieldIndex: (int)Repository_FieldIndex.AutoSync,
+                    name: nameof(item.ClonePath),
+                    item: item.ClonePath,
+                    fieldIndex: (int)Clone_FieldIndex.ClonePath,
                     errorMask: errorMask);
             }
         }
 
         public void Write(
             XElement node,
-            IRepositoryGetter item,
+            ICloneGetter item,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask,
             string name = null)
         {
-            var elem = new XElement(name ?? "HarmonizeGit.GUI.Repository");
+            var elem = new XElement(name ?? "HarmonizeGitCloner.Clone");
             node.Add(elem);
             if (name != null)
             {
-                elem.SetAttributeValue("type", "HarmonizeGit.GUI.Repository");
+                elem.SetAttributeValue("type", "HarmonizeGitCloner.Clone");
             }
             WriteToNodeXml(
                 item: item,
@@ -1128,7 +1060,7 @@ namespace HarmonizeGit.GUI.Internals
             string name = null)
         {
             Write(
-                item: (IRepositoryGetter)item,
+                item: (ICloneGetter)item,
                 name: name,
                 node: node,
                 errorMask: errorMask,
@@ -1137,7 +1069,7 @@ namespace HarmonizeGit.GUI.Internals
 
         public void Write(
             XElement node,
-            IRepositoryGetter item,
+            ICloneGetter item,
             ErrorMaskBuilder errorMask,
             int fieldIndex,
             TranslationCrystal translationMask,
@@ -1147,7 +1079,7 @@ namespace HarmonizeGit.GUI.Internals
             {
                 errorMask?.PushIndex(fieldIndex);
                 Write(
-                    item: (IRepositoryGetter)item,
+                    item: (ICloneGetter)item,
                     name: name,
                     node: node,
                     errorMask: errorMask,
@@ -1166,12 +1098,12 @@ namespace HarmonizeGit.GUI.Internals
 
     }
 
-    public partial class RepositoryXmlCreateTranslation
+    public partial class CloneXmlCreateTranslation
     {
-        public readonly static RepositoryXmlCreateTranslation Instance = new RepositoryXmlCreateTranslation();
+        public readonly static CloneXmlCreateTranslation Instance = new CloneXmlCreateTranslation();
 
         public static void FillPublicXml(
-            IRepository item,
+            IClone item,
             XElement node,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask)
@@ -1180,7 +1112,7 @@ namespace HarmonizeGit.GUI.Internals
             {
                 foreach (var elem in node.Elements())
                 {
-                    RepositoryXmlCreateTranslation.FillPublicElementXml(
+                    CloneXmlCreateTranslation.FillPublicElementXml(
                         item: item,
                         node: elem,
                         name: elem.Name.LocalName,
@@ -1196,7 +1128,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void FillPublicElementXml(
-            IRepository item,
+            IClone item,
             XElement node,
             string name,
             ErrorMaskBuilder errorMask,
@@ -1205,11 +1137,11 @@ namespace HarmonizeGit.GUI.Internals
             switch (name)
             {
                 case "Nickname":
-                    if ((translationMask?.GetShouldTranslate((int)Repository_FieldIndex.Nickname) ?? true))
+                    if ((translationMask?.GetShouldTranslate((int)Clone_FieldIndex.Nickname) ?? true))
                     {
                         try
                         {
-                            errorMask?.PushIndex((int)Repository_FieldIndex.Nickname);
+                            errorMask?.PushIndex((int)Clone_FieldIndex.Nickname);
                             if (StringXmlTranslation.Instance.Parse(
                                 node: node,
                                 item: out String NicknameParse,
@@ -1233,51 +1165,22 @@ namespace HarmonizeGit.GUI.Internals
                         }
                     }
                     break;
-                case "Path":
-                    if ((translationMask?.GetShouldTranslate((int)Repository_FieldIndex.Path) ?? true))
+                case "ClonePath":
+                    if ((translationMask?.GetShouldTranslate((int)Clone_FieldIndex.ClonePath) ?? true))
                     {
                         try
                         {
-                            errorMask?.PushIndex((int)Repository_FieldIndex.Path);
+                            errorMask?.PushIndex((int)Clone_FieldIndex.ClonePath);
                             if (StringXmlTranslation.Instance.Parse(
                                 node: node,
-                                item: out String PathParse,
+                                item: out String ClonePathParse,
                                 errorMask: errorMask))
                             {
-                                item.Path = PathParse;
+                                item.ClonePath = ClonePathParse;
                             }
                             else
                             {
-                                item.Path = default(String);
-                            }
-                        }
-                        catch (Exception ex)
-                        when (errorMask != null)
-                        {
-                            errorMask.ReportException(ex);
-                        }
-                        finally
-                        {
-                            errorMask?.PopIndex();
-                        }
-                    }
-                    break;
-                case "AutoSync":
-                    if ((translationMask?.GetShouldTranslate((int)Repository_FieldIndex.AutoSync) ?? true))
-                    {
-                        try
-                        {
-                            errorMask?.PushIndex((int)Repository_FieldIndex.AutoSync);
-                            if (BooleanXmlTranslation.Instance.Parse(
-                                node: node,
-                                item: out Boolean AutoSyncParse,
-                                errorMask: errorMask))
-                            {
-                                item.AutoSync = AutoSyncParse;
-                            }
-                            else
-                            {
-                                item.AutoSync = default(Boolean);
+                                item.ClonePath = default(String);
                             }
                         }
                         catch (Exception ex)
@@ -1299,31 +1202,31 @@ namespace HarmonizeGit.GUI.Internals
     }
 
     #region Xml Write Mixins
-    public static class RepositoryXmlTranslationMixIn
+    public static class CloneXmlTranslationMixIn
     {
         public static void WriteToXml(
-            this IRepositoryGetter item,
+            this ICloneGetter item,
             XElement node,
-            out Repository_ErrorMask errorMask,
+            out Clone_ErrorMask errorMask,
             bool doMasks = true,
-            Repository_TranslationMask translationMask = null,
+            Clone_TranslationMask translationMask = null,
             string name = null)
         {
             ErrorMaskBuilder errorMaskBuilder = doMasks ? new ErrorMaskBuilder() : null;
-            ((RepositoryXmlWriteTranslation)item.XmlWriteTranslator).Write(
+            ((CloneXmlWriteTranslation)item.XmlWriteTranslator).Write(
                 item: item,
                 name: name,
                 node: node,
                 errorMask: errorMaskBuilder,
                 translationMask: translationMask?.GetCrystal());
-            errorMask = Repository_ErrorMask.Factory(errorMaskBuilder);
+            errorMask = Clone_ErrorMask.Factory(errorMaskBuilder);
         }
 
         public static void WriteToXml(
-            this IRepositoryGetter item,
+            this ICloneGetter item,
             string path,
-            out Repository_ErrorMask errorMask,
-            Repository_TranslationMask translationMask = null,
+            out Clone_ErrorMask errorMask,
+            Clone_TranslationMask translationMask = null,
             bool doMasks = true,
             string name = null)
         {
@@ -1339,7 +1242,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this IRepositoryGetter item,
+            this ICloneGetter item,
             string path,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask = null,
@@ -1357,10 +1260,10 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this IRepositoryGetter item,
+            this ICloneGetter item,
             Stream stream,
-            out Repository_ErrorMask errorMask,
-            Repository_TranslationMask translationMask = null,
+            out Clone_ErrorMask errorMask,
+            Clone_TranslationMask translationMask = null,
             bool doMasks = true,
             string name = null)
         {
@@ -1376,7 +1279,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this IRepositoryGetter item,
+            this ICloneGetter item,
             Stream stream,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask = null,
@@ -1394,13 +1297,13 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this IRepositoryGetter item,
+            this ICloneGetter item,
             XElement node,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask = null,
             string name = null)
         {
-            ((RepositoryXmlWriteTranslation)item.XmlWriteTranslator).Write(
+            ((CloneXmlWriteTranslation)item.XmlWriteTranslator).Write(
                 item: item,
                 name: name,
                 node: node,
@@ -1409,12 +1312,12 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this IRepositoryGetter item,
+            this ICloneGetter item,
             XElement node,
             string name = null,
-            Repository_TranslationMask translationMask = null)
+            Clone_TranslationMask translationMask = null)
         {
-            ((RepositoryXmlWriteTranslation)item.XmlWriteTranslator).Write(
+            ((CloneXmlWriteTranslation)item.XmlWriteTranslator).Write(
                 item: item,
                 name: name,
                 node: node,
@@ -1423,12 +1326,12 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this IRepositoryGetter item,
+            this ICloneGetter item,
             string path,
             string name = null)
         {
             var node = new XElement("topnode");
-            ((RepositoryXmlWriteTranslation)item.XmlWriteTranslator).Write(
+            ((CloneXmlWriteTranslation)item.XmlWriteTranslator).Write(
                 item: item,
                 name: name,
                 node: node,
@@ -1438,12 +1341,12 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this IRepositoryGetter item,
+            this ICloneGetter item,
             Stream stream,
             string name = null)
         {
             var node = new XElement("topnode");
-            ((RepositoryXmlWriteTranslation)item.XmlWriteTranslator).Write(
+            ((CloneXmlWriteTranslation)item.XmlWriteTranslator).Write(
                 item: item,
                 name: name,
                 node: node,
@@ -1458,48 +1361,44 @@ namespace HarmonizeGit.GUI.Internals
     #endregion
 
     #region Mask
-    public class Repository_Mask<T> : IMask<T>, IEquatable<Repository_Mask<T>>
+    public class Clone_Mask<T> : IMask<T>, IEquatable<Clone_Mask<T>>
     {
         #region Ctors
-        public Repository_Mask()
+        public Clone_Mask()
         {
         }
 
-        public Repository_Mask(T initialValue)
+        public Clone_Mask(T initialValue)
         {
             this.Nickname = initialValue;
-            this.Path = initialValue;
-            this.AutoSync = initialValue;
+            this.ClonePath = initialValue;
         }
         #endregion
 
         #region Members
         public T Nickname;
-        public T Path;
-        public T AutoSync;
+        public T ClonePath;
         #endregion
 
         #region Equals
         public override bool Equals(object obj)
         {
-            if (!(obj is Repository_Mask<T> rhs)) return false;
+            if (!(obj is Clone_Mask<T> rhs)) return false;
             return Equals(rhs);
         }
 
-        public bool Equals(Repository_Mask<T> rhs)
+        public bool Equals(Clone_Mask<T> rhs)
         {
             if (rhs == null) return false;
             if (!object.Equals(this.Nickname, rhs.Nickname)) return false;
-            if (!object.Equals(this.Path, rhs.Path)) return false;
-            if (!object.Equals(this.AutoSync, rhs.AutoSync)) return false;
+            if (!object.Equals(this.ClonePath, rhs.ClonePath)) return false;
             return true;
         }
         public override int GetHashCode()
         {
             int ret = 0;
             ret = ret.CombineHashCode(this.Nickname?.GetHashCode());
-            ret = ret.CombineHashCode(this.Path?.GetHashCode());
-            ret = ret.CombineHashCode(this.AutoSync?.GetHashCode());
+            ret = ret.CombineHashCode(this.ClonePath?.GetHashCode());
             return ret;
         }
 
@@ -1509,25 +1408,23 @@ namespace HarmonizeGit.GUI.Internals
         public bool AllEqual(Func<T, bool> eval)
         {
             if (!eval(this.Nickname)) return false;
-            if (!eval(this.Path)) return false;
-            if (!eval(this.AutoSync)) return false;
+            if (!eval(this.ClonePath)) return false;
             return true;
         }
         #endregion
 
         #region Translate
-        public Repository_Mask<R> Translate<R>(Func<T, R> eval)
+        public Clone_Mask<R> Translate<R>(Func<T, R> eval)
         {
-            var ret = new Repository_Mask<R>();
+            var ret = new Clone_Mask<R>();
             this.Translate_InternalFill(ret, eval);
             return ret;
         }
 
-        protected void Translate_InternalFill<R>(Repository_Mask<R> obj, Func<T, R> eval)
+        protected void Translate_InternalFill<R>(Clone_Mask<R> obj, Func<T, R> eval)
         {
             obj.Nickname = eval(this.Nickname);
-            obj.Path = eval(this.Path);
-            obj.AutoSync = eval(this.AutoSync);
+            obj.ClonePath = eval(this.ClonePath);
         }
         #endregion
 
@@ -1543,16 +1440,16 @@ namespace HarmonizeGit.GUI.Internals
             return ToString(printMask: null);
         }
 
-        public string ToString(Repository_Mask<bool> printMask = null)
+        public string ToString(Clone_Mask<bool> printMask = null)
         {
             var fg = new FileGeneration();
             ToString(fg, printMask);
             return fg.ToString();
         }
 
-        public void ToString(FileGeneration fg, Repository_Mask<bool> printMask = null)
+        public void ToString(FileGeneration fg, Clone_Mask<bool> printMask = null)
         {
-            fg.AppendLine($"{nameof(Repository_Mask<T>)} =>");
+            fg.AppendLine($"{nameof(Clone_Mask<T>)} =>");
             fg.AppendLine("[");
             using (new DepthWrapper(fg))
             {
@@ -1560,13 +1457,9 @@ namespace HarmonizeGit.GUI.Internals
                 {
                     fg.AppendLine($"Nickname => {Nickname}");
                 }
-                if (printMask?.Path ?? true)
+                if (printMask?.ClonePath ?? true)
                 {
-                    fg.AppendLine($"Path => {Path}");
-                }
-                if (printMask?.AutoSync ?? true)
-                {
-                    fg.AppendLine($"AutoSync => {AutoSync}");
+                    fg.AppendLine($"ClonePath => {ClonePath}");
                 }
             }
             fg.AppendLine("]");
@@ -1575,7 +1468,7 @@ namespace HarmonizeGit.GUI.Internals
 
     }
 
-    public class Repository_ErrorMask : IErrorMask, IErrorMask<Repository_ErrorMask>
+    public class Clone_ErrorMask : IErrorMask, IErrorMask<Clone_ErrorMask>
     {
         #region Members
         public Exception Overall { get; set; }
@@ -1592,22 +1485,19 @@ namespace HarmonizeGit.GUI.Internals
             }
         }
         public Exception Nickname;
-        public Exception Path;
-        public Exception AutoSync;
+        public Exception ClonePath;
         #endregion
 
         #region IErrorMask
         public object GetNthMask(int index)
         {
-            Repository_FieldIndex enu = (Repository_FieldIndex)index;
+            Clone_FieldIndex enu = (Clone_FieldIndex)index;
             switch (enu)
             {
-                case Repository_FieldIndex.Nickname:
+                case Clone_FieldIndex.Nickname:
                     return Nickname;
-                case Repository_FieldIndex.Path:
-                    return Path;
-                case Repository_FieldIndex.AutoSync:
-                    return AutoSync;
+                case Clone_FieldIndex.ClonePath:
+                    return ClonePath;
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
             }
@@ -1615,17 +1505,14 @@ namespace HarmonizeGit.GUI.Internals
 
         public void SetNthException(int index, Exception ex)
         {
-            Repository_FieldIndex enu = (Repository_FieldIndex)index;
+            Clone_FieldIndex enu = (Clone_FieldIndex)index;
             switch (enu)
             {
-                case Repository_FieldIndex.Nickname:
+                case Clone_FieldIndex.Nickname:
                     this.Nickname = ex;
                     break;
-                case Repository_FieldIndex.Path:
-                    this.Path = ex;
-                    break;
-                case Repository_FieldIndex.AutoSync:
-                    this.AutoSync = ex;
+                case Clone_FieldIndex.ClonePath:
+                    this.ClonePath = ex;
                     break;
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
@@ -1634,17 +1521,14 @@ namespace HarmonizeGit.GUI.Internals
 
         public void SetNthMask(int index, object obj)
         {
-            Repository_FieldIndex enu = (Repository_FieldIndex)index;
+            Clone_FieldIndex enu = (Clone_FieldIndex)index;
             switch (enu)
             {
-                case Repository_FieldIndex.Nickname:
+                case Clone_FieldIndex.Nickname:
                     this.Nickname = (Exception)obj;
                     break;
-                case Repository_FieldIndex.Path:
-                    this.Path = (Exception)obj;
-                    break;
-                case Repository_FieldIndex.AutoSync:
-                    this.AutoSync = (Exception)obj;
+                case Clone_FieldIndex.ClonePath:
+                    this.ClonePath = (Exception)obj;
                     break;
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
@@ -1655,8 +1539,7 @@ namespace HarmonizeGit.GUI.Internals
         {
             if (Overall != null) return true;
             if (Nickname != null) return true;
-            if (Path != null) return true;
-            if (AutoSync != null) return true;
+            if (ClonePath != null) return true;
             return false;
         }
         #endregion
@@ -1671,7 +1554,7 @@ namespace HarmonizeGit.GUI.Internals
 
         public void ToString(FileGeneration fg)
         {
-            fg.AppendLine("Repository_ErrorMask =>");
+            fg.AppendLine("Clone_ErrorMask =>");
             fg.AppendLine("[");
             using (new DepthWrapper(fg))
             {
@@ -1692,21 +1575,19 @@ namespace HarmonizeGit.GUI.Internals
         protected void ToString_FillInternal(FileGeneration fg)
         {
             fg.AppendLine($"Nickname => {Nickname}");
-            fg.AppendLine($"Path => {Path}");
-            fg.AppendLine($"AutoSync => {AutoSync}");
+            fg.AppendLine($"ClonePath => {ClonePath}");
         }
         #endregion
 
         #region Combine
-        public Repository_ErrorMask Combine(Repository_ErrorMask rhs)
+        public Clone_ErrorMask Combine(Clone_ErrorMask rhs)
         {
-            var ret = new Repository_ErrorMask();
+            var ret = new Clone_ErrorMask();
             ret.Nickname = this.Nickname.Combine(rhs.Nickname);
-            ret.Path = this.Path.Combine(rhs.Path);
-            ret.AutoSync = this.AutoSync.Combine(rhs.AutoSync);
+            ret.ClonePath = this.ClonePath.Combine(rhs.ClonePath);
             return ret;
         }
-        public static Repository_ErrorMask Combine(Repository_ErrorMask lhs, Repository_ErrorMask rhs)
+        public static Clone_ErrorMask Combine(Clone_ErrorMask lhs, Clone_ErrorMask rhs)
         {
             if (lhs != null && rhs != null) return lhs.Combine(rhs);
             return lhs ?? rhs;
@@ -1714,54 +1595,50 @@ namespace HarmonizeGit.GUI.Internals
         #endregion
 
         #region Factory
-        public static Repository_ErrorMask Factory(ErrorMaskBuilder errorMask)
+        public static Clone_ErrorMask Factory(ErrorMaskBuilder errorMask)
         {
             if (errorMask?.Empty ?? true) return null;
-            return new Repository_ErrorMask();
+            return new Clone_ErrorMask();
         }
         #endregion
 
     }
-    public class Repository_CopyMask
+    public class Clone_CopyMask
     {
-        public Repository_CopyMask()
+        public Clone_CopyMask()
         {
         }
 
-        public Repository_CopyMask(bool defaultOn, CopyOption deepCopyOption = CopyOption.Reference)
+        public Clone_CopyMask(bool defaultOn, CopyOption deepCopyOption = CopyOption.Reference)
         {
             this.Nickname = defaultOn;
-            this.Path = defaultOn;
-            this.AutoSync = defaultOn;
+            this.ClonePath = defaultOn;
         }
 
         #region Members
         public bool Nickname;
-        public bool Path;
-        public bool AutoSync;
+        public bool ClonePath;
         #endregion
 
     }
 
-    public class Repository_TranslationMask : ITranslationMask
+    public class Clone_TranslationMask : ITranslationMask
     {
         #region Members
         private TranslationCrystal _crystal;
         public bool Nickname;
-        public bool Path;
-        public bool AutoSync;
+        public bool ClonePath;
         #endregion
 
         #region Ctors
-        public Repository_TranslationMask()
+        public Clone_TranslationMask()
         {
         }
 
-        public Repository_TranslationMask(bool defaultOn)
+        public Clone_TranslationMask(bool defaultOn)
         {
             this.Nickname = defaultOn;
-            this.Path = defaultOn;
-            this.AutoSync = defaultOn;
+            this.ClonePath = defaultOn;
         }
 
         #endregion
@@ -1781,8 +1658,7 @@ namespace HarmonizeGit.GUI.Internals
         protected void GetCrystal(List<(bool On, TranslationCrystal SubCrystal)> ret)
         {
             ret.Add((Nickname, null));
-            ret.Add((Path, null));
-            ret.Add((AutoSync, null));
+            ret.Add((ClonePath, null));
         }
     }
     #endregion
