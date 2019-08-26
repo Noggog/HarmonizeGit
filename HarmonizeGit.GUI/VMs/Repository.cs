@@ -75,7 +75,7 @@ namespace HarmonizeGit.GUI
                     Observable.CombineLatest(
                         mvm.WhenAny(x => x.Settings.AutoSync),
                         this.WhenAny(x => x.AutoSync),
-                        resultSelector: (main, individual) => main || individual)
+                        resultSelector: (main, individual) => !main && individual)
                     .DistinctUntilChanged())
                 .Merge(mvm.ResyncCommand.IsExecuting
                     .Where(b => b)

@@ -86,6 +86,15 @@ namespace HarmonizeGit.GUI
                 .Bind(this.Repositories)
                 .Subscribe()
                 .DisposeWith(this.CompositeDisposable);
+
+            // Set up autosync
+            this.SyncPulse
+                .StartWith(Unit.Default)
+                .FilterSwitch(
+                    this.WhenAny(x => x.Settings.AutoSync)
+                        .DistinctUntilChanged())
+                .InvokeCommand(this.ResyncCommand)
+                .DisposeWith(this.CompositeDisposable);
         }
     }
 }
