@@ -36,7 +36,7 @@ namespace HarmonizeGit.GUI
         private ObservableAsPropertyHelper<bool> _Resyncing;
         public bool Resyncing => _Resyncing.Value;
 
-        public readonly IObservable<Unit> SyncPulse = Observable.Interval(TimeSpan.FromSeconds(5))
+        public readonly IObservable<Unit> SyncPulse = Observable.Interval(TimeSpan.FromSeconds(5), RxApp.MainThreadScheduler)
             .Unit()
             .PublishRefCount();
 

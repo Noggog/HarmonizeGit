@@ -16,10 +16,21 @@
                 <!--  Accent and AppTheme setting  -->
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Yellow.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseDark.xaml" />
-                <!-- Noggog Theming -->
+                <!--  Noggog Theming  -->
                 <ResourceDictionary Source="pack://application:,,,/Noggog.WPF;component/TypicalTheming.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Noggog.WPF;component/Converters/Converters.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+            <Storyboard x:Key="FlashAnimation">
+                <ColorAnimation
+                    Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
+                    From="#ffd796"
+                    Duration="0:0:0.5">
+                    <ColorAnimation.EasingFunction>
+                        <CubicEase />
+                    </ColorAnimation.EasingFunction>
+                </ColorAnimation>
+            </Storyboard>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

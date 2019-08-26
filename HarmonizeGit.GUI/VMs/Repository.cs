@@ -45,6 +45,7 @@ namespace HarmonizeGit.GUI
                     }
                 });
             this._Harmonize = this.WhenAny(x => x.Path)
+                .StartWith(this.Path)
                 .Select(path =>
                 {
                     HarmonizeGitBase harmonize = new HarmonizeGitBase(path);
@@ -87,11 +88,13 @@ namespace HarmonizeGit.GUI
 
         public async Task Resync()
         {
+            if (this.Harmonize == null) return;
             await this.Harmonize.SyncConfigToParentShas();
         }
 
         public async Task SyncParentRepos()
         {
+            if (this.Harmonize == null) return;
             this.Harmonize.SyncParentRepos(HarmonizeConfig.Factory(
                 this.Harmonize,
                 this.Harmonize.TargetPath,
