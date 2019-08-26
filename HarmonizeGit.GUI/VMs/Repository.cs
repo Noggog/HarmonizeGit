@@ -46,6 +46,7 @@ namespace HarmonizeGit.GUI
                 });
             this._Harmonize = this.WhenAny(x => x.Path)
                 .StartWith(this.Path)
+                .NotNull()
                 .Select(path =>
                 {
                     HarmonizeGitBase harmonize = new HarmonizeGitBase(path);
