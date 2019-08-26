@@ -82,6 +82,7 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <noggog:EditableTextBlock
                             Grid.Column="0"
@@ -116,6 +117,15 @@
                         <Button
                             Grid.Column="2"
                             Margin="4"
+                            Command="{Binding SyncParentReposCommand}">
+                            <icon:PackIconMaterial
+                                Width="12"
+                                Height="12"
+                                Kind="ChevronDoubleLeft" />
+                        </Button>
+                        <Button
+                            Grid.Column="3"
+                            Margin="4"
                             Command="{Binding OpenRepoFolderDialogCommand}"
                             ToolTip="{Binding Path}">
                             <icon:PackIconMaterial
@@ -124,7 +134,7 @@
                                 Kind="DotsHorizontal" />
                         </Button>
                         <Button
-                            Grid.Column="3"
+                            Grid.Column="4"
                             Margin="4"
                             Command="{Binding DeleteCommand}"
                             ToolTip="Delete Listing">

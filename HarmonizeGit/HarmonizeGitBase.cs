@@ -16,7 +16,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace HarmonizeGit
 {
-    public class HarmonizeGitBase
+    public class HarmonizeGitBase : IDisposable
     {
         public ConfigLoader ConfigLoader { get; private set; }
         public ChildrenLoader ChildLoader { get; private set; }
@@ -155,7 +155,7 @@ namespace HarmonizeGit
             {
                 ConsoleSilent = this.Silent,
                 ShouldLogToFile = Settings.Instance.LogToFile,
-                WipeLogsOlderThanDays = Settings.Instance.WipeLogsOlderThanDays 
+                WipeLogsOlderThanDays = Settings.Instance.WipeLogsOlderThanDays
             };
             this.Logger.ActivateAndFlushLogging();
             this.ChildLoader = new ChildrenLoader(this);
@@ -466,6 +466,14 @@ namespace HarmonizeGit
                 if (ret != null) return targetPath + Environment.NewLine + ret;
             }
             return null;
+        }
+
+        public virtual void Dispose()
+        {
+            if (this._RepoLoader.IsValueCreated)
+            {
+                this._RepoLoader.Value.Dispose();
+            }
         }
     }
 }

@@ -10,10 +10,10 @@
       </RepoListing>
       <RepoListing>
          <Nickname>CSharpExt</Nickname>
-         <Sha>3016bc01fe44995b57d16fe1899c43425943ac03</Sha>
+         <Sha>3b00fc705aa7464fde7ff08c442b1da36f5845cb</Sha>
          <Path>../CSharpExt</Path>
-         <CommitDate>08-25-2019 18:59:02</CommitDate>
-         <Description>Noggog.WPF: TypicalTheming defaults</Description>
+         <CommitDate>08-25-2019 19:48:08</CommitDate>
+         <Description>ObservableExt:  DisposeWith observable of IDisposables</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
       <RepoListing>
@@ -34,10 +34,10 @@
       </RepoListing>
       <RepoListing>
          <Nickname>CSharpExt</Nickname>
-         <Sha>3016bc01fe44995b57d16fe1899c43425943ac03</Sha>
+         <Sha>3b00fc705aa7464fde7ff08c442b1da36f5845cb</Sha>
          <Path>../CSharpExt</Path>
-         <CommitDate>08-25-2019 18:59:02</CommitDate>
-         <Description>Noggog.WPF: TypicalTheming defaults</Description>
+         <CommitDate>08-25-2019 19:48:08</CommitDate>
+         <Description>ObservableExt:  DisposeWith observable of IDisposables</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
    </ParentRepos>

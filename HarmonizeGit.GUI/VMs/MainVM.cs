@@ -46,6 +46,8 @@ namespace HarmonizeGit.GUI
 
         public MainVM(MainWindow window)
         {
+            HarmonizeGit.Settings.Instance.LogToFile = false;
+
             // Create sub objects
             Instance = this;
 

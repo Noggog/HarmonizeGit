@@ -19,10 +19,14 @@ namespace HarmonizeGit.GUI
         public IReactiveCommand ResyncCommand { get; private set; }
         public IReactiveCommand DeleteCommand { get; private set; }
         public IReactiveCommand AutoSyncCommand { get; private set; }
+        public IReactiveCommand SyncParentReposCommand { get; private set; }
 
         private ObservableAsPropertyHelper<bool> _Resyncing;
         public bool Resyncing => _Resyncing.Value;
-        
+
+        private ObservableAsPropertyHelper<HarmonizeGitBase> _Harmonize;
+        public HarmonizeGitBase Harmonize => _Harmonize.Value;
+
         public void Init(MainVM mvm)
         {
             this.OpenRepoFolderDialogCommand = ReactiveCommand.Create(
@@ -40,6 +44,15 @@ namespace HarmonizeGit.GUI
                         }
                     }
                 });
+            this._Harmonize = this.WhenAny(x => x.Path)
+                .Select(path =>
+                {
+                    HarmonizeGitBase harmonize = new HarmonizeGitBase(path);
+                    harmonize.Init();
+                    return harmonize;
+                })
+                .DisposeWith(this.CompositeDisposable)
+                .ToProperty(this, nameof(Harmonize));
             this.ResyncCommand = ReactiveCommand.CreateFromTask(Resync);
             this.AutoSyncCommand = ReactiveCommand.Create(() =>
             {
@@ -68,14 +81,22 @@ namespace HarmonizeGit.GUI
                     .Unit())
                 .InvokeCommand(this.ResyncCommand)
                 .DisposeWith(this.CompositeDisposable);
+
+            this.SyncParentReposCommand = ReactiveCommand.CreateFromTask(SyncParentRepos);
         }
 
         public async Task Resync()
         {
-            HarmonizeGit.Settings.Instance.LogToFile = false;
-            HarmonizeGitBase harmonize = new HarmonizeGitBase(this.Path);
-            harmonize.Init();
-            await harmonize.SyncConfigToParentShas();
+            await this.Harmonize.SyncConfigToParentShas();
+        }
+
+        public async Task SyncParentRepos()
+        {
+            this.Harmonize.SyncParentRepos(HarmonizeConfig.Factory(
+                this.Harmonize,
+                this.Harmonize.TargetPath,
+                this.Harmonize.Repo.Head.Tip));
+            await this.Harmonize.SyncConfigToParentShas();
         }
     }
 }
