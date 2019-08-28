@@ -23,8 +23,9 @@
         <Grid Grid.Row="0">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" MinWidth="50" />
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" MinWidth="50" />
                 </Grid.ColumnDefinitions>
                 <Button
                     Grid.Column="0"
@@ -55,9 +56,19 @@
                         <MouseBinding Command="{Binding ResyncCommand}" Gesture="RightClick" />
                     </ToggleButton.InputBindings>
                 </ToggleButton>
+                <ToggleButton
+                    Grid.Column="2"
+                    Focusable="False"
+                    IsChecked="{Binding Paused}"
+                    IsEnabled="{Binding Settings.AutoSync}">
+                    <icon:PackIconMaterial Kind="Pause" />
+                </ToggleButton>
             </Grid>
         </Grid>
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding Repositories}">
+        <ItemsControl
+            Grid.Row="1"
+            Focusable="False"
+            ItemsSource="{Binding Repositories}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <local:RepoView />

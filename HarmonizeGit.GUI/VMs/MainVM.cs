@@ -39,6 +39,12 @@ namespace HarmonizeGit.GUI
             .Unit()
             .PublishRefCount();
 
+        private int _PauseSeconds = 5;
+        public int PauseSeconds { get => _PauseSeconds; set => this.RaiseAndSetIfChanged(ref _PauseSeconds, value); }
+
+        private bool _Paused;
+        public bool Paused { get => _Paused; set => this.RaiseAndSetIfChanged(ref _Paused, value); }
+
         public MainVM()
         {
         }
@@ -81,12 +87,47 @@ namespace HarmonizeGit.GUI
                 .Subscribe()
                 .DisposeWith(this.CompositeDisposable);
 
+            // Set up pause auto turn off
+            Observable.CombineLatest(
+                    // Get Pause Timestamp
+                    Observable.Merge(
+                        // When pause is enabled
+                        this.WhenAny(x => x.Paused)
+                            .DistinctUntilChanged()
+                            .Where(paused => paused)
+                            .Select(_ => DateTime.Now),
+                        // Or pause seconds changed during pause phase
+                        this.WhenAny(x => x.PauseSeconds)
+                            .FilterSwitch(this.WhenAny(x => x.Paused))
+                            .Select(_ => DateTime.Now)),
+                    this.WhenAny(x => x.Paused),
+                    this.WhenAny(x => x.PauseSeconds),
+                    // Return whether we should fire signal to turn pause off
+                    resultSelector: (pauseTime, paused, pauseSeconds) =>
+                    {
+                        // Don't want to fire anything if in bad state
+                        if (!paused) return Observable.Return(false);
+                        var endTime = pauseTime.AddSeconds(pauseSeconds);
+                        if (endTime < DateTime.Now) Observable.Return(false);
+                        // Fire signal after timer
+                        return Observable.Timer(endTime)
+                            .Select(_ => true);
+                    })
+                .Switch()
+                .Where(s => s) // Only if signal fired
+                .Subscribe(pause => this.Paused = false)
+                .DisposeWith(this.CompositeDisposable);
+
             // Set up autosync
             this.SyncPulse
                 .StartWith(Unit.Default)
+                // Only sync if on and not paused
                 .FilterSwitch(
-                    this.WhenAny(x => x.Settings.AutoSync)
-                        .DistinctUntilChanged())
+                    Observable.CombineLatest(
+                        this.WhenAny(x => x.Settings.AutoSync),
+                        this.WhenAny(x => x.Paused),
+                        resultSelector: (sync, pause) => sync && !pause)
+                    .DistinctUntilChanged())
                 .InvokeCommand(this.ResyncCommand)
                 .DisposeWith(this.CompositeDisposable);
         }
