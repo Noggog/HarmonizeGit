@@ -10,10 +10,10 @@
       </RepoListing>
       <RepoListing>
          <Nickname>CSharpExt</Nickname>
-         <Sha>3b00fc705aa7464fde7ff08c442b1da36f5845cb</Sha>
+         <Sha>2112432ca7de145aba100b1cacabbac9f6a7d5d3</Sha>
          <Path>../CSharpExt</Path>
-         <CommitDate>08-25-2019 19:48:08</CommitDate>
-         <Description>ObservableExt:  DisposeWith observable of IDisposables</Description>
+         <CommitDate>08-27-2019 22:47:46</CommitDate>
+         <Description>IsNotEmptyVisibilityConverter</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
       <RepoListing>
@@ -30,14 +30,6 @@
          <Path>../Loqui</Path>
          <CommitDate>08-25-2019 18:48:26</CommitDate>
          <Description>Reactive objects can now define ViewModel as their base class</Description>
-         <Author>Justin Swanson</Author>
-      </RepoListing>
-      <RepoListing>
-         <Nickname>CSharpExt</Nickname>
-         <Sha>3b00fc705aa7464fde7ff08c442b1da36f5845cb</Sha>
-         <Path>../CSharpExt</Path>
-         <CommitDate>08-25-2019 19:48:08</CommitDate>
-         <Description>ObservableExt:  DisposeWith observable of IDisposables</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
    </ParentRepos>

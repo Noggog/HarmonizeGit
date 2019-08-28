@@ -31,7 +31,6 @@ namespace HarmonizeGit.GUI
 
         public IReactiveCommand AddCommand { get; }
         public IReactiveCommand ResyncCommand { get; }
-        public IReactiveCommand AutoSyncCommand { get; }
 
         private ObservableAsPropertyHelper<bool> _Resyncing;
         public bool Resyncing => _Resyncing.Value;
@@ -60,11 +59,6 @@ namespace HarmonizeGit.GUI
                     });
                 });
             this.ResyncCommand = ReactiveCommand.Create(ActionExt.Nothing);
-            this.AutoSyncCommand = ReactiveCommand.Create(
-                () =>
-                {
-                    this.Settings.AutoSync = !this.Settings.AutoSync;
-                });
 
             // Save to disk when app closing
             window.Closed += (a, b) =>

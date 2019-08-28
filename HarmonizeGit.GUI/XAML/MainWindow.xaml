@@ -33,17 +33,15 @@
                     ToolTip="Track New Repository">
                     <icon:PackIconMaterial Kind="Plus" />
                 </Button>
-                <Button
+                <ToggleButton
                     Grid.Column="1"
                     Focusable="False"
+                    IsChecked="{Binding Settings.AutoSync}"
                     ToolTip="Resync All Repos">
                     <icon:PackIconMaterial Kind="Refresh" />
-                    <Button.Style>
-                        <Style BasedOn="{StaticResource MainButtonStyle}" TargetType="Button">
+                    <ToggleButton.Style>
+                        <Style BasedOn="{StaticResource MainToggleButtonStyle}" TargetType="ToggleButton">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding Settings.AutoSync}" Value="True">
-                                    <Setter Property="Background" Value="{StaticResource HighlightBrush}" />
-                                </DataTrigger>
                                 <DataTrigger Binding="{Binding Resyncing}" Value="True">
                                     <DataTrigger.ExitActions>
                                         <BeginStoryboard Storyboard="{StaticResource FlashAnimation}" />
@@ -52,12 +50,11 @@
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </Button.Style>
-                    <Button.InputBindings>
-                        <MouseBinding Command="{Binding ResyncCommand}" Gesture="LeftClick" />
-                        <MouseBinding Command="{Binding AutoSyncCommand}" Gesture="RightClick" />
-                    </Button.InputBindings>
-                </Button>
+                    </ToggleButton.Style>
+                    <ToggleButton.InputBindings>
+                        <MouseBinding Command="{Binding ResyncCommand}" Gesture="RightClick" />
+                    </ToggleButton.InputBindings>
+                </ToggleButton>
             </Grid>
         </Grid>
         <ItemsControl Grid.Row="1" ItemsSource="{Binding Repositories}">
