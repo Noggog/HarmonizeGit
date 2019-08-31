@@ -28,7 +28,7 @@ namespace HarmonizeGit
         public HarmonizeConfig Config;
         public bool Silent;
         public bool FileLock;
-        public Logger Logger;
+        public TypicalLogger Logger;
         public Repository Repo => this.RepoLoader.GetRepo(this.TargetPath);
 
         public HarmonizeGitBase(string targetPath)
@@ -152,7 +152,7 @@ namespace HarmonizeGit
 
         public void Init()
         {
-            this.Logger = new Logger(Constants.AppName)
+            this.Logger = new TypicalLogger(Constants.AppName)
             {
                 ConsoleSilent = this.Silent,
                 ShouldLogToFile = Settings.Instance.LogToFile,

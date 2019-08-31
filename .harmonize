@@ -2,10 +2,10 @@
    <ParentRepos>
       <RepoListing>
          <Nickname>FishingWithGit</Nickname>
-         <Sha>b0bb6e4b22e29d3552846987fc2d295ce082ceda</Sha>
+         <Sha>c2077b6bdbc5ff753451a53f4fec4c33f6655274</Sha>
          <Path>../FishingWithGit</Path>
-         <CommitDate>08-24-2019 22:40:15</CommitDate>
-         <Description>StandardizePath now takes in desired relative root</Description>
+         <CommitDate>08-30-2019 23:55:08</CommitDate>
+         <Description>ILogger</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
       <RepoListing>
