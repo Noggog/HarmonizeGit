@@ -1,6 +1,7 @@
 ﻿using FishingWithGit;
 using FishingWithGit.Common;
 using LibGit2Sharp;
+using Noggog;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -208,14 +209,14 @@ namespace HarmonizeGit
         }
 
         #region IsDirty
-        public Task<ErrorResponse> IsDirty(
+        public Task<IErrorResponse> IsDirty(
             ConfigExclusion configExclusion = ConfigExclusion.Full,
             bool regenerateConfig = true)
         {
             return IsDirty(this.TargetPath, configExclusion, regenerateConfig);
         }
 
-        public async Task<ErrorResponse> IsDirty(
+        public async Task<IErrorResponse> IsDirty(
             string path,
             ConfigExclusion configExclusion = ConfigExclusion.Full,
             bool regenerateConfig = true)
@@ -230,7 +231,7 @@ namespace HarmonizeGit
             });
             if (!repoStatus.IsDirty)
             {
-                return new ErrorResponse();
+                return ErrorResponse.Failure;
             }
 
             if (regenerateConfig)
@@ -247,7 +248,7 @@ namespace HarmonizeGit
                         repoStatus = repo.RetrieveStatus();
                         if (!repoStatus.IsDirty)
                         {
-                            return new ErrorResponse();
+                            return ErrorResponse.Failure;
                         }
                     }
                 }
@@ -260,13 +261,9 @@ namespace HarmonizeGit
                 if (statusEntry.State.HasFlag(FileStatus.Ignored)) continue;
 
                 // Wasn't just harmonize config, it's dirty
-                return new ErrorResponse()
-                {
-                    Succeeded = true,
-                    Reason = $"{statusEntry.State} - {statusEntry.FilePath}"
-                };
+                return ErrorResponse.Succeed($"{statusEntry.State} - {statusEntry.FilePath}");
             }
-            return new ErrorResponse();
+            return ErrorResponse.Failure;
         }
         #endregion
 

@@ -10,10 +10,10 @@
       </RepoListing>
       <RepoListing>
          <Nickname>CSharpExt</Nickname>
-         <Sha>9b0482f113d60db27ec62b1062467f9d5277a93e</Sha>
+         <Sha>565c44f67c999a27682fe2011ea2cc117c2bf3a7</Sha>
          <Path>../CSharpExt</Path>
-         <CommitDate>08-30-2019 21:11:00</CommitDate>
-         <Description>ObservableExt:  SelectLatestFrom, SelectLatest</Description>
+         <CommitDate>08-30-2019 23:33:47</CommitDate>
+         <Description>ErrorResponse.Failure</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
       <RepoListing>

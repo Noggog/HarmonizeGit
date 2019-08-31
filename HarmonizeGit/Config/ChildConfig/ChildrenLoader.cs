@@ -1,4 +1,5 @@
 ﻿using LibGit2Sharp;
+using Noggog;
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
@@ -314,17 +315,14 @@ where ChildUsage.Sha = '{childSha}'";
                     {
                         while (reader.Read())
                         {
-                            return new GetResponse<ChildUsage>()
-                            {
-                                Item = new ChildUsage()
+                            return GetResponse<ChildUsage>.Succeed(
+                                new ChildUsage()
                                 {
                                     Sha = childSha,
                                     ParentSha = (string)reader[0],
                                     ChildRepoPath = (string)reader[1],
                                     ParentRepoPath = this.harmonize.TargetPath
-                                },
-                                Succeeded = true
-                            };
+                                });
                         }
                     }
                     return new GetResponse<ChildUsage>();

@@ -70,6 +70,10 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\CSharpExt\CSharpExt\CSharpExt.csproj">
+      <Project>{46a9e17c-e69d-434b-b569-87aa3967d7e3}</Project>
+      <Name>CSharpExt</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\FishingWithGit\FishingWithGit.Common\FishingWithGit.Common.csproj">
       <Project>{A99553E3-D288-482A-9BC8-AE0BF4F32ACF}</Project>
       <Name>FishingWithGit.Common</Name>
