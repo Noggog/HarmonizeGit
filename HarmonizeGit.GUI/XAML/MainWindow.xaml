@@ -169,7 +169,7 @@
         <Grid
             Grid.Row="2"
             Background="{StaticResource BackgroundAlt}"
-            Visibility="{Binding DirtyParents.Count, Converter={StaticResource IsNotEmptyVisibilityConverter}}">
+            Visibility="{Binding AllDirtyParents.Count, Converter={StaticResource IsNotEmptyVisibilityConverter}}">
             <TextBlock
                 Margin="4"
                 Foreground="{StaticResource ForegroundBrush}"
@@ -178,7 +178,8 @@
         <ListView
             Grid.Row="3"
             Focusable="False"
-            ItemsSource="{Binding AllDirtyParents}">
+            ItemsSource="{Binding AllDirtyParents}"
+            Visibility="{Binding AllDirtyParents.Count, Converter={StaticResource IsNotEmptyVisibilityConverter}}">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <local:DirtyParentView />
