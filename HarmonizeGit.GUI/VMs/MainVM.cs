@@ -33,6 +33,7 @@ namespace HarmonizeGit.GUI
         public IReactiveCommand AddCommand { get; }
         public IReactiveCommand ResyncCommand { get; }
         public IReactiveCommand PauseSecondsCommand { get; }
+        public IReactiveCommand PauseCommand { get; }
 
         private ObservableAsPropertyHelper<bool> _Resyncing;
         public bool Resyncing => _Resyncing.Value;
@@ -68,6 +69,7 @@ namespace HarmonizeGit.GUI
                 });
             this.ResyncCommand = ReactiveCommand.Create(ActionExt.Nothing);
             this.PauseSecondsCommand = ReactiveCommand.Create<int>((param) => this.Settings.PauseSeconds = param);
+            this.PauseCommand = ReactiveCommand.Create(() => this.Paused = true);
 
             // Save to disk when app closing
             window.Closed += (a, b) =>
@@ -99,6 +101,11 @@ namespace HarmonizeGit.GUI
                             .DistinctUntilChanged()
                             .Where(paused => paused)
                             .Select(_ => DateTime.Now),
+                        // When command is rerun, even if already paused, it should restart timer
+                        this.PauseCommand.IsExecuting
+                            .DistinctUntilChanged()
+                            .Where(running => running)
+                            .Select(_ => DateTime.Now),
                         // Or pause seconds changed during pause phase
                         this.WhenAny(x => x.Settings.PauseSeconds)
                             .FilterSwitch(this.WhenAny(x => x.Paused))
@@ -111,15 +118,22 @@ namespace HarmonizeGit.GUI
                         // Don't want to fire anything if in bad state
                         if (!paused) return Observable.Return(Percent.Zero);
                         var endTime = pauseTime.AddSeconds(pauseSeconds);
-                        var startTime = DateTime.Now;
                         if (endTime < DateTime.Now) return Observable.Return(Percent.Zero);
-                        return ObservableExt.ProgressInterval(startTime, endTime, TimeSpan.FromMilliseconds(50));
+                        return ObservableExt.ProgressInterval(pauseTime, endTime, TimeSpan.FromMilliseconds(50));
                     })
                 .Switch()
                 .PublishRefCount();
-            pauseProgress
-                .Where(s => s == Percent.One) // Only if signal fired
-                .Subscribe(pause => this.Paused = false)
+            // Pause off signals
+            Observable.Merge(
+                // Pause timeout signal fired
+                pauseProgress
+                    .Where(s => s == Percent.One)
+                    .Unit(),
+                // User turned autosync off
+                this.WhenAny(x => x.Settings.AutoSync)
+                    .Where(s => !s)
+                    .Unit())
+                .Subscribe(_ => this.Paused = false)
                 .DisposeWith(this.CompositeDisposable);
 
             // Set up pause progress bar
@@ -136,6 +150,8 @@ namespace HarmonizeGit.GUI
                         this.WhenAny(x => x.Settings.AutoSync),
                         this.WhenAny(x => x.Paused),
                         resultSelector: (sync, pause) => sync && !pause)
+                    // Throttle, as sync/pause changes aren't atomic
+                    .Throttle(TimeSpan.FromMilliseconds(50))
                     .DistinctUntilChanged())
                 .InvokeCommand(this.ResyncCommand)
                 .DisposeWith(this.CompositeDisposable);

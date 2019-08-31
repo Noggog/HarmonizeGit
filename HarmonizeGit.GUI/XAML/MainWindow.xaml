@@ -71,18 +71,27 @@
                         <MouseBinding Command="{Binding ResyncCommand}" Gesture="RightClick" />
                     </ToggleButton.InputBindings>
                 </ToggleButton>
-                <ToggleButton
+                <Button
                     Grid.Column="2"
-                    Focusable="False"
-                    IsChecked="{Binding Paused}">
+                    Command="{Binding PauseCommand}"
+                    Focusable="False">
                     <icon:PackIconMaterial Kind="Pause" />
-                    <ToggleButton.Resources>
+                    <Button.Resources>
                         <s:Int32 x:Key="30">30</s:Int32>
                         <s:Int32 x:Key="120">120</s:Int32>
                         <s:Int32 x:Key="300">300</s:Int32>
                         <s:Int32 x:Key="900">900</s:Int32>
-                    </ToggleButton.Resources>
-                    <ToggleButton.ContextMenu>
+                    </Button.Resources>
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource MainButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Paused}" Value="True">
+                                    <Setter Property="Background" Value="{StaticResource HighlightBrush}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <Button.ContextMenu>
                         <ContextMenu>
                             <MenuItem
                                 Command="{Binding PauseSecondsCommand}"
@@ -141,8 +150,8 @@
                                 </MenuItem.Style>
                             </MenuItem>
                         </ContextMenu>
-                    </ToggleButton.ContextMenu>
-                </ToggleButton>
+                    </Button.ContextMenu>
+                </Button>
             </Grid>
         </Grid>
         <ItemsControl
