@@ -78,7 +78,7 @@ namespace HarmonizeGit.GUI
         }
         #endregion
         #region PauseSeconds
-        private Int32 _PauseSeconds;
+        private Int32 _PauseSeconds =  _PauseSeconds_Default;
         public readonly static Int32 _PauseSeconds_Default = 30;
         public Int32 PauseSeconds
         {

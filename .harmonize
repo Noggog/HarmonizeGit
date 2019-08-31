@@ -26,10 +26,10 @@
       </RepoListing>
       <RepoListing>
          <Nickname>Loqui</Nickname>
-         <Sha>613dde18e4b2debe6aa989c98c53f34d26ad5eab</Sha>
+         <Sha>617d2702c849c1ea2b088176306bdccd64d9ad4f</Sha>
          <Path>../Loqui</Path>
-         <CommitDate>08-30-2019 22:14:23</CommitDate>
-         <Description>RangedTypeGeneration fixes</Description>
+         <CommitDate>08-31-2019 16:18:39</CommitDate>
+         <Description>Fix for default value of TypicalTypeGeneration</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
    </ParentRepos>
