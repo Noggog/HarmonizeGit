@@ -86,7 +86,8 @@ namespace HarmonizeGit
         }
 
         public static HarmonizeConfig Factory(
-            HarmonizeGitBase harmonize,
+            ConfigLoader configLoader,
+            RepoLoader repoLoader,
             string path,
             Commit commit)
         {
@@ -101,10 +102,10 @@ namespace HarmonizeGit
             using (var tr = new StreamReader(contentStream, Encoding.UTF8))
             {
                 return Factory(
-                    harmonize.RepoLoader,
+                    repoLoader,
                     path,
                     tr.BaseStream,
-                    harmonize.ConfigLoader.GetPathing(path));
+                    configLoader.GetPathing(path));
             }
         }
 

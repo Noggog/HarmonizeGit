@@ -89,7 +89,8 @@ namespace HarmonizeGit
             Commit commit)
         {
             var config = HarmonizeConfig.Factory(
-                harmonize,
+                harmonize.ConfigLoader,
+                harmonize.RepoLoader,
                 repo.Info.WorkingDirectory,
                 commit);
             if (config == null) yield break;

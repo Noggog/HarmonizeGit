@@ -1,4 +1,5 @@
-﻿using LibGit2Sharp;
+﻿using FishingWithGit.Common;
+using LibGit2Sharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,18 +15,20 @@ namespace HarmonizeGit
     public class ConfigLoader
     {
         public HarmonizeConfig Config;
-        private HarmonizeGitBase harmonize;
+        private RepoLoader _repoLoader;
+        private ILogger _logger;
         private Dictionary<string, HarmonizeConfig> configs = new Dictionary<string, HarmonizeConfig>();
         private Dictionary<RepoConfigKey, HarmonizeConfig> repoConfigs = new Dictionary<RepoConfigKey, HarmonizeConfig>();
         private Dictionary<string, PathingConfig> pathingConfigs = new Dictionary<string, PathingConfig>();
 
-        public void Init(HarmonizeGitBase harmonize)
+        public void Init(string targetPath, RepoLoader repoLoader, ILogger logger)
         {
-            this.harmonize = harmonize;
-            this.Config = GetConfig(harmonize.TargetPath);
+            this._repoLoader = repoLoader;
+            this._logger = logger;
+            this.Config = GetConfig(targetPath);
             if (this.Config == null
                 || this.Config.IsMidMerge) return;
-            this.Config.Pathing.WriteToPath(harmonize.TargetPath);
+            this.Config.Pathing.WriteToPath(targetPath);
         }
 
         #region Config
@@ -48,9 +51,10 @@ namespace HarmonizeGit
                 CommitSha = commit.Sha
             };
             if (repoConfigs.TryGetValue(key, out HarmonizeConfig ret)) return ret;
-            this.harmonize.Logger.WriteLine($"Loading config from repo at path {repo.Info.WorkingDirectory} at commit {commit.Sha} ");
+            this._logger.WriteLine($"Loading config from repo at path {repo.Info.WorkingDirectory} at commit {commit.Sha} ");
             ret = HarmonizeConfig.Factory(
-                this.harmonize,
+                this,
+                this._repoLoader,
                 repo.Info.WorkingDirectory,
                 commit);
             repoConfigs[key] = ret;
@@ -61,10 +65,10 @@ namespace HarmonizeGit
         {
             using (LockManager.GetLock(LockType.Harmonize, path))
             {
-                this.harmonize.Logger.WriteLine($"Loading config at path {path}");
+                this._logger.WriteLine($"Loading config at path {path}");
                 if (HarmonizeFunctionality.TryLoadConfig(
                     path,
-                    this.harmonize.RepoLoader,
+                    this._repoLoader,
                     out var config))
                 {
                     return config;

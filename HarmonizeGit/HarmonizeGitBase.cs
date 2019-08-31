@@ -161,7 +161,7 @@ namespace HarmonizeGit
             this.Logger.ActivateAndFlushLogging();
             this.ChildLoader = new ChildrenLoader(this);
             this.ConfigLoader = new ConfigLoader();
-            this.ConfigLoader.Init(this);
+            this.ConfigLoader.Init(this.TargetPath, this.RepoLoader, this.Logger);
             this.Config = ConfigLoader.GetConfig(this.TargetPath);
         }
 
@@ -329,7 +329,8 @@ namespace HarmonizeGit
             }
 
             targetConfig = HarmonizeConfig.Factory(
-                this,
+                this.ConfigLoader,
+                this.RepoLoader,
                 this.TargetPath,
                 targetCommit);
             if (targetConfig == null) return true;
