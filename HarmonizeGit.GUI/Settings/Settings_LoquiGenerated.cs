@@ -77,6 +77,16 @@ namespace HarmonizeGit.GUI
             set => this.RaiseAndSetIfChanged(ref this._AutoSync, value, nameof(AutoSync));
         }
         #endregion
+        #region PauseSeconds
+        private Int32 _PauseSeconds;
+        public readonly static Int32 _PauseSeconds_Default = 30;
+        public Int32 PauseSeconds
+        {
+            get => this._PauseSeconds;
+            set => this.RaiseAndSetIfChanged(ref this._PauseSeconds, value.PutInRange(PauseSeconds_Range.Min, PauseSeconds_Range.Max), nameof(PauseSeconds));
+        }
+        public static RangeInt32 PauseSeconds_Range = new RangeInt32(0, int.MaxValue);
+        #endregion
 
         IMask<bool> IEqualsMask.GetEqualsIMask(object rhs, EqualsMaskHelper.Include include) => this.GetEqualsMask((ISettingsGetter)rhs, include);
         #region To String
@@ -369,6 +379,7 @@ namespace HarmonizeGit.GUI
                 case Settings_FieldIndex.Repositories:
                 case Settings_FieldIndex.LastReferencedDirectory:
                 case Settings_FieldIndex.AutoSync:
+                case Settings_FieldIndex.PauseSeconds:
                     return true;
                 default:
                     throw new ArgumentException($"Unknown field index: {index}");
@@ -495,6 +506,9 @@ namespace HarmonizeGit.GUI
                 case Settings_FieldIndex.AutoSync:
                     this.AutoSync = (Boolean)obj;
                     break;
+                case Settings_FieldIndex.PauseSeconds:
+                    this.PauseSeconds = (Int32)obj;
+                    break;
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
             }
@@ -532,6 +546,9 @@ namespace HarmonizeGit.GUI
                 case Settings_FieldIndex.AutoSync:
                     obj.AutoSync = (Boolean)pair.Value;
                     break;
+                case Settings_FieldIndex.PauseSeconds:
+                    obj.PauseSeconds = (Int32)pair.Value;
+                    break;
                 default:
                     throw new ArgumentException($"Unknown enum type: {enu}");
             }
@@ -548,6 +565,8 @@ namespace HarmonizeGit.GUI
         new String LastReferencedDirectory { get; set; }
 
         new Boolean AutoSync { get; set; }
+
+        new Int32 PauseSeconds { get; set; }
 
         void CopyFieldsFrom(
             Settings rhs,
@@ -570,6 +589,10 @@ namespace HarmonizeGit.GUI
         #endregion
         #region AutoSync
         Boolean AutoSync { get; }
+
+        #endregion
+        #region PauseSeconds
+        Int32 PauseSeconds { get; }
 
         #endregion
 
@@ -660,6 +683,7 @@ namespace HarmonizeGit.GUI.Internals
         Repositories = 0,
         LastReferencedDirectory = 1,
         AutoSync = 2,
+        PauseSeconds = 3,
     }
     #endregion
 
@@ -677,9 +701,9 @@ namespace HarmonizeGit.GUI.Internals
 
         public const string GUID = "5d6eeb31-060e-48ce-b224-2b4c2b802cde";
 
-        public const ushort AdditionalFieldCount = 3;
+        public const ushort AdditionalFieldCount = 4;
 
-        public const ushort FieldCount = 3;
+        public const ushort FieldCount = 4;
 
         public static readonly Type MaskType = typeof(Settings_Mask<>);
 
@@ -717,6 +741,8 @@ namespace HarmonizeGit.GUI.Internals
                     return (ushort)Settings_FieldIndex.LastReferencedDirectory;
                 case "AUTOSYNC":
                     return (ushort)Settings_FieldIndex.AutoSync;
+                case "PAUSESECONDS":
+                    return (ushort)Settings_FieldIndex.PauseSeconds;
                 default:
                     return null;
             }
@@ -731,6 +757,7 @@ namespace HarmonizeGit.GUI.Internals
                     return true;
                 case Settings_FieldIndex.LastReferencedDirectory:
                 case Settings_FieldIndex.AutoSync:
+                case Settings_FieldIndex.PauseSeconds:
                     return false;
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
@@ -746,6 +773,7 @@ namespace HarmonizeGit.GUI.Internals
                     return true;
                 case Settings_FieldIndex.LastReferencedDirectory:
                 case Settings_FieldIndex.AutoSync:
+                case Settings_FieldIndex.PauseSeconds:
                     return false;
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
@@ -760,6 +788,7 @@ namespace HarmonizeGit.GUI.Internals
                 case Settings_FieldIndex.Repositories:
                 case Settings_FieldIndex.LastReferencedDirectory:
                 case Settings_FieldIndex.AutoSync:
+                case Settings_FieldIndex.PauseSeconds:
                     return false;
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
@@ -777,6 +806,8 @@ namespace HarmonizeGit.GUI.Internals
                     return "LastReferencedDirectory";
                 case Settings_FieldIndex.AutoSync:
                     return "AutoSync";
+                case Settings_FieldIndex.PauseSeconds:
+                    return "PauseSeconds";
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
             }
@@ -790,6 +821,7 @@ namespace HarmonizeGit.GUI.Internals
                 case Settings_FieldIndex.Repositories:
                 case Settings_FieldIndex.LastReferencedDirectory:
                 case Settings_FieldIndex.AutoSync:
+                case Settings_FieldIndex.PauseSeconds:
                     return false;
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
@@ -804,6 +836,7 @@ namespace HarmonizeGit.GUI.Internals
                 case Settings_FieldIndex.Repositories:
                 case Settings_FieldIndex.LastReferencedDirectory:
                 case Settings_FieldIndex.AutoSync:
+                case Settings_FieldIndex.PauseSeconds:
                     return false;
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
@@ -821,6 +854,8 @@ namespace HarmonizeGit.GUI.Internals
                     return typeof(String);
                 case Settings_FieldIndex.AutoSync:
                     return typeof(Boolean);
+                case Settings_FieldIndex.PauseSeconds:
+                    return typeof(Int32);
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
             }
@@ -940,6 +975,23 @@ namespace HarmonizeGit.GUI.Internals
                     errorMask?.PopIndex();
                 }
             }
+            if (copyMask?.PauseSeconds ?? true)
+            {
+                errorMask?.PushIndex((int)Settings_FieldIndex.PauseSeconds);
+                try
+                {
+                    item.PauseSeconds = rhs.PauseSeconds;
+                }
+                catch (Exception ex)
+                when (errorMask != null)
+                {
+                    errorMask.ReportException(ex);
+                }
+                finally
+                {
+                    errorMask?.PopIndex();
+                }
+            }
         }
 
         #endregion
@@ -952,6 +1004,7 @@ namespace HarmonizeGit.GUI.Internals
             item.Repositories.Clear();
             item.LastReferencedDirectory = default(String);
             item.AutoSync = default(Boolean);
+            item.PauseSeconds = Settings._PauseSeconds_Default;
         }
 
         public Settings_Mask<bool> GetEqualsMask(
@@ -981,6 +1034,7 @@ namespace HarmonizeGit.GUI.Internals
                 include);
             ret.LastReferencedDirectory = string.Equals(item.LastReferencedDirectory, rhs.LastReferencedDirectory);
             ret.AutoSync = item.AutoSync == rhs.AutoSync;
+            ret.PauseSeconds = item.PauseSeconds == rhs.PauseSeconds;
         }
 
         public string ToString(
@@ -1053,6 +1107,10 @@ namespace HarmonizeGit.GUI.Internals
             {
                 fg.AppendLine($"AutoSync => {item.AutoSync}");
             }
+            if (printMask?.PauseSeconds ?? true)
+            {
+                fg.AppendLine($"PauseSeconds => {item.PauseSeconds}");
+            }
         }
 
         public bool HasBeenSet(
@@ -1069,6 +1127,7 @@ namespace HarmonizeGit.GUI.Internals
             mask.Repositories = new MaskItem<bool, IEnumerable<MaskItemIndexed<bool, Repository_Mask<bool>>>>(true, item.Repositories.WithIndex().Select((i) => new MaskItemIndexed<bool, Repository_Mask<bool>>(i.Index, true, i.Item.GetHasBeenSetMask())));
             mask.LastReferencedDirectory = true;
             mask.AutoSync = true;
+            mask.PauseSeconds = true;
         }
 
         #region Equals and Hash
@@ -1081,6 +1140,7 @@ namespace HarmonizeGit.GUI.Internals
             if (!lhs.Repositories.SequenceEqual(rhs.Repositories)) return false;
             if (!string.Equals(lhs.LastReferencedDirectory, rhs.LastReferencedDirectory)) return false;
             if (lhs.AutoSync != rhs.AutoSync) return false;
+            if (lhs.PauseSeconds != rhs.PauseSeconds) return false;
             return true;
         }
 
@@ -1090,6 +1150,7 @@ namespace HarmonizeGit.GUI.Internals
             ret = HashHelper.GetHashCode(item.Repositories).CombineHashCode(ret);
             ret = HashHelper.GetHashCode(item.LastReferencedDirectory).CombineHashCode(ret);
             ret = HashHelper.GetHashCode(item.AutoSync).CombineHashCode(ret);
+            ret = HashHelper.GetHashCode(item.PauseSeconds).CombineHashCode(ret);
             return ret;
         }
 
@@ -1147,6 +1208,15 @@ namespace HarmonizeGit.GUI.Internals
                     name: nameof(item.AutoSync),
                     item: item.AutoSync,
                     fieldIndex: (int)Settings_FieldIndex.AutoSync,
+                    errorMask: errorMask);
+            }
+            if ((translationMask?.GetShouldTranslate((int)Settings_FieldIndex.PauseSeconds) ?? true))
+            {
+                Int32XmlTranslation.Instance.Write(
+                    node: node,
+                    name: nameof(item.PauseSeconds),
+                    item: item.PauseSeconds,
+                    fieldIndex: (int)Settings_FieldIndex.PauseSeconds,
                     errorMask: errorMask);
             }
         }
@@ -1344,6 +1414,35 @@ namespace HarmonizeGit.GUI.Internals
                         }
                     }
                     break;
+                case "PauseSeconds":
+                    if ((translationMask?.GetShouldTranslate((int)Settings_FieldIndex.PauseSeconds) ?? true))
+                    {
+                        try
+                        {
+                            errorMask?.PushIndex((int)Settings_FieldIndex.PauseSeconds);
+                            if (Int32XmlTranslation.Instance.Parse(
+                                node: node,
+                                item: out Int32 PauseSecondsParse,
+                                errorMask: errorMask))
+                            {
+                                item.PauseSeconds = PauseSecondsParse;
+                            }
+                            else
+                            {
+                                item.PauseSeconds = default(Int32);
+                            }
+                        }
+                        catch (Exception ex)
+                        when (errorMask != null)
+                        {
+                            errorMask.ReportException(ex);
+                        }
+                        finally
+                        {
+                            errorMask?.PopIndex();
+                        }
+                    }
+                    break;
                 default:
                     break;
             }
@@ -1523,6 +1622,7 @@ namespace HarmonizeGit.GUI.Internals
             this.Repositories = new MaskItem<T, IEnumerable<MaskItemIndexed<T, Repository_Mask<T>>>>(initialValue, null);
             this.LastReferencedDirectory = initialValue;
             this.AutoSync = initialValue;
+            this.PauseSeconds = initialValue;
         }
         #endregion
 
@@ -1530,6 +1630,7 @@ namespace HarmonizeGit.GUI.Internals
         public MaskItem<T, IEnumerable<MaskItemIndexed<T, Repository_Mask<T>>>> Repositories;
         public T LastReferencedDirectory;
         public T AutoSync;
+        public T PauseSeconds;
         #endregion
 
         #region Equals
@@ -1545,6 +1646,7 @@ namespace HarmonizeGit.GUI.Internals
             if (!object.Equals(this.Repositories, rhs.Repositories)) return false;
             if (!object.Equals(this.LastReferencedDirectory, rhs.LastReferencedDirectory)) return false;
             if (!object.Equals(this.AutoSync, rhs.AutoSync)) return false;
+            if (!object.Equals(this.PauseSeconds, rhs.PauseSeconds)) return false;
             return true;
         }
         public override int GetHashCode()
@@ -1553,6 +1655,7 @@ namespace HarmonizeGit.GUI.Internals
             ret = ret.CombineHashCode(this.Repositories?.GetHashCode());
             ret = ret.CombineHashCode(this.LastReferencedDirectory?.GetHashCode());
             ret = ret.CombineHashCode(this.AutoSync?.GetHashCode());
+            ret = ret.CombineHashCode(this.PauseSeconds?.GetHashCode());
             return ret;
         }
 
@@ -1575,6 +1678,7 @@ namespace HarmonizeGit.GUI.Internals
             }
             if (!eval(this.LastReferencedDirectory)) return false;
             if (!eval(this.AutoSync)) return false;
+            if (!eval(this.PauseSeconds)) return false;
             return true;
         }
         #endregion
@@ -1616,6 +1720,7 @@ namespace HarmonizeGit.GUI.Internals
             }
             obj.LastReferencedDirectory = eval(this.LastReferencedDirectory);
             obj.AutoSync = eval(this.AutoSync);
+            obj.PauseSeconds = eval(this.PauseSeconds);
         }
         #endregion
 
@@ -1678,6 +1783,10 @@ namespace HarmonizeGit.GUI.Internals
                 {
                     fg.AppendLine($"AutoSync => {AutoSync}");
                 }
+                if (printMask?.PauseSeconds ?? true)
+                {
+                    fg.AppendLine($"PauseSeconds => {PauseSeconds}");
+                }
             }
             fg.AppendLine("]");
         }
@@ -1704,6 +1813,7 @@ namespace HarmonizeGit.GUI.Internals
         public MaskItem<Exception, IEnumerable<MaskItem<Exception, Repository_ErrorMask>>> Repositories;
         public Exception LastReferencedDirectory;
         public Exception AutoSync;
+        public Exception PauseSeconds;
         #endregion
 
         #region IErrorMask
@@ -1718,6 +1828,8 @@ namespace HarmonizeGit.GUI.Internals
                     return LastReferencedDirectory;
                 case Settings_FieldIndex.AutoSync:
                     return AutoSync;
+                case Settings_FieldIndex.PauseSeconds:
+                    return PauseSeconds;
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
             }
@@ -1736,6 +1848,9 @@ namespace HarmonizeGit.GUI.Internals
                     break;
                 case Settings_FieldIndex.AutoSync:
                     this.AutoSync = ex;
+                    break;
+                case Settings_FieldIndex.PauseSeconds:
+                    this.PauseSeconds = ex;
                     break;
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
@@ -1756,6 +1871,9 @@ namespace HarmonizeGit.GUI.Internals
                 case Settings_FieldIndex.AutoSync:
                     this.AutoSync = (Exception)obj;
                     break;
+                case Settings_FieldIndex.PauseSeconds:
+                    this.PauseSeconds = (Exception)obj;
+                    break;
                 default:
                     throw new ArgumentException($"Index is out of range: {index}");
             }
@@ -1767,6 +1885,7 @@ namespace HarmonizeGit.GUI.Internals
             if (Repositories != null) return true;
             if (LastReferencedDirectory != null) return true;
             if (AutoSync != null) return true;
+            if (PauseSeconds != null) return true;
             return false;
         }
         #endregion
@@ -1825,6 +1944,7 @@ namespace HarmonizeGit.GUI.Internals
             fg.AppendLine("]");
             fg.AppendLine($"LastReferencedDirectory => {LastReferencedDirectory}");
             fg.AppendLine($"AutoSync => {AutoSync}");
+            fg.AppendLine($"PauseSeconds => {PauseSeconds}");
         }
         #endregion
 
@@ -1835,6 +1955,7 @@ namespace HarmonizeGit.GUI.Internals
             ret.Repositories = new MaskItem<Exception, IEnumerable<MaskItem<Exception, Repository_ErrorMask>>>(this.Repositories.Overall.Combine(rhs.Repositories.Overall), new List<MaskItem<Exception, Repository_ErrorMask>>(this.Repositories.Specific.And(rhs.Repositories.Specific)));
             ret.LastReferencedDirectory = this.LastReferencedDirectory.Combine(rhs.LastReferencedDirectory);
             ret.AutoSync = this.AutoSync.Combine(rhs.AutoSync);
+            ret.PauseSeconds = this.PauseSeconds.Combine(rhs.PauseSeconds);
             return ret;
         }
         public static Settings_ErrorMask Combine(Settings_ErrorMask lhs, Settings_ErrorMask rhs)
@@ -1864,12 +1985,14 @@ namespace HarmonizeGit.GUI.Internals
             this.Repositories = new MaskItem<CopyOption, Repository_CopyMask>(deepCopyOption, default);
             this.LastReferencedDirectory = defaultOn;
             this.AutoSync = defaultOn;
+            this.PauseSeconds = defaultOn;
         }
 
         #region Members
         public MaskItem<CopyOption, Repository_CopyMask> Repositories;
         public bool LastReferencedDirectory;
         public bool AutoSync;
+        public bool PauseSeconds;
         #endregion
 
     }
@@ -1881,6 +2004,7 @@ namespace HarmonizeGit.GUI.Internals
         public MaskItem<bool, Repository_TranslationMask> Repositories;
         public bool LastReferencedDirectory;
         public bool AutoSync;
+        public bool PauseSeconds;
         #endregion
 
         #region Ctors
@@ -1893,6 +2017,7 @@ namespace HarmonizeGit.GUI.Internals
             this.Repositories = new MaskItem<bool, Repository_TranslationMask>(defaultOn, null);
             this.LastReferencedDirectory = defaultOn;
             this.AutoSync = defaultOn;
+            this.PauseSeconds = defaultOn;
         }
 
         #endregion
@@ -1914,6 +2039,7 @@ namespace HarmonizeGit.GUI.Internals
             ret.Add((Repositories?.Overall ?? true, Repositories?.Specific?.GetCrystal()));
             ret.Add((LastReferencedDirectory, null));
             ret.Add((AutoSync, null));
+            ret.Add((PauseSeconds, null));
         }
     }
     #endregion

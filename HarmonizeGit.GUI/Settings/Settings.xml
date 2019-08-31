@@ -5,6 +5,7 @@
       <RefList name="Repositories" refName="Repository" />
       <String name="LastReferencedDirectory" />
       <Bool name="AutoSync" />
+      <Int32 name="PauseSeconds" min="0" default="30" />
     </Fields>
   </Object>
   <Object name="Repository"  GUID="257a1e5e-e6be-4675-a3e4-a186db23e839" ID="2">

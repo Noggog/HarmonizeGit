@@ -7,6 +7,7 @@
     xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:local="clr-namespace:HarmonizeGit.GUI"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:s="clr-namespace:System;assembly=mscorlib"
     Title="Harmonize Git"
     Width="800"
     Height="450"
@@ -34,6 +35,12 @@
                     ToolTip="Track New Repository">
                     <icon:PackIconMaterial Kind="Plus" />
                 </Button>
+                <ProgressBar
+                    Grid.ColumnSpan="2"
+                    Margin="48,0,2,0"
+                    Maximum="1"
+                    Visibility="{Binding Paused, Mode=OneWay, Converter={StaticResource VisibilityConverter}}"
+                    Value="{Binding PauseProgress, Mode=OneWay}" />
                 <ToggleButton
                     Grid.Column="1"
                     Focusable="False"
@@ -47,8 +54,16 @@
                                     <DataTrigger.ExitActions>
                                         <BeginStoryboard Storyboard="{StaticResource FlashAnimation}" />
                                     </DataTrigger.ExitActions>
-                                    <Setter Property="Background" Value="{StaticResource HighlightBrush}" />
                                 </DataTrigger>
+                                <MultiDataTrigger>
+                                    <MultiDataTrigger.Conditions>
+                                        <Condition Binding="{Binding Paused}" Value="True" />
+                                        <Condition Binding="{Binding Settings.AutoSync}" Value="True" />
+                                    </MultiDataTrigger.Conditions>
+                                    <MultiDataTrigger.Setters>
+                                        <Setter Property="Background" Value="Transparent" />
+                                    </MultiDataTrigger.Setters>
+                                </MultiDataTrigger>
                             </Style.Triggers>
                         </Style>
                     </ToggleButton.Style>
@@ -59,9 +74,74 @@
                 <ToggleButton
                     Grid.Column="2"
                     Focusable="False"
-                    IsChecked="{Binding Paused}"
-                    IsEnabled="{Binding Settings.AutoSync}">
+                    IsChecked="{Binding Paused}">
                     <icon:PackIconMaterial Kind="Pause" />
+                    <ToggleButton.Resources>
+                        <s:Int32 x:Key="30">30</s:Int32>
+                        <s:Int32 x:Key="120">120</s:Int32>
+                        <s:Int32 x:Key="300">300</s:Int32>
+                        <s:Int32 x:Key="900">900</s:Int32>
+                    </ToggleButton.Resources>
+                    <ToggleButton.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem
+                                Command="{Binding PauseSecondsCommand}"
+                                CommandParameter="{StaticResource 30}"
+                                Header="30s">
+                                <MenuItem.Style>
+                                    <Style TargetType="MenuItem">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Settings.PauseSeconds}" Value="30">
+                                                <Setter Property="Background" Value="{StaticResource HighlightBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </MenuItem.Style>
+                            </MenuItem>
+                            <MenuItem
+                                Command="{Binding PauseSecondsCommand}"
+                                CommandParameter="{StaticResource 120}"
+                                Header="2m">
+                                <MenuItem.Style>
+                                    <Style TargetType="MenuItem">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Settings.PauseSeconds}" Value="120">
+                                                <Setter Property="Background" Value="{StaticResource HighlightBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </MenuItem.Style>
+                            </MenuItem>
+                            <MenuItem
+                                Command="{Binding PauseSecondsCommand}"
+                                CommandParameter="{StaticResource 300}"
+                                Header="5m">
+                                <MenuItem.Style>
+                                    <Style TargetType="MenuItem">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Settings.PauseSeconds}" Value="300">
+                                                <Setter Property="Background" Value="{StaticResource HighlightBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </MenuItem.Style>
+                            </MenuItem>
+                            <MenuItem
+                                Command="{Binding PauseSecondsCommand}"
+                                CommandParameter="{StaticResource 900}"
+                                Header="15m">
+                                <MenuItem.Style>
+                                    <Style TargetType="MenuItem">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Settings.PauseSeconds}" Value="900">
+                                                <Setter Property="Background" Value="{StaticResource HighlightBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </MenuItem.Style>
+                            </MenuItem>
+                        </ContextMenu>
+                    </ToggleButton.ContextMenu>
                 </ToggleButton>
             </Grid>
         </Grid>

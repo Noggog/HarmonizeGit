@@ -10,10 +10,10 @@
       </RepoListing>
       <RepoListing>
          <Nickname>CSharpExt</Nickname>
-         <Sha>2112432ca7de145aba100b1cacabbac9f6a7d5d3</Sha>
+         <Sha>9b0482f113d60db27ec62b1062467f9d5277a93e</Sha>
          <Path>../CSharpExt</Path>
-         <CommitDate>08-27-2019 22:47:46</CommitDate>
-         <Description>IsNotEmptyVisibilityConverter</Description>
+         <CommitDate>08-30-2019 21:11:00</CommitDate>
+         <Description>ObservableExt:  SelectLatestFrom, SelectLatest</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
       <RepoListing>
@@ -26,10 +26,10 @@
       </RepoListing>
       <RepoListing>
          <Nickname>Loqui</Nickname>
-         <Sha>5691b4284cb016ac2b6bf2c93a9e1f83a5c900fa</Sha>
+         <Sha>613dde18e4b2debe6aa989c98c53f34d26ad5eab</Sha>
          <Path>../Loqui</Path>
-         <CommitDate>08-25-2019 18:48:26</CommitDate>
-         <Description>Reactive objects can now define ViewModel as their base class</Description>
+         <CommitDate>08-30-2019 22:14:23</CommitDate>
+         <Description>RangedTypeGeneration fixes</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
    </ParentRepos>

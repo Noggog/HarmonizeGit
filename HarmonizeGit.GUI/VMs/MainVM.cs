@@ -15,10 +15,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
+using Splat;
 
 namespace HarmonizeGit.GUI
 {
-    public class MainVM : ViewModel
+    public class MainVM : ViewModel, IEnableLogger
     {
         // Static constants
         public static MainVM Instance { get; private set; }
@@ -31,6 +32,7 @@ namespace HarmonizeGit.GUI
 
         public IReactiveCommand AddCommand { get; }
         public IReactiveCommand ResyncCommand { get; }
+        public IReactiveCommand PauseSecondsCommand { get; }
 
         private ObservableAsPropertyHelper<bool> _Resyncing;
         public bool Resyncing => _Resyncing.Value;
@@ -39,11 +41,11 @@ namespace HarmonizeGit.GUI
             .Unit()
             .PublishRefCount();
 
-        private int _PauseSeconds = 5;
-        public int PauseSeconds { get => _PauseSeconds; set => this.RaiseAndSetIfChanged(ref _PauseSeconds, value); }
-
         private bool _Paused;
         public bool Paused { get => _Paused; set => this.RaiseAndSetIfChanged(ref _Paused, value); }
+
+        private readonly ObservableAsPropertyHelper<double> _PauseProgress;
+        public double PauseProgress => _PauseProgress.Value;
 
         public MainVM()
         {
@@ -65,6 +67,7 @@ namespace HarmonizeGit.GUI
                     });
                 });
             this.ResyncCommand = ReactiveCommand.Create(ActionExt.Nothing);
+            this.PauseSecondsCommand = ReactiveCommand.Create<int>((param) => this.Settings.PauseSeconds = param);
 
             // Save to disk when app closing
             window.Closed += (a, b) =>
@@ -88,7 +91,7 @@ namespace HarmonizeGit.GUI
                 .DisposeWith(this.CompositeDisposable);
 
             // Set up pause auto turn off
-            Observable.CombineLatest(
+            var pauseProgress = Observable.CombineLatest(
                     // Get Pause Timestamp
                     Observable.Merge(
                         // When pause is enabled
@@ -97,26 +100,32 @@ namespace HarmonizeGit.GUI
                             .Where(paused => paused)
                             .Select(_ => DateTime.Now),
                         // Or pause seconds changed during pause phase
-                        this.WhenAny(x => x.PauseSeconds)
+                        this.WhenAny(x => x.Settings.PauseSeconds)
                             .FilterSwitch(this.WhenAny(x => x.Paused))
                             .Select(_ => DateTime.Now)),
                     this.WhenAny(x => x.Paused),
-                    this.WhenAny(x => x.PauseSeconds),
+                    this.WhenAny(x => x.Settings.PauseSeconds),
                     // Return whether we should fire signal to turn pause off
                     resultSelector: (pauseTime, paused, pauseSeconds) =>
                     {
                         // Don't want to fire anything if in bad state
-                        if (!paused) return Observable.Return(false);
+                        if (!paused) return Observable.Return(Percent.Zero);
                         var endTime = pauseTime.AddSeconds(pauseSeconds);
-                        if (endTime < DateTime.Now) Observable.Return(false);
-                        // Fire signal after timer
-                        return Observable.Timer(endTime)
-                            .Select(_ => true);
+                        var startTime = DateTime.Now;
+                        if (endTime < DateTime.Now) return Observable.Return(Percent.Zero);
+                        return ObservableExt.ProgressInterval(startTime, endTime, TimeSpan.FromMilliseconds(50));
                     })
                 .Switch()
-                .Where(s => s) // Only if signal fired
+                .PublishRefCount();
+            pauseProgress
+                .Where(s => s == Percent.One) // Only if signal fired
                 .Subscribe(pause => this.Paused = false)
                 .DisposeWith(this.CompositeDisposable);
+
+            // Set up pause progress bar
+            this._PauseProgress = pauseProgress
+                .Select(p => p.Value)
+                .ToProperty(this, nameof(PauseProgress));
 
             // Set up autosync
             this.SyncPulse
