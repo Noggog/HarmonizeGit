@@ -20,14 +20,14 @@ namespace HarmonizeGit
         public bool IsMidMerge;
 
         public static HarmonizeConfig Factory(
-            HarmonizeGitBase harmonize,
+            RepoLoader repoLoader,
             string path,
             Stream stream,
             PathingConfig pathing)
         {
             HarmonizeConfig ret = new HarmonizeConfig();
 
-            var repo = harmonize.RepoLoader.GetRepo(path);
+            var repo = repoLoader.GetRepo(path);
             if (!repo.Index.IsFullyMerged)
             {
                 var harmonizeStatus = repo.RetrieveStatus(Constants.HarmonizeConfigPath);
@@ -101,7 +101,7 @@ namespace HarmonizeGit
             using (var tr = new StreamReader(contentStream, Encoding.UTF8))
             {
                 return Factory(
-                    harmonize,
+                    harmonize.RepoLoader,
                     path,
                     tr.BaseStream,
                     harmonize.ConfigLoader.GetPathing(path));

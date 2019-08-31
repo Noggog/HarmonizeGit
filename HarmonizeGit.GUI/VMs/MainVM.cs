@@ -23,6 +23,7 @@ namespace HarmonizeGit.GUI
     {
         // Static constants
         public static MainVM Instance { get; private set; }
+        public static FishingWithGit.Common.ILogger HarmonizeLogger = new SplatLogger();
         public const string AppName = "Harmonize Git GUI";
         public static readonly string SettingsPath = Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), $"{AppName}/Settings.xml");
 

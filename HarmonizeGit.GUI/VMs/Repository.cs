@@ -10,10 +10,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Input;
+using Splat;
 
 namespace HarmonizeGit.GUI
 {
-    public partial class Repository
+    public partial class Repository : IEnableLogger
     {
         public IReactiveCommand OpenRepoFolderDialogCommand { get; private set; }
         public IReactiveCommand ResyncCommand { get; private set; }
@@ -23,9 +24,6 @@ namespace HarmonizeGit.GUI
 
         private ObservableAsPropertyHelper<bool> _Resyncing;
         public bool Resyncing => _Resyncing.Value;
-
-        private ObservableAsPropertyHelper<HarmonizeGitBase> _Harmonize;
-        public HarmonizeGitBase Harmonize => _Harmonize.Value;
 
         public void Init(MainVM mvm)
         {
@@ -44,17 +42,6 @@ namespace HarmonizeGit.GUI
                         }
                     }
                 });
-            this._Harmonize = this.WhenAny(x => x.Path)
-                .StartWith(this.Path)
-                .NotNull()
-                .Select(path =>
-                {
-                    HarmonizeGitBase harmonize = new HarmonizeGitBase(path);
-                    harmonize.Init();
-                    return harmonize;
-                })
-                .DisposeWith(this.CompositeDisposable)
-                .ToProperty(this, nameof(Harmonize));
             this.ResyncCommand = ReactiveCommand.CreateFromTask(Resync);
             this.AutoSyncCommand = ReactiveCommand.Create(() =>
             {
@@ -89,18 +76,45 @@ namespace HarmonizeGit.GUI
 
         public async Task Resync()
         {
-            if (this.Harmonize == null) return;
-            await this.Harmonize.SyncConfigToParentShas();
+            using (var repoLoader = new RepoLoader(this.Path))
+            {
+                if (!HarmonizeFunctionality.TryLoadConfig(
+                    this.Path,
+                    repoLoader,
+                    out var config))
+                {
+                    // ToDo
+                    // Display errors
+                    this.Log().Warn("Could not create harmonize config to resync.");
+                    return;
+                }
+                await HarmonizeFunctionality.SyncAndWriteConfig(config, this.Path, repoLoader, MainVM.HarmonizeLogger);
+            }
         }
 
         public async Task SyncParentRepos()
         {
-            if (this.Harmonize == null) return;
-            this.Harmonize.SyncParentRepos(HarmonizeConfig.Factory(
-                this.Harmonize,
-                this.Harmonize.TargetPath,
-                this.Harmonize.Repo.Head.Tip));
-            await this.Harmonize.SyncConfigToParentShas();
+            using (var repoLoader = new RepoLoader(this.Path))
+            {
+                if (!HarmonizeFunctionality.TryLoadConfig(
+                    this.Path,
+                    repoLoader,
+                    out var config))
+                {
+                    // ToDo
+                    // Display errors
+                    this.Log().Warn("Could not create harmonize config to sync parent repos.");
+                    return;
+                }
+                foreach (var listing in config.ParentRepos)
+                {
+                    HarmonizeFunctionality.SyncParentRepo(
+                        listing,
+                        MainVM.HarmonizeLogger,
+                        repoLoader);
+                }
+                await HarmonizeFunctionality.SyncAndWriteConfig(config, this.Path, repoLoader, MainVM.HarmonizeLogger);
+            }
         }
     }
 }

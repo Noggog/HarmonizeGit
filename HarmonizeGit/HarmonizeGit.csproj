@@ -27,6 +27,7 @@
     <WarningLevel>4</WarningLevel>
     <NoWarn>CS1998</NoWarn>
     <WarningsAsErrors>CS4014</WarningsAsErrors>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -38,6 +39,7 @@
     <WarningLevel>4</WarningLevel>
     <NoWarn>CS1998</NoWarn>
     <WarningsAsErrors>CS4014</WarningsAsErrors>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>harmonize_git2.ico</ApplicationIcon>
@@ -71,6 +73,7 @@
     <Compile Include="Config\Settings\Settings.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Extensions\ElementWrapper.cs" />
+    <Compile Include="HarmonizeFunctionality.cs" />
     <Compile Include="HarmonizeInstallerClass.cs">
       <SubType>Component</SubType>
     </Compile>

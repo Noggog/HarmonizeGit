@@ -244,7 +244,7 @@ namespace HarmonizeGit
                     var parentConfig = ConfigLoader.GetConfig(path);
                     if (parentConfig != null)
                     {
-                        await this.ConfigLoader.SyncAndWriteConfig(parentConfig, path);
+                        await HarmonizeFunctionality.SyncAndWriteConfig(parentConfig, path, this.RepoLoader, this.Logger);
                         repoStatus = repo.RetrieveStatus();
                         if (!repoStatus.IsDirty)
                         {
@@ -270,7 +270,7 @@ namespace HarmonizeGit
         public async Task SyncConfigToParentShas()
         {
             this.Logger.WriteLine("Syncing config to parent repo shas.");
-            await this.ConfigLoader.SyncAndWriteConfig(this.Config, this.TargetPath);
+            await HarmonizeFunctionality.SyncAndWriteConfig(this.Config, this.TargetPath, this.RepoLoader, this.Logger);
         }
 
         public void UpdatePathingConfig()
@@ -290,7 +290,13 @@ namespace HarmonizeGit
             {
                 try
                 {
-                    if (!SyncParentRepo(listing)) return false;
+                    if (!HarmonizeFunctionality.SyncParentRepo(
+                        listing,
+                        this.Logger,
+                        this.RepoLoader))
+                    {
+                        return false;
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -303,110 +309,7 @@ namespace HarmonizeGit
             }
             return passed;
         }
-
-        private bool SyncParentRepo(RepoListing listing)
-        {
-            this.Logger.WriteLine($"Processing {listing.Nickname} at path {listing.Path}. Trying to check out an existing branch at {listing.Sha}.");
-            if (listing.Sha == null)
-            {
-                throw new ArgumentException("Listing did not have a sha.");
-            }
-
-            var repo = this.RepoLoader.GetRepo(listing.Path);
-            if (repo.Head.Tip.Sha.Equals(listing.Sha))
-            {
-                this.Logger.WriteLine("Repository already at desired commit.");
-                return true;
-            }
-
-            repo.Discard(Constants.HarmonizeConfigPath);
-            if (repo.RetrieveStatus().IsDirty)
-            {
-                var ret = Logger.LogErrorRetry(
-                    $"{listing.Nickname} Parent is dirty and cannot be synced.",
-                    $"Confim Skip {listing.Nickname} Sync",
-                    Settings.Instance.ShowMessageBoxes);
-                if (ret == null) return SyncParentRepo(listing);
-                return ret.Value;
-            }
-
-            var localBranches = new HashSet<string>(
-                repo.Branches
-                .Where((b) => !b.IsRemote)
-                .Select((b) => b.Name()));
-
-            var potentialBranches = repo.Branches
-                .Where((b) => b.Tip.Sha.Equals(listing.Sha))
-                .Where((b) => !b.Name().Equals("HEAD"))
-                .Where((b) => !b.IsRemote || !localBranches.Contains(b.Name()))
-                .OrderBy((b) => b.FriendlyName.Contains(Constants.BranchName) ? 0 : 1);
-
-            var existingBranch = potentialBranches
-                .Where((b) => !b.IsRemote)
-                .FirstOrDefault();
-            if (existingBranch == null)
-            {
-                existingBranch = potentialBranches.FirstOrDefault();
-            }
-
-            if (existingBranch != null)
-            {
-                this.Logger.WriteLine($"Checking out existing branch {listing.Nickname}:{existingBranch.FriendlyName}.");
-                var branch = repo.Branches[existingBranch.Name()];
-                if (branch == null)
-                {
-                    branch = repo.CreateBranch(existingBranch.Name(), existingBranch.Tip);
-                }
-                LibGit2Sharp.Commands.Checkout(repo, branch);
-                return true;
-            }
-
-            this.Logger.WriteLine("No branch found.  Allocating a Harmonize branch.");
-
-            var targetCommit = repo.Lookup<Commit>(listing.Sha);
-            if (targetCommit == null)
-            {
-                this.Logger.WriteLine("Fetching to locate target commit.");
-                foreach (var remote in repo.Network.Remotes)
-                {
-                    repo.Fetch(remote.Name);
-                }
-
-                targetCommit = repo.Lookup<Commit>(listing.Sha);
-                if (targetCommit == null)
-                {
-                    this.Logger.WriteLine("No branch found.  Could not allocate new branch as target commit could not be located.", error: true);
-                    return false;
-                }
-            }
-
-            for (int i = 0; i < 100; i++)
-            {
-                var branchName = Constants.BranchName + (i == 0 ? "" : i.ToString());
-                var harmonizeBranch = repo.Branches[branchName];
-                if (harmonizeBranch == null)
-                { // Create new branch
-                    this.Logger.WriteLine($"Creating {listing.Nickname}:{branchName}.");
-                    var branch = repo.CreateBranch(branchName, listing.Sha);
-                    Commands.Checkout(repo, branch);
-                    return true;
-                }
-                else if (repo.IsLoneTip(harmonizeBranch))
-                {
-                    this.Logger.WriteLine(harmonizeBranch.FriendlyName + " was unsafe to move.");
-                    continue;
-                }
-                else
-                {
-                    this.Logger.WriteLine($"Moving {listing.Nickname}:{harmonizeBranch.FriendlyName} to target commit.");
-                    Commands.Checkout(repo, harmonizeBranch);
-                    repo.Reset(ResetMode.Hard, listing.Sha);
-                    return true;
-                }
-            }
-            throw new NotImplementedException("Delete some branches.  You have over 100.");
-        }
-
+        
         public bool SyncParentReposToSha(string targetCommitSha)
         {
             HarmonizeConfig targetConfig;

@@ -62,64 +62,15 @@ namespace HarmonizeGit
             using (LockManager.GetLock(LockType.Harmonize, path))
             {
                 this.harmonize.Logger.WriteLine($"Loading config at path {path}");
-                FileInfo file = new FileInfo(path + "/" + Constants.HarmonizeConfigPath);
-                if (!file.Exists) return null;
-                var pathing = PathingConfig.Factory(path);
-                using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
+                if (HarmonizeFunctionality.TryLoadConfig(
+                    path,
+                    this.harmonize.RepoLoader,
+                    out var config))
                 {
-                    return HarmonizeConfig.Factory(
-                        this.harmonize,
-                        path,
-                        stream,
-                        pathing);
+                    return config;
                 }
+                return null;
             }
-        }
-
-        public async Task SyncAndWriteConfig(HarmonizeConfig config, string path)
-        {
-            List<RepoListing> changed = new List<RepoListing>();
-            changed.AddRange((await Task.WhenAll(config.ParentRepos.Select(
-                (listing) =>
-                {
-                    return Task.Run(() =>
-                    {
-                        this.harmonize.Logger.WriteLine($"Checking for sha changes {listing.Nickname} at path {listing.Path}.");
-                        var repo = this.harmonize.RepoLoader.GetRepo(listing.Path);
-                        this.harmonize.Logger.WriteLine($"Config sha {listing.Sha} compared to current sha {repo.Head.Tip.Sha}.");
-                        if (object.Equals(listing.Sha, repo.Head.Tip.Sha)) return null;
-                        listing.SetToCommit(repo.Head.Tip);
-                        this.harmonize.Logger.WriteLine($"Changed to sha {repo.Head.Tip.Sha}.");
-                        return listing;
-                    });
-                })))
-                .Where((listing) => listing != null));
-
-            if (WriteConfig(config, path))
-            {
-                if (changed.Count > 0)
-                {
-                    this.harmonize.Logger.WriteLine("Parent repos have changed: ");
-                    foreach (var change in changed)
-                    {
-                        this.harmonize.Logger.WriteLine("  " + change.Nickname);
-                    }
-                }
-            }
-        }
-
-        public bool WriteConfig(HarmonizeConfig config, string path)
-        {
-            if (object.Equals(config, config?.OriginalConfig)) return false;
-
-            path = path + "/" + Constants.HarmonizeConfigPath;
-            this.harmonize.Logger.WriteLine($"Updating config at {path}");
-
-            using (LockManager.GetLock(LockType.Harmonize, path))
-            {
-                config.WriteToPath(path);
-            }
-            return true;
         }
         #endregion
 
