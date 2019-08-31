@@ -26,10 +26,11 @@ namespace HarmonizeGit.GUI
         public static FishingWithGit.Common.ILogger HarmonizeLogger = new SplatLogger();
         public const string AppName = "Harmonize Git GUI";
         public static readonly string SettingsPath = Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), $"{AppName}/Settings.xml");
+        public BitmapFrame Icon => BitmapFrame.Create(new Uri("pack://application:,,,/harmonize_git2.ico", UriKind.RelativeOrAbsolute));
 
         public Settings Settings { get; }
         public ObservableCollectionExtended<Repository> Repositories { get; } = new ObservableCollectionExtended<Repository>();
-        public BitmapFrame Icon => BitmapFrame.Create(new Uri("pack://application:,,,/harmonize_git2.ico", UriKind.RelativeOrAbsolute));
+        public ObservableCollectionExtended<ParentRepoVM> AllDirtyParents { get; } = new ObservableCollectionExtended<ParentRepoVM>();
 
         public IReactiveCommand AddCommand { get; }
         public IReactiveCommand ResyncCommand { get; }
@@ -40,6 +41,9 @@ namespace HarmonizeGit.GUI
         public bool Resyncing => _Resyncing.Value;
 
         public readonly IObservable<Unit> SyncPulse = Observable.Interval(TimeSpan.FromSeconds(5), RxApp.MainThreadScheduler)
+            .Unit()
+            .PublishRefCount();
+        public readonly IObservable<Unit> DirtyCheckPulse = Observable.Interval(TimeSpan.FromSeconds(15), RxApp.MainThreadScheduler)
             .Unit()
             .PublishRefCount();
 
@@ -56,8 +60,6 @@ namespace HarmonizeGit.GUI
         public MainVM(MainWindow window)
         {
             HarmonizeGit.Settings.Instance.LogToFile = false;
-
-            // Create sub objects
             Instance = this;
 
             this.AddCommand = ReactiveCommand.Create(
@@ -86,12 +88,11 @@ namespace HarmonizeGit.GUI
             this.Settings = Settings.CreateFromXml(SettingsPath);
 
             // Populate GUI list
-            this.Settings.Repositories.Connect()
+            var repoList = this.Settings.Repositories.Connect()
                 .OnItemAdded(r => r.Init(this))
                 .ObserveOn(RxApp.MainThreadScheduler)
                 .Bind(this.Repositories)
-                .Subscribe()
-                .DisposeWith(this.CompositeDisposable);
+                .AsObservableList();
 
             // Set up pause auto turn off
             var pauseProgress = Observable.CombineLatest(
@@ -156,6 +157,17 @@ namespace HarmonizeGit.GUI
                     .DistinctUntilChanged())
                 .InvokeCommand(this.ResyncCommand)
                 .DisposeWith(this.CompositeDisposable);
+
+            // Compile all dirty parent repos
+            repoList.Connect()
+                .TransformMany(r => r.ParentRepos)
+                .DistinctValues(d => d)
+                .Transform(d => new ParentRepoVM(this, d))
+                .AutoRefresh(x => x.Dirty)
+                .Filter(x => x.Dirty)
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Bind(this.AllDirtyParents)
+                .AsObservableList();
         }
     }
 }

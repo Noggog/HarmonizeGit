@@ -23,6 +23,10 @@ namespace HarmonizeGit
             path = FishingWithGit.Common.Utility.StandardizePath(path, _targetPath);
             if (repos.TryGetValue(path, out var repo)) return repo;
             repo = new Repository(path);
+            if (path == null || repo == null)
+            {
+                throw new ArgumentNullException("Path or repo unexpectedly null.");
+            }
             repos[path] = repo;
             return repo;
         }

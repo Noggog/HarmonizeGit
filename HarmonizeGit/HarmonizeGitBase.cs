@@ -19,6 +19,7 @@ namespace HarmonizeGit
 {
     public class HarmonizeGitBase : IDisposable
     {
+        private bool _disposed;
         public ConfigLoader ConfigLoader { get; private set; }
         public ChildrenLoader ChildLoader { get; private set; }
         private readonly Lazy<RepoLoader> _RepoLoader;
@@ -160,8 +161,7 @@ namespace HarmonizeGit
             };
             this.Logger.ActivateAndFlushLogging();
             this.ChildLoader = new ChildrenLoader(this);
-            this.ConfigLoader = new ConfigLoader();
-            this.ConfigLoader.Init(this.TargetPath, this.RepoLoader, this.Logger);
+            this.ConfigLoader = new ConfigLoader(this.TargetPath, this.RepoLoader, this.Logger);
             this.Config = ConfigLoader.GetConfig(this.TargetPath);
         }
 
@@ -194,7 +194,11 @@ namespace HarmonizeGit
             List<Tuple<RepoListing, string>> ret = new List<Tuple<RepoListing, string>>();
             foreach (var repoListing in this.Config.ParentRepos)
             {
-                var dirt = await IsDirty(repoListing.Path);
+                var dirt = await HarmonizeFunctionality.IsDirty(
+                    repoListing.Path,
+                    this.ConfigLoader,
+                    this.RepoLoader,
+                    this.Logger);
                 if (dirt.Succeeded)
                 {
                     this.Logger.WriteLine($"{repoListing.Nickname} was dirty: {dirt.Reason}");
@@ -207,65 +211,19 @@ namespace HarmonizeGit
             }
             return ret;
         }
-
-        #region IsDirty
+        
         public Task<IErrorResponse> IsDirty(
             ConfigExclusion configExclusion = ConfigExclusion.Full,
             bool regenerateConfig = true)
         {
-            return IsDirty(this.TargetPath, configExclusion, regenerateConfig);
+            return HarmonizeFunctionality.IsDirty(
+                this.TargetPath, 
+                this.ConfigLoader,
+                this.RepoLoader, 
+                this.Logger,
+                configExclusion,
+                regenerateConfig);
         }
-
-        public async Task<IErrorResponse> IsDirty(
-            string path,
-            ConfigExclusion configExclusion = ConfigExclusion.Full,
-            bool regenerateConfig = true)
-        {
-            var repo = this.RepoLoader.GetRepo(path);
-            var repoStatus = repo.RetrieveStatus(new StatusOptions()
-            {
-                IncludeIgnored = false,
-                IncludeUnaltered = false,
-                RecurseIgnoredDirs = false,
-                ExcludeSubmodules = true
-            });
-            if (!repoStatus.IsDirty)
-            {
-                return ErrorResponse.Failure;
-            }
-
-            if (regenerateConfig)
-            {
-                // Regenerate harmonize config, see if that cleans it
-                var status = repo.RetrieveStatus(Constants.HarmonizeConfigPath);
-                if (status != FileStatus.Unaltered
-                    && status != FileStatus.Nonexistent)
-                {
-                    var parentConfig = ConfigLoader.GetConfig(path);
-                    if (parentConfig != null)
-                    {
-                        await HarmonizeFunctionality.SyncAndWriteConfig(parentConfig, path, this.RepoLoader, this.Logger);
-                        repoStatus = repo.RetrieveStatus();
-                        if (!repoStatus.IsDirty)
-                        {
-                            return ErrorResponse.Failure;
-                        }
-                    }
-                }
-            }
-
-            foreach (var statusEntry in repoStatus)
-            {
-                if (statusEntry.FilePath.Equals(Constants.HarmonizeConfigPath) && configExclusion == ConfigExclusion.Full) continue;
-                if (statusEntry.State == FileStatus.Unaltered) continue;
-                if (statusEntry.State.HasFlag(FileStatus.Ignored)) continue;
-
-                // Wasn't just harmonize config, it's dirty
-                return ErrorResponse.Succeed($"{statusEntry.State} - {statusEntry.FilePath}");
-            }
-            return ErrorResponse.Failure;
-        }
-        #endregion
 
         public async Task SyncConfigToParentShas()
         {
@@ -371,10 +329,15 @@ namespace HarmonizeGit
 
         public virtual void Dispose()
         {
+            if (_disposed)
+            {
+                throw new AccessViolationException("Accessed already disposed object.");
+            }
             if (this._RepoLoader.IsValueCreated)
             {
                 this._RepoLoader.Value.Dispose();
             }
+            _disposed = true;
         }
     }
 }

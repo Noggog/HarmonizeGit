@@ -60,6 +60,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="XAML\DirtyParentView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="XAML\RepoView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -73,6 +77,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="SplatLogger.cs" />
+    <Compile Include="VMs\ParentRepoVM.cs" />
+    <Compile Include="XAML\DirtyParentView.xaml.cs">
+      <DependentUpon>DirtyParentView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="XAML\RepoView.xaml.cs">
       <DependentUpon>RepoView.xaml</DependentUpon>
     </Compile>

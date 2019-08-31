@@ -20,6 +20,8 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <Grid>
@@ -83,7 +85,7 @@
                         <s:Int32 x:Key="900">900</s:Int32>
                     </Button.Resources>
                     <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource MainButtonStyle}">
+                        <Style BasedOn="{StaticResource MainButtonStyle}" TargetType="Button">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding Paused}" Value="True">
                                     <Setter Property="Background" Value="{StaticResource HighlightBrush}" />
@@ -164,5 +166,24 @@
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>
+        <Grid
+            Grid.Row="2"
+            Background="{StaticResource BackgroundAlt}"
+            Visibility="{Binding DirtyParents.Count, Converter={StaticResource IsNotEmptyVisibilityConverter}}">
+            <TextBlock
+                Margin="4"
+                Foreground="{StaticResource ForegroundBrush}"
+                Text="Dirty Parent Repos:" />
+        </Grid>
+        <ListView
+            Grid.Row="3"
+            Focusable="False"
+            ItemsSource="{Binding AllDirtyParents}">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <local:DirtyParentView />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </Grid>
 </Controls:MetroWindow>

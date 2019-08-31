@@ -31,6 +31,9 @@
                     </ColorAnimation.EasingFunction>
                 </ColorAnimation>
             </Storyboard>
+
+            <SolidColorBrush x:Key="ForegroundBrush" Color="White" />
+            <SolidColorBrush x:Key="ForegroundAlternateBrush" Color="Black" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -1,5 +1,6 @@
 ﻿using FishingWithGit.Common;
 using LibGit2Sharp;
+using Noggog;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -185,6 +186,59 @@ namespace HarmonizeGit
                 config.WriteToPath(path);
             }
             return true;
+        }
+        
+        public static async Task<IErrorResponse> IsDirty(
+            string path,
+            ConfigLoader configLoader,
+            RepoLoader repoLoader,
+            ILogger logger,
+            ConfigExclusion configExclusion = ConfigExclusion.Full,
+            bool regenerateConfig = true)
+        {
+            var repo = repoLoader.GetRepo(path);
+            var repoStatus = repo.RetrieveStatus(new StatusOptions()
+            {
+                IncludeIgnored = false,
+                IncludeUnaltered = false,
+                RecurseIgnoredDirs = false,
+                ExcludeSubmodules = true
+            });
+            if (!repoStatus.IsDirty)
+            {
+                return ErrorResponse.Failure;
+            }
+
+            if (regenerateConfig)
+            {
+                // Regenerate harmonize config, see if that cleans it
+                var status = repo.RetrieveStatus(Constants.HarmonizeConfigPath);
+                if (status != FileStatus.Unaltered
+                    && status != FileStatus.Nonexistent)
+                {
+                    var parentConfig = configLoader.GetConfig(path);
+                    if (parentConfig != null)
+                    {
+                        await HarmonizeFunctionality.SyncAndWriteConfig(parentConfig, path, repoLoader, logger);
+                        repoStatus = repo.RetrieveStatus();
+                        if (!repoStatus.IsDirty)
+                        {
+                            return ErrorResponse.Failure;
+                        }
+                    }
+                }
+            }
+
+            foreach (var statusEntry in repoStatus)
+            {
+                if (statusEntry.FilePath.Equals(Constants.HarmonizeConfigPath) && configExclusion == ConfigExclusion.Full) continue;
+                if (statusEntry.State == FileStatus.Unaltered) continue;
+                if (statusEntry.State.HasFlag(FileStatus.Ignored)) continue;
+
+                // Wasn't just harmonize config, it's dirty
+                return ErrorResponse.Succeed($"{statusEntry.State} - {statusEntry.FilePath}");
+            }
+            return ErrorResponse.Failure;
         }
     }
 }

@@ -21,7 +21,7 @@ namespace HarmonizeGit
         private Dictionary<RepoConfigKey, HarmonizeConfig> repoConfigs = new Dictionary<RepoConfigKey, HarmonizeConfig>();
         private Dictionary<string, PathingConfig> pathingConfigs = new Dictionary<string, PathingConfig>();
 
-        public void Init(string targetPath, RepoLoader repoLoader, ILogger logger)
+        public ConfigLoader(string targetPath, RepoLoader repoLoader, ILogger logger)
         {
             this._repoLoader = repoLoader;
             this._logger = logger;

@@ -21,7 +21,7 @@
         <noggog:EditableTextBlock
             Grid.Column="0"
             Margin="5"
-            Foreground="White"
+            Foreground="{StaticResource ForegroundBrush}"
             Text="{Binding Nickname}" />
         <Button Grid.Column="1" Margin="4">
             <Button.Style>
