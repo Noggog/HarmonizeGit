@@ -117,28 +117,36 @@ namespace HarmonizeGit.GUI
                 // Load config and get parent repos
                 .Subscribe(path =>
                 {
-                    if (!Directory.Exists(path))
+                    try
                     {
-                        _ParentReposDirs.Clear();
-                        return;
-                    }
-                    using (var repoLoader = new RepoLoader(path))
-                    {
-                        if (!HarmonizeFunctionality.TryLoadConfig(
-                            path,
-                            repoLoader,
-                            out var config))
+                        if (!Directory.Exists(path))
                         {
-                            this.Log().Error($"Could not load config at path {path} to compile parent repos.");
+                            _ParentReposDirs.Clear();
                             return;
                         }
-                        _ParentReposDirs.Edit(l =>
+                        using (var repoLoader = new RepoLoader(path))
                         {
-                            l.SetTo(config.ParentRepos
-                                .Select(parentPath => FishingWithGit.Common.Utility.StandardizePath(parentPath.Path, path))
-                                .Select(parentPath => new DirectoryPath(parentPath)),
-                                checkEquality: true);
-                        });
+                            if (!HarmonizeFunctionality.TryLoadConfig(
+                                path,
+                                repoLoader,
+                                out var config))
+                            {
+                                this.Log().Error($"Could not load config at path {path} to compile parent repos.");
+                                return;
+                            }
+                            _ParentReposDirs.Edit(l =>
+                            {
+                                l.SetTo(config.ParentRepos
+                                    .Select(parentPath => FishingWithGit.Common.Utility.StandardizePath(parentPath.Path, path))
+                                    .Select(parentPath => new DirectoryPath(parentPath)),
+                                    checkEquality: true);
+                            });
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Log().Error($"Exception while compiling parent repositories for {this.Path}: {ex}");
+                        _ParentReposDirs.Clear();
                     }
                 })
                 .DisposeWith(this.CompositeDisposable);
@@ -146,44 +154,58 @@ namespace HarmonizeGit.GUI
 
         public async Task Resync()
         {
-            using (var repoLoader = new RepoLoader(this.Path))
+            try
             {
-                if (!HarmonizeFunctionality.TryLoadConfig(
-                    this.Path,
-                    repoLoader,
-                    out var config))
+                using (var repoLoader = new RepoLoader(this.Path))
                 {
-                    // ToDo
-                    // Display errors
-                    this.Log().Warn("Could not create harmonize config to resync.");
-                    return;
+                    if (!HarmonizeFunctionality.TryLoadConfig(
+                        this.Path,
+                        repoLoader,
+                        out var config))
+                    {
+                        // ToDo
+                        // Display errors
+                        this.Log().Warn("Could not create harmonize config to resync.");
+                        return;
+                    }
+                    await HarmonizeFunctionality.SyncAndWriteConfig(config, this.Path, repoLoader, MainVM.HarmonizeLogger);
                 }
-                await HarmonizeFunctionality.SyncAndWriteConfig(config, this.Path, repoLoader, MainVM.HarmonizeLogger);
+            }
+            catch (Exception ex)
+            {
+                this.Log().Error($"Exception resyncing {this.Path}: {ex}");
             }
         }
 
         public async Task SyncParentRepos()
         {
-            using (var repoLoader = new RepoLoader(this.Path))
+            try
             {
-                if (!HarmonizeFunctionality.TryLoadConfig(
-                    this.Path,
-                    repoLoader,
-                    out var config))
+                using (var repoLoader = new RepoLoader(this.Path))
                 {
-                    // ToDo
-                    // Display errors
-                    this.Log().Warn("Could not create harmonize config to sync parent repos.");
-                    return;
+                    if (!HarmonizeFunctionality.TryLoadConfig(
+                        this.Path,
+                        repoLoader,
+                        out var config))
+                    {
+                        // ToDo
+                        // Display errors
+                        this.Log().Warn("Could not create harmonize config to sync parent repos.");
+                        return;
+                    }
+                    foreach (var listing in config.ParentRepos)
+                    {
+                        HarmonizeFunctionality.SyncParentRepo(
+                            listing,
+                            MainVM.HarmonizeLogger,
+                            repoLoader);
+                    }
+                    await HarmonizeFunctionality.SyncAndWriteConfig(config, this.Path, repoLoader, MainVM.HarmonizeLogger);
                 }
-                foreach (var listing in config.ParentRepos)
-                {
-                    HarmonizeFunctionality.SyncParentRepo(
-                        listing,
-                        MainVM.HarmonizeLogger,
-                        repoLoader);
-                }
-                await HarmonizeFunctionality.SyncAndWriteConfig(config, this.Path, repoLoader, MainVM.HarmonizeLogger);
+            }
+            catch (Exception ex)
+            {
+                this.Log().Error($"Exception syncing parent repos {this.Path}: {ex}");
             }
         }
     }

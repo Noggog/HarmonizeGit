@@ -35,17 +35,26 @@ namespace HarmonizeGit.GUI
                 .ObserveOn(RxApp.TaskpoolScheduler)
                 .SelectTask(async () =>
                 {
-                    using (var repo = new RepoLoader(path.Path))
+                    try
                     {
-                        var errorResp = await HarmonizeFunctionality.IsDirty(
-                            path.Path,
-                            new ConfigLoader(
+                        if (!path.Exists) return false;
+                        using (var repo = new RepoLoader(path.Path))
+                        {
+                            var errorResp = await HarmonizeFunctionality.IsDirty(
                                 path.Path,
+                                new ConfigLoader(
+                                    path.Path,
+                                    repo,
+                                    MainVM.HarmonizeLogger),
                                 repo,
-                                MainVM.HarmonizeLogger),
-                            repo,
-                            MainVM.HarmonizeLogger);
-                        return errorResp.Succeeded;
+                                MainVM.HarmonizeLogger);
+                            return errorResp.Succeeded;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Log().Error($"Exception while calculating if {this.Name} parent was dirty: {ex}");
+                        return false;
                     }
                 })
                 .DistinctUntilChanged()
