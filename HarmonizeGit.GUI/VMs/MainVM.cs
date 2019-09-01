@@ -31,6 +31,10 @@ namespace HarmonizeGit.GUI
         public Settings Settings { get; }
         public ObservableCollectionExtended<Repository> Repositories { get; } = new ObservableCollectionExtended<Repository>();
         public ObservableCollectionExtended<ParentRepoVM> AllDirtyParents { get; } = new ObservableCollectionExtended<ParentRepoVM>();
+        public CloningVM CloningVM { get; }
+
+        private object _WindowActiveObject;
+        public object WindowActiveObject { get => _WindowActiveObject; set => this.RaiseAndSetIfReferenceChanged(ref _WindowActiveObject, value); }
 
         public IReactiveCommand AddCommand { get; }
         public IReactiveCommand ResyncCommand { get; }
@@ -63,6 +67,8 @@ namespace HarmonizeGit.GUI
             HarmonizeGit.Settings.Instance.LogToFile = false;
             Instance = this;
 
+            this.WindowActiveObject = this;
+            this.CloningVM = new CloningVM(this);
             this.AddCommand = ReactiveCommand.Create(
                 execute: () =>
                 {

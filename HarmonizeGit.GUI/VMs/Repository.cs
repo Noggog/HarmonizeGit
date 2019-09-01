@@ -27,6 +27,7 @@ namespace HarmonizeGit.GUI
         public IReactiveCommand DeleteCommand { get; private set; }
         public IReactiveCommand AutoSyncCommand { get; private set; }
         public IReactiveCommand SyncParentReposCommand { get; private set; }
+        public IReactiveCommand CloneReposCommand { get; private set; }
 
         private ObservableAsPropertyHelper<bool> _Resyncing;
         public bool Resyncing => _Resyncing.Value;
@@ -71,6 +72,41 @@ namespace HarmonizeGit.GUI
                 {
                     mvm.Settings.Repositories.Remove(this);
                 });
+            this.CloneReposCommand = ReactiveCommand.Create(() =>
+            {
+                this.MainVM.CloningVM.TargetRepository = this;
+                this.MainVM.WindowActiveObject = this.MainVM.CloningVM;
+            });
+
+            // Exists check
+            this._Exists = MainVM.ShortPulse
+                .StartWith(Unit.Default)
+                .SelectLatest(this.WhenAny(x => x.Path))
+                .Select(path =>
+                {
+                    var ret = Directory.Exists(path);
+                    return ret;
+                })
+                .ToProperty(this, nameof(Exists));
+
+            // All parents exist check
+            this._ParentsAllExist = this.ParentRepos.Connect()
+                .TransformMany(parentDir =>
+                {
+                    return MainVM.ShortPulse
+                        .StartWith(Unit.Default)
+                        .Select(_ => parentDir.Exists)
+                        .DistinctUntilChanged();
+                })
+                .QueryWhenChanged((l) =>
+                {
+                    return l.All(b => b);
+                })
+                // Only count parents existing if self exists, too
+                .CombineLatest(
+                    this.WhenAny(x => x.Exists),
+                    resultSelector: (parents, self) => parents && self)
+                .ToProperty(this, nameof(ParentsAllExist));
 
             // Exists check
             this._Exists = MainVM.ShortPulse

@@ -4,10 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:icon="http://metro.mahapps.com/winfx/xaml/iconpacks"
     xmlns:local="clr-namespace:HarmonizeGit.GUI"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:s="clr-namespace:System;assembly=mscorlib"
     Title="Harmonize Git"
     Width="800"
     Height="450"
@@ -16,180 +14,14 @@
     Icon="{Binding Icon}"
     SaveWindowPosition="True"
     mc:Ignorable="d">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto" MinWidth="50" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" MinWidth="50" />
-                </Grid.ColumnDefinitions>
-                <Button
-                    Grid.Column="0"
-                    Command="{Binding AddCommand}"
-                    Focusable="False"
-                    ToolTip="Track New Repository">
-                    <icon:PackIconMaterial Kind="Plus" />
-                </Button>
-                <ProgressBar
-                    Grid.Column="1"
-                    Background="{StaticResource GrayBrush5}"
-                    Maximum="1"
-                    Visibility="{Binding Paused, Mode=OneWay, Converter={StaticResource VisibilityConverter}}"
-                    Value="{Binding PauseProgress, Mode=OneWay}" />
-                <ToggleButton
-                    Grid.Column="1"
-                    Focusable="False"
-                    IsChecked="{Binding Settings.AutoSync}"
-                    ToolTip="Resync All Repos">
-                    <icon:PackIconMaterial Kind="Refresh" />
-                    <ToggleButton.Style>
-                        <Style BasedOn="{StaticResource MainToggleButtonStyle}" TargetType="ToggleButton">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Resyncing}" Value="True">
-                                    <DataTrigger.ExitActions>
-                                        <BeginStoryboard Storyboard="{StaticResource FlashAnimation}" />
-                                    </DataTrigger.ExitActions>
-                                </DataTrigger>
-                                <MultiDataTrigger>
-                                    <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding Paused}" Value="True" />
-                                        <Condition Binding="{Binding Settings.AutoSync}" Value="True" />
-                                    </MultiDataTrigger.Conditions>
-                                    <MultiDataTrigger.Setters>
-                                        <Setter Property="Background" Value="Transparent" />
-                                    </MultiDataTrigger.Setters>
-                                </MultiDataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ToggleButton.Style>
-                    <ToggleButton.InputBindings>
-                        <MouseBinding Command="{Binding ResyncCommand}" Gesture="RightClick" />
-                    </ToggleButton.InputBindings>
-                </ToggleButton>
-                <Button
-                    Grid.Column="2"
-                    Command="{Binding PauseCommand}"
-                    Focusable="False">
-                    <icon:PackIconMaterial Kind="Pause" />
-                    <Button.Resources>
-                        <s:Int32 x:Key="30">30</s:Int32>
-                        <s:Int32 x:Key="120">120</s:Int32>
-                        <s:Int32 x:Key="300">300</s:Int32>
-                        <s:Int32 x:Key="900">900</s:Int32>
-                    </Button.Resources>
-                    <Button.Style>
-                        <Style BasedOn="{StaticResource MainButtonStyle}" TargetType="Button">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Paused}" Value="True">
-                                    <Setter Property="Background" Value="{StaticResource HighlightBrush}" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Button.Style>
-                    <Button.ContextMenu>
-                        <ContextMenu>
-                            <MenuItem
-                                Command="{Binding PauseSecondsCommand}"
-                                CommandParameter="{StaticResource 30}"
-                                Header="30s">
-                                <MenuItem.Style>
-                                    <Style TargetType="MenuItem">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Settings.PauseSeconds}" Value="30">
-                                                <Setter Property="Background" Value="{StaticResource HighlightBrush}" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </MenuItem.Style>
-                            </MenuItem>
-                            <MenuItem
-                                Command="{Binding PauseSecondsCommand}"
-                                CommandParameter="{StaticResource 120}"
-                                Header="2m">
-                                <MenuItem.Style>
-                                    <Style TargetType="MenuItem">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Settings.PauseSeconds}" Value="120">
-                                                <Setter Property="Background" Value="{StaticResource HighlightBrush}" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </MenuItem.Style>
-                            </MenuItem>
-                            <MenuItem
-                                Command="{Binding PauseSecondsCommand}"
-                                CommandParameter="{StaticResource 300}"
-                                Header="5m">
-                                <MenuItem.Style>
-                                    <Style TargetType="MenuItem">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Settings.PauseSeconds}" Value="300">
-                                                <Setter Property="Background" Value="{StaticResource HighlightBrush}" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </MenuItem.Style>
-                            </MenuItem>
-                            <MenuItem
-                                Command="{Binding PauseSecondsCommand}"
-                                CommandParameter="{StaticResource 900}"
-                                Header="15m">
-                                <MenuItem.Style>
-                                    <Style TargetType="MenuItem">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Settings.PauseSeconds}" Value="900">
-                                                <Setter Property="Background" Value="{StaticResource HighlightBrush}" />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </MenuItem.Style>
-                            </MenuItem>
-                        </ContextMenu>
-                    </Button.ContextMenu>
-                </Button>
-            </Grid>
-        </Grid>
-        <Border
-            Grid.Row="1"
-            BorderBrush="{StaticResource BorderBrush}"
-            BorderThickness="0,1,0,0">
-            <ItemsControl Focusable="False" ItemsSource="{Binding Repositories}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border BorderBrush="{StaticResource SubtleBorderBrush}" BorderThickness="0,0,0,1">
-                            <local:RepoView />
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Border>
-        <Grid
-            Grid.Row="2"
-            Background="{StaticResource BackgroundAlt}"
-            Visibility="{Binding AllDirtyParents.Count, Converter={StaticResource IsNotEmptyVisibilityConverter}}">
-            <TextBlock
-                Margin="4"
-                Foreground="{StaticResource ForegroundBrush}"
-                Text="Dirty Parent Repos:" />
-        </Grid>
-        <ListView
-            Grid.Row="3"
-            BorderBrush="{StaticResource BorderBrush}"
-            Focusable="False"
-            ItemsSource="{Binding AllDirtyParents}"
-            Visibility="{Binding AllDirtyParents.Count, Converter={StaticResource IsNotEmptyVisibilityConverter}}">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <local:DirtyParentView />
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-    </Grid>
+    <ContentControl Content="{Binding WindowActiveObject}">
+        <ContentControl.Resources>
+            <DataTemplate DataType="{x:Type local:MainVM}">
+                <local:MainView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type local:CloningVM}">
+                <local:CloneView />
+            </DataTemplate>
+        </ContentControl.Resources>
+    </ContentControl>
 </Controls:MetroWindow>

@@ -81,6 +81,32 @@
                 Kind="ChevronDoubleLeft" />
         </Button>
         <Button
+            Grid.Column="2"
+            Margin="4"
+            Command="{Binding CloneReposCommand}"
+            ToolTip="Some parent repos don't exist.&#10;Clone them to finish setup.">
+            <icon:PackIconMaterial
+                Width="44"
+                Height="12"
+                Kind="CloudDownload" />
+            <Button.Style>
+                <Style BasedOn="{StaticResource MainButtonStyle}" TargetType="Button">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <MultiDataTrigger>
+                            <MultiDataTrigger.Conditions>
+                                <Condition Binding="{Binding ParentsAllExist}" Value="False" />
+                                <Condition Binding="{Binding Exists}" Value="True" />
+                            </MultiDataTrigger.Conditions>
+                            <MultiDataTrigger.Setters>
+                                <Setter Property="Visibility" Value="Visible" />
+                            </MultiDataTrigger.Setters>
+                        </MultiDataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Button.Style>
+        </Button>
+        <Button
             Grid.Column="3"
             Margin="4"
             Command="{Binding OpenRepoFolderDialogCommand}">
