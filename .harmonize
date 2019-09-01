@@ -10,10 +10,10 @@
       </RepoListing>
       <RepoListing>
          <Nickname>CSharpExt</Nickname>
-         <Sha>3e4a666ae4a538ab7dfd0d0acdbb64d54f0d5ac7</Sha>
+         <Sha>313aa18ebe6ec1694582ff0d9f0f6d6e9b682571</Sha>
          <Path>../CSharpExt</Path>
-         <CommitDate>09-01-2019 01:04:53</CommitDate>
-         <Description>ObservableListExt.TransformMany /w observable selector</Description>
+         <CommitDate>09-01-2019 15:45:33</CommitDate>
+         <Description>Buttons no longer have borders or backgrounds.  Border color made subtle</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
       <RepoListing>

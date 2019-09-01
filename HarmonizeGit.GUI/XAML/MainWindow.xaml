@@ -38,8 +38,7 @@
                     <icon:PackIconMaterial Kind="Plus" />
                 </Button>
                 <ProgressBar
-                    Grid.ColumnSpan="2"
-                    Margin="48,0,2,0"
+                    Grid.Column="1"
                     Background="{StaticResource GrayBrush5}"
                     Maximum="1"
                     Visibility="{Binding Paused, Mode=OneWay, Converter={StaticResource VisibilityConverter}}"
@@ -157,16 +156,20 @@
                 </Button>
             </Grid>
         </Grid>
-        <ItemsControl
+        <Border
             Grid.Row="1"
-            Focusable="False"
-            ItemsSource="{Binding Repositories}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <local:RepoView />
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+            BorderBrush="{StaticResource BorderBrush}"
+            BorderThickness="0,1,0,0">
+            <ItemsControl Focusable="False" ItemsSource="{Binding Repositories}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="{StaticResource SubtleBorderBrush}" BorderThickness="0,0,0,1">
+                            <local:RepoView />
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Border>
         <Grid
             Grid.Row="2"
             Background="{StaticResource BackgroundAlt}"
@@ -178,6 +181,7 @@
         </Grid>
         <ListView
             Grid.Row="3"
+            BorderBrush="{StaticResource BorderBrush}"
             Focusable="False"
             ItemsSource="{Binding AllDirtyParents}"
             Visibility="{Binding AllDirtyParents.Count, Converter={StaticResource IsNotEmptyVisibilityConverter}}">
