@@ -10,10 +10,10 @@
       </RepoListing>
       <RepoListing>
          <Nickname>CSharpExt</Nickname>
-         <Sha>1cbaf5876a37123941d3b4bd70f3c261574d2689</Sha>
+         <Sha>3e4a666ae4a538ab7dfd0d0acdbb64d54f0d5ac7</Sha>
          <Path>../CSharpExt</Path>
-         <CommitDate>08-31-2019 15:59:47</CommitDate>
-         <Description>ObservableListExt.DistinctValues /w no parameter</Description>
+         <CommitDate>09-01-2019 01:04:53</CommitDate>
+         <Description>ObservableListExt.TransformMany /w observable selector</Description>
          <Author>Justin Swanson</Author>
       </RepoListing>
       <RepoListing>

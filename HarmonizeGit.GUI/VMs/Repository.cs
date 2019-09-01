@@ -34,6 +34,12 @@ namespace HarmonizeGit.GUI
         private SourceList<DirectoryPath> _ParentReposDirs = new SourceList<DirectoryPath>();
         public IObservableList<DirectoryPath> ParentRepos => _ParentReposDirs;
 
+        private ObservableAsPropertyHelper<bool> _Exists;
+        public bool Exists => _Exists.Value;
+
+        private ObservableAsPropertyHelper<bool> _ParentsAllExist;
+        public bool ParentsAllExist => _ParentsAllExist.Value;
+
         public void Init(MainVM mvm)
         {
             this.MainVM = mvm;
@@ -58,13 +64,43 @@ namespace HarmonizeGit.GUI
                 this.AutoSync = !this.AutoSync;
             });
 
-            _Resyncing = this.ResyncCommand.IsExecuting
+            this._Resyncing = this.ResyncCommand.IsExecuting
                 .ToProperty(this, nameof(Resyncing));
             this.DeleteCommand = ReactiveCommand.Create(
                 execute: () =>
                 {
                     mvm.Settings.Repositories.Remove(this);
                 });
+
+            // Exists check
+            this._Exists = MainVM.ShortPulse
+                .StartWith(Unit.Default)
+                .SelectLatest(this.WhenAny(x => x.Path))
+                .Select(path =>
+                {
+                    var ret = Directory.Exists(path);
+                    return ret;
+                })
+                .ToProperty(this, nameof(Exists));
+
+            // All parents exist check
+            this._ParentsAllExist = this.ParentRepos.Connect()
+                .TransformMany(parentDir =>
+                {
+                    return MainVM.ShortPulse
+                        .StartWith(Unit.Default)
+                        .Select(_ => parentDir.Exists)
+                        .DistinctUntilChanged();
+                })
+                .QueryWhenChanged((l) =>
+                {
+                    return l.All(b => b);
+                })
+                // Only count parents existing if self exists, too
+                .CombineLatest(
+                    this.WhenAny(x => x.Exists),
+                    resultSelector: (parents, self) => parents && self)
+                .ToProperty(this, nameof(ParentsAllExist));
 
             // Set up autosync
             mvm.SyncPulse
@@ -81,6 +117,7 @@ namespace HarmonizeGit.GUI
                 .Merge(mvm.ResyncCommand.IsExecuting
                     .Where(b => b)
                     .Unit())
+                .FilterSwitch(this.WhenAny(x => x.ParentsAllExist))
                 .InvokeCommand(this.ResyncCommand)
                 .DisposeWith(this.CompositeDisposable);
 
@@ -152,7 +189,7 @@ namespace HarmonizeGit.GUI
                 .DisposeWith(this.CompositeDisposable);
         }
 
-        public async Task Resync()
+        private async Task Resync()
         {
             try
             {
@@ -177,7 +214,7 @@ namespace HarmonizeGit.GUI
             }
         }
 
-        public async Task SyncParentRepos()
+        private async Task SyncParentRepos()
         {
             try
             {
