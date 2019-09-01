@@ -16,6 +16,7 @@ namespace HarmonizeGit
         {
             if (!Settings.Instance.Lock) return new FileLockCheckout();
 
+            EventWaitHandle handle;
             lock (tracker)
             {
                 if (!tracker.TryGetValue(type, out Dictionary<string, EventWaitHandle> dict))
@@ -24,15 +25,14 @@ namespace HarmonizeGit
                     tracker[type] = dict;
                 }
                 var lower = pathToRepo.ToLower();
-                if (!dict.TryGetValue(lower, out EventWaitHandle handle))
+                if (!dict.TryGetValue(lower, out handle))
                 {
                     DirectoryInfo dir = new DirectoryInfo(pathToRepo);
                     handle = new EventWaitHandle(true, EventResetMode.AutoReset, $"GIT_HARMONIZE_{type.ToString()}_{dir.Name}");
                     dict[lower] = handle;
                 }
-
-                return new FileLockCheckout(handle);
             }
+            return new FileLockCheckout(handle);
         }
     }
 }
