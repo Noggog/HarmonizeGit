@@ -40,9 +40,10 @@ namespace HarmonizeGit.GUI
         private ObservableAsPropertyHelper<bool> _Resyncing;
         public bool Resyncing => _Resyncing.Value;
 
-        public readonly IObservable<Unit> SyncPulse = Observable.Interval(TimeSpan.FromSeconds(5), RxApp.MainThreadScheduler)
+        public readonly IObservable<Unit> ShortPulse = Observable.Interval(TimeSpan.FromSeconds(5), RxApp.MainThreadScheduler)
             .Unit()
             .PublishRefCount();
+        public IObservable<Unit> SyncPulse { get; }
         public readonly IObservable<Unit> DirtyCheckPulse = Observable.Interval(TimeSpan.FromSeconds(15), RxApp.MainThreadScheduler)
             .Unit()
             .PublishRefCount();
@@ -82,7 +83,12 @@ namespace HarmonizeGit.GUI
                 this.Settings.WriteToXml(SettingsPath);
             };
 
-            _Resyncing = this.ResyncCommand.IsExecuting
+            this.SyncPulse = ShortPulse
+                .FilterSwitch(this.WhenAny(x => x.Paused)
+                    .Select(paused => !paused))
+                .PublishRefCount();
+
+            this._Resyncing = this.ResyncCommand.IsExecuting
                 .ToProperty(this, nameof(Resyncing));
 
             this.Settings = Settings.CreateFromXml(SettingsPath);

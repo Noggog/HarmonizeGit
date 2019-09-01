@@ -40,6 +40,7 @@
                 <ProgressBar
                     Grid.ColumnSpan="2"
                     Margin="48,0,2,0"
+                    Background="{StaticResource GrayBrush5}"
                     Maximum="1"
                     Visibility="{Binding Paused, Mode=OneWay, Converter={StaticResource VisibilityConverter}}"
                     Value="{Binding PauseProgress, Mode=OneWay}" />

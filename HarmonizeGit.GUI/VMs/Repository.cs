@@ -73,7 +73,10 @@ namespace HarmonizeGit.GUI
                     Observable.CombineLatest(
                         mvm.WhenAny(x => x.Settings.AutoSync),
                         this.WhenAny(x => x.AutoSync),
-                        resultSelector: (main, individual) => !main && individual)
+                        mvm.WhenAny(x => x.Paused),
+                        resultSelector: (main, individual, pause) => !main && individual && !pause)
+                    // Throttle, as sync/pause changes aren't atomic
+                    .Throttle(TimeSpan.FromMilliseconds(50))
                     .DistinctUntilChanged())
                 .Merge(mvm.ResyncCommand.IsExecuting
                     .Where(b => b)
@@ -84,7 +87,7 @@ namespace HarmonizeGit.GUI
             this.SyncParentReposCommand = ReactiveCommand.CreateFromTask(SyncParentRepos);
 
             // Compile parent repo list
-            mvm.SyncPulse
+            mvm.ShortPulse
                 .StartWith(Unit.Default)
                 .SelectLatest(this.WhenAny(x => x.Path))
                 // Only update if config checksum changed
