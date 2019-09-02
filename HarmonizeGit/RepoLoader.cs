@@ -21,14 +21,17 @@ namespace HarmonizeGit
         public Repository GetRepo(string path)
         {
             path = FishingWithGit.Common.Utility.StandardizePath(path, _targetPath);
-            if (repos.TryGetValue(path, out var repo)) return repo;
-            repo = new Repository(path);
-            if (path == null || repo == null)
+            lock (repos)
             {
-                throw new ArgumentNullException("Path or repo unexpectedly null.");
+                if (repos.TryGetValue(path, out var repo)) return repo;
+                repo = new Repository(path);
+                if (path == null || repo == null)
+                {
+                    throw new ArgumentNullException("Path or repo unexpectedly null.");
+                }
+                repos[path] = repo;
+                return repo;
             }
-            repos[path] = repo;
-            return repo;
         }
 
         public void Dispose()
