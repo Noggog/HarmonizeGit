@@ -17,7 +17,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0">
+        <Grid Grid.Row="0" Background="{StaticResource BackgroundAlt}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" MinWidth="50" />
@@ -150,20 +150,18 @@
                 </Button>
             </Grid>
         </Grid>
-        <Border
+        <ItemsControl
             Grid.Row="1"
-            BorderBrush="{StaticResource BorderBrush}"
-            BorderThickness="0,1,0,0">
-            <ItemsControl Focusable="False" ItemsSource="{Binding Repositories}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border BorderBrush="{StaticResource SubtleBorderBrush}" BorderThickness="0,0,0,1">
-                            <local:RepoView />
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </Border>
+            Focusable="False"
+            ItemsSource="{Binding Repositories}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderBrush="{StaticResource SubtleBorderBrush}" BorderThickness="0,0,0,1">
+                        <local:RepoView />
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
         <Grid
             Grid.Row="2"
             Background="{StaticResource BackgroundAlt}"

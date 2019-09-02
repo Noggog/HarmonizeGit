@@ -17,6 +17,10 @@ namespace HarmonizeGit.GUI
 
         public IReactiveCommand GoBackCommand { get; }
 
+        public CloningVM()
+        {
+        }
+
         public CloningVM(MainVM mvm)
         {
             this.MVM = mvm;
