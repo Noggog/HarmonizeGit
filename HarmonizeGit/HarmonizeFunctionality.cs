@@ -155,6 +155,15 @@ namespace HarmonizeGit
                         logger?.WriteLine($"Config sha {listing.Sha} compared to current sha {repo.Head.Tip.Sha}.");
                         if (object.Equals(listing.Sha, repo.Head.Tip.Sha)) return null;
                         listing.SetToCommit(repo.Head.Tip);
+                        if (string.IsNullOrWhiteSpace(listing.OriginHint))
+                        {
+                            var origin = repo.Network.Remotes.FirstOrDefault(r => "origin".Equals(r.Name));
+                            if (origin == null)
+                            {
+                                origin = repo.Network.Remotes.FirstOrDefault();
+                            }
+                            listing.OriginHint = origin?.PushUrl ?? null;
+                        }
                         logger?.WriteLine($"Changed to sha {repo.Head.Tip.Sha}.");
                         return listing;
                     });

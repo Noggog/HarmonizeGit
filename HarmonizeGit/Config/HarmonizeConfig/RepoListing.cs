@@ -23,6 +23,7 @@ namespace HarmonizeGit
         public DateTime CommitDateObj;
         public string Description;
         public string Author;
+        public string OriginHint;
 
         public void SetToCommit(Commit commit)
         {
@@ -43,6 +44,7 @@ namespace HarmonizeGit
             if (!object.Equals(this.CommitDate, other.CommitDate)) return false;
             if (!object.Equals(this.Description, other.Description)) return false;
             if (!object.Equals(this.Author, other.Author)) return false;
+            if (!object.Equals(this.OriginHint, other.OriginHint)) return false;
             return true;
         }
 
@@ -61,7 +63,8 @@ namespace HarmonizeGit
                 this.SuggestedPath,
                 this.CommitDate,
                 this.Description,
-                this.Author);
+                this.Author,
+                this.OriginHint);
         }
 
         public RepoListing GetCopy()
@@ -75,6 +78,7 @@ namespace HarmonizeGit
                 CommitDate = this.CommitDate,
                 Description = this.Description,
                 Author = this.Author,
+                OriginHint = this.OriginHint,
             };
         }
     }

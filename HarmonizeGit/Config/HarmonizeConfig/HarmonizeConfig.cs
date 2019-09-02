@@ -76,6 +76,7 @@ namespace HarmonizeGit
                     listing.Author = repoListing.Element(XName.Get(nameof(RepoListing.Author)))?.Value ?? listing.Author;
                     listing.CommitDate = repoListing.Element(XName.Get(nameof(RepoListing.CommitDate)))?.Value ?? listing.CommitDate;
                     listing.SuggestedPath = repoListing.Element(XName.Get(nameof(RepoListing.SuggestedPath)))?.Value ?? listing.SuggestedPath;
+                    listing.OriginHint = repoListing.Element(XName.Get(nameof(RepoListing.OriginHint)))?.Value ?? listing.OriginHint;
                     ret.ParentRepos.Add(listing);
                 }
             }
@@ -207,6 +208,13 @@ namespace HarmonizeGit
                                         using (new ElementWrapper(writer, nameof(RepoListing.Author)))
                                         {
                                             writer.WriteValue(item.Author);
+                                        }
+                                    }
+                                    if (!string.IsNullOrWhiteSpace(item.OriginHint))
+                                    {
+                                        using (new ElementWrapper(writer, nameof(RepoListing.OriginHint)))
+                                        {
+                                            writer.WriteValue(item.OriginHint);
                                         }
                                     }
                                 }
