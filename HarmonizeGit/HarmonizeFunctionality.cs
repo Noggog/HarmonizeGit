@@ -203,7 +203,7 @@ namespace HarmonizeGit
             RepoLoader repoLoader,
             ILogger logger,
             ConfigExclusion configExclusion = ConfigExclusion.Full,
-            bool regenerateConfig = true)
+            bool regenerateConfig = false)
         {
             var repo = repoLoader.GetRepo(path);
             var repoStatus = repo.RetrieveStatus(new StatusOptions()
@@ -216,6 +216,19 @@ namespace HarmonizeGit
             if (!repoStatus.IsDirty)
             {
                 return ErrorResponse.Failure;
+            }
+
+            // If just harmonize config that is dirty, then not dirty
+            if (!repoStatus.Added.Any()
+                && !repoStatus.Removed.Any()
+                && !repoStatus.Missing.Any()
+                && !repoStatus.Untracked.Any()
+                && !repoStatus.RenamedInWorkDir.Any()
+                && !repoStatus.RenamedInIndex.Any()
+                && !repoStatus.Modified.CountGreaterThan(1))
+            {
+                var entry = repoStatus.Modified.First();
+                if (HarmonizeGit.Constants.HarmonizeConfigPath.Equals(entry.FilePath)) return ErrorResponse.Failure;
             }
 
             if (regenerateConfig)
