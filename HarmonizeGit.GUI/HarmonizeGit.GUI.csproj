@@ -203,6 +203,12 @@
     </Resource>
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="harmonize_git_margin.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="harmonize_git_margin_stroke.ico" />
+  </ItemGroup>
+  <ItemGroup>
     <Resource Include="harmonize_git2.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

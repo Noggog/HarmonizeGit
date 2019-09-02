@@ -26,7 +26,7 @@ namespace HarmonizeGit.GUI
         public readonly static FishingWithGit.Common.ILogger HarmonizeLogger = new SplatLogger();
         public const string AppName = "Harmonize Git GUI";
         public static readonly string SettingsPath = Path.Combine(Environment.GetEnvironmentVariable("LocalAppData"), $"{AppName}/Settings.xml");
-        public BitmapFrame Icon { get; } = BitmapFrame.Create(new Uri("pack://application:,,,/harmonize_git2.ico", UriKind.RelativeOrAbsolute));
+        public BitmapFrame Icon { get; } = BitmapFrame.Create(new Uri("pack://application:,,,/harmonize_git_margin_stroke.ico", UriKind.RelativeOrAbsolute));
 
         public Settings Settings { get; }
         public ObservableCollectionExtended<Repository> Repositories { get; } = new ObservableCollectionExtended<Repository>();
