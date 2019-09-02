@@ -14,7 +14,7 @@ using Splat;
 
 namespace HarmonizeGit.GUI
 {
-    public class ParentRepoVM : ViewModel, IEnableLogger
+    public class DirtyParentRepoVM : ViewModel, IEnableLogger
     {
         public DirectoryPath Dir { get; }
         public string Name { get; }
@@ -22,11 +22,11 @@ namespace HarmonizeGit.GUI
         private readonly ObservableAsPropertyHelper<bool> _Dirty;
         public bool Dirty => _Dirty.Value;
 
-        public ParentRepoVM()
+        public DirtyParentRepoVM()
         {
         }
 
-        public ParentRepoVM(MainVM mvm, DirectoryPath path)
+        public DirtyParentRepoVM(MainVM mvm, DirectoryPath path)
         {
             this.Dir = path;
             this.Name = path.Name;

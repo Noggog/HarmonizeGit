@@ -86,7 +86,7 @@
     </Compile>
     <Compile Include="SplatLogger.cs" />
     <Compile Include="VMs\CloningVM.cs" />
-    <Compile Include="VMs\ParentRepoVM.cs" />
+    <Compile Include="VMs\DirtyParentRepoVM.cs" />
     <Compile Include="XAML\CloneView.xaml.cs">
       <DependentUpon>CloneView.xaml</DependentUpon>
     </Compile>

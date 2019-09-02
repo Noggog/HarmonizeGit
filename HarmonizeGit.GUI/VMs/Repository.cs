@@ -1,4 +1,4 @@
-using DynamicData;
+﻿using DynamicData;
 using Noggog;
 using ReactiveUI;
 using System;
@@ -32,8 +32,8 @@ namespace HarmonizeGit.GUI
         private ObservableAsPropertyHelper<bool> _Resyncing;
         public bool Resyncing => _Resyncing.Value;
 
-        private SourceList<DirectoryPath> _ParentReposDirs = new SourceList<DirectoryPath>();
-        public IObservableList<DirectoryPath> ParentRepos => _ParentReposDirs;
+        private SourceList<RepoListing> _ParentRepos = new SourceList<RepoListing>();
+        public IObservableList<RepoListing> ParentRepos => _ParentRepos;
 
         private ObservableAsPropertyHelper<bool> _Exists;
         public bool Exists => _Exists.Value;
@@ -91,11 +91,12 @@ namespace HarmonizeGit.GUI
 
             // All parents exist check
             this._ParentsAllExist = this.ParentRepos.Connect()
-                .TransformMany(parentDir =>
+                .TransformMany(repoListing =>
                 {
+                    var parentDir = FishingWithGit.Common.Utility.StandardizePath(repoListing.Path, this.Path);
                     return MainVM.ShortPulse
                         .StartWith(Unit.Default)
-                        .Select(_ => parentDir.Exists)
+                        .Select(_ => Directory.Exists(parentDir))
                         .DistinctUntilChanged();
                 })
                 .QueryWhenChanged((l) =>
@@ -164,7 +165,7 @@ namespace HarmonizeGit.GUI
                     {
                         if (!Directory.Exists(path))
                         {
-                            _ParentReposDirs.Clear();
+                            _ParentRepos.Clear();
                             return;
                         }
                         using (var repoLoader = new RepoLoader(path))
@@ -177,11 +178,9 @@ namespace HarmonizeGit.GUI
                                 this.Log().Error($"Could not load config at path {path} to compile parent repos.");
                                 return;
                             }
-                            _ParentReposDirs.Edit(l =>
+                            _ParentRepos.Edit(l =>
                             {
-                                l.SetTo(config.ParentRepos
-                                    .Select(parentPath => FishingWithGit.Common.Utility.StandardizePath(parentPath.Path, path))
-                                    .Select(parentPath => new DirectoryPath(parentPath)),
+                                l.SetTo(config.ParentRepos,
                                     checkEquality: true);
                             });
                         }
@@ -189,7 +188,7 @@ namespace HarmonizeGit.GUI
                     catch (Exception ex)
                     {
                         this.Log().Error($"Exception while compiling parent repositories for {this.Path}: {ex}");
-                        _ParentReposDirs.Clear();
+                        _ParentRepos.Clear();
                     }
                 })
                 .DisposeWith(this.CompositeDisposable);

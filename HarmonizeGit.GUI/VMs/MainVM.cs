@@ -30,7 +30,7 @@ namespace HarmonizeGit.GUI
 
         public Settings Settings { get; }
         public ObservableCollectionExtended<Repository> Repositories { get; } = new ObservableCollectionExtended<Repository>();
-        public ObservableCollectionExtended<ParentRepoVM> AllDirtyParents { get; } = new ObservableCollectionExtended<ParentRepoVM>();
+        public ObservableCollectionExtended<DirtyParentRepoVM> AllDirtyParents { get; } = new ObservableCollectionExtended<DirtyParentRepoVM>();
         public CloningVM CloningVM { get; }
 
         private object _WindowActiveObject;
@@ -172,9 +172,14 @@ namespace HarmonizeGit.GUI
 
             // Compile all dirty parent repos
             repoList.Connect()
-                .TransformMany(r => r.ParentRepos)
+                .TransformMany(repo =>
+                {
+                    return repo.ParentRepos.Connect()
+                        .Transform(listing => new DirectoryPath(FishingWithGit.Common.Utility.StandardizePath(listing.Path, repo.Path)))
+                        .AsObservableList();
+                })
                 .DistinctValues(d => d)
-                .Transform(d => new ParentRepoVM(this, d))
+                .Transform(d => new DirtyParentRepoVM(this, d))
                 .AutoRefresh(x => x.Dirty)
                 .Filter(x => x.Dirty)
                 .ObserveOn(RxApp.MainThreadScheduler)
