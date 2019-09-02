@@ -14,7 +14,7 @@ namespace HarmonizeGit.Tests
     public class PreCheckout_Tests
     {
         [Fact]
-        public async Task DirtyConfig()
+        public async Task DirtyConfigSyncParents()
         {
             using (var checkout = Repository_Tools.GetStandardConfigCheckout())
             {
@@ -29,6 +29,29 @@ namespace HarmonizeGit.Tests
                     TargetSha = checkout.Child_SecondSha
                 };
                 PreCheckoutHandler handler = new PreCheckoutHandler(checkout.Harmonize, args);
+                Settings.Instance.MovingSyncsParents = true;
+                var ret = await handler.Handle();
+                Assert.True(ret);
+            }
+        }
+
+        [Fact]
+        public async Task DirtyConfigNoSyncsParents()
+        {
+            using (var checkout = Repository_Tools.GetStandardConfigCheckout())
+            {
+                await checkout.Init();
+                var parentCommit = checkout.ParentRepo.Repo.Lookup<Commit>(checkout.Parent_SecondSha);
+                checkout.Harmonize.Config.ParentRepos[0].SetToCommit(parentCommit);
+                checkout.Harmonize.Config.WriteToPath(checkout.Repo.Repo.Info.WorkingDirectory + Constants.HarmonizeConfigPath);
+                Assert.True(checkout.Repo.Repo.RetrieveStatus().IsDirty);
+                CheckoutArgs args = new CheckoutArgs()
+                {
+                    CurrentSha = checkout.Repo.Repo.Head.Tip.Sha,
+                    TargetSha = checkout.Child_SecondSha
+                };
+                PreCheckoutHandler handler = new PreCheckoutHandler(checkout.Harmonize, args);
+                Settings.Instance.MovingSyncsParents = false;
                 var ret = await handler.Handle();
                 Assert.True(ret);
             }
@@ -76,6 +99,7 @@ namespace HarmonizeGit.Tests
                     TargetSha = checkout.Child_SecondSha
                 };
                 PreCheckoutHandler handler = new PreCheckoutHandler(checkout.Harmonize, args);
+                Settings.Instance.MovingSyncsParents = true;
                 var ret = await handler.Handle();
                 Assert.True(ret);
                 Assert.False(checkout.ParentRepo.Repo.RetrieveStatus().IsDirty);
@@ -114,6 +138,7 @@ namespace HarmonizeGit.Tests
                     TargetSha = checkout.Child_SecondSha
                 };
                 PreCheckoutHandler handler = new PreCheckoutHandler(checkout.Harmonize, args);
+                Settings.Instance.MovingSyncsParents = true;
                 var ret = await handler.Handle();
                 Assert.True(ret);
                 Assert.Equal(checkout.Parent_SecondSha, checkout.ParentRepo.Repo.Head.Tip.Sha);

@@ -45,6 +45,7 @@ namespace HarmonizeGit.Tests
                 Commands.Checkout(checkout.Repo.Repo, checkout.Child_SecondSha, new CheckoutOptions() { CheckoutModifiers = CheckoutModifiers.Force });
                 await checkout.Init();
                 PostMergeHandler handler = new PostMergeHandler(checkout.Harmonize, new MergeArgs());
+                Settings.Instance.MovingSyncsParents = true;
                 var ret = await handler.Handle();
                 Assert.True(ret);
                 Assert.Equal(checkout.Parent_SecondSha, checkout.ParentRepo.Repo.Head.Tip.Sha);

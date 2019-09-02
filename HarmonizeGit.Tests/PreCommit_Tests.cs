@@ -13,7 +13,6 @@ namespace HarmonizeGit.Tests
 {
     public class PreCommit_Tests
     {
-
         [Fact]
         public async Task DirtyParentConfig()
         {
@@ -28,7 +27,7 @@ namespace HarmonizeGit.Tests
                 PreCommitHandler handler = new PreCommitHandler(checkout.Harmonize, args);
                 var ret = await handler.Handle();
                 Assert.True(ret);
-                Assert.False(checkout.ParentRepo.Repo.RetrieveStatus().IsDirty);
+                Assert.True(checkout.ParentRepo.Repo.RetrieveStatus().IsDirty);
             }
         }
 

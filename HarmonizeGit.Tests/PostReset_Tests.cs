@@ -27,6 +27,7 @@ namespace HarmonizeGit.Tests
                     Type = ResetType.hard
                 };
                 PostResetHandler handler = new PostResetHandler(checkout.Harmonize, args);
+                Settings.Instance.MovingSyncsParents = true;
                 await handler.Handle();
                 var parentSha = checkout.ParentRepo.Repo.Head.Tip.Sha;
                 Assert.Equal(

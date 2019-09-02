@@ -28,7 +28,7 @@ namespace HarmonizeGit
             if (repo.Head.Tip.Sha.Equals(listing.Sha))
             {
                 logger.WriteLine("Repository already at desired commit.");
-                return false;
+                return true;
             }
 
             repo.Discard(Constants.HarmonizeConfigPath);
