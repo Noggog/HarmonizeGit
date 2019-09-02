@@ -11,19 +11,19 @@ namespace HarmonizeGit
 {
     public class RepoListing : IEquatable<RepoListing>
     {
-        public string Nickname;
-        public string Sha;
-        public string Path;
-        public string SuggestedPath;
+        public string Nickname { get; set; }
+        public string Sha { get; set; }
+        public string Path { get; set; }
+        public string SuggestedPath { get; set; }
         public string CommitDate
         {
             get { return this.CommitDateObj.ToString("MM-dd-yyyy HH:mm:ss"); }
             set { this.CommitDateObj = DateTime.Parse(value); }
         }
-        public DateTime CommitDateObj;
-        public string Description;
-        public string Author;
-        public string OriginHint;
+        public DateTime CommitDateObj { get; set; }
+        public string Description { get; set; }
+        public string Author { get; set; }
+        public string OriginHint { get; set; }
 
         public void SetToCommit(Commit commit)
         {

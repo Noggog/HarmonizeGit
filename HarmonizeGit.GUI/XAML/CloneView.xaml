@@ -48,6 +48,7 @@
             Grid.Row="0"
             Grid.Column="2"
             VerticalAlignment="Center"
+            Command="{Binding CloneAllCommand}"
             ToolTip="Clone all correctly configured parent repos">
             <icon:PackIconMaterial Width="35" Kind="CloudDownload" />
         </Button>
@@ -58,31 +59,77 @@
             Margin="4"
             VerticalAlignment="Center"
             Foreground="{StaticResource ForegroundBrush}"
-            Text="{Binding TargetRepository.Nickname}" />
+            Text="{Binding TargetRepository.Nickname}"
+            ToolTip="Target repository" />
         <ItemsControl
             Grid.Row="2"
             Grid.Column="0"
             Grid.ColumnSpan="3"
-            ItemsSource="{Binding TargetRepository.ParentRepos}">
+            ItemsSource="{Binding ParentRepositories}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border BorderBrush="{StaticResource SubtleBorderBrush}" BorderThickness="0,0,0,1">
-                        <Grid Margin="5">
+                        <Grid Margin="5,0,5,5">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
+                            <icon:PackIconMaterial
+                                Width="8"
+                                VerticalAlignment="Center"
+                                Kind="Circle">
+                                <icon:PackIconMaterial.Style>
+                                    <Style TargetType="icon:PackIconMaterial">
+                                        <Setter Property="Foreground" Value="{StaticResource YellowBrush}" />
+                                        <Setter Property="ToolTip" Value="Does not exist" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Exists}" Value="True">
+                                                <Setter Property="Foreground" Value="{StaticResource GreenBrush}" />
+                                                <Setter Property="ToolTip" Value="Repo directory present" />
+                                            </DataTrigger>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding Exists}" Value="False" />
+                                                    <Condition Binding="{Binding Error.Failed}" Value="True" />
+                                                </MultiDataTrigger.Conditions>
+                                                <MultiDataTrigger.Setters>
+                                                    <Setter Property="Foreground" Value="Red" />
+                                                    <Setter Property="ToolTip" Value="{Binding Error.Reason}" />
+                                                </MultiDataTrigger.Setters>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </icon:PackIconMaterial.Style>
+                            </icon:PackIconMaterial>
                             <TextBlock
                                 Grid.Row="0"
-                                Grid.Column="0"
+                                Grid.Column="1"
                                 Margin="4"
+                                VerticalAlignment="Center"
                                 FontSize="13"
-                                Text="{Binding Name}" />
-                            <noggog:EditableTextBlock Grid.Row="1" Grid.Column="0" />
+                                FontWeight="SemiBold"
+                                Text="{Binding Nickname}" />
+                            <TextBox
+                                Grid.Row="1"
+                                Grid.Column="0"
+                                Grid.ColumnSpan="3"
+                                VerticalAlignment="Center"
+                                IsEnabled="{Binding Exists, Converter={StaticResource InverseBooleanConverter}}"
+                                Text="{Binding Origin}" />
+                            <Button
+                                Grid.Row="0"
+                                Grid.Column="2"
+                                VerticalAlignment="Center"
+                                Command="{Binding CloneCommand}"
+                                ToolTip="Clone parent repo"
+                                Visibility="{Binding Exists, Converter={StaticResource VisibilityHiddenConverter}, ConverterParameter=False}">
+                                <icon:PackIconMaterial Width="24" Kind="CloudDownload" />
+                            </Button>
                         </Grid>
                     </Border>
                 </DataTemplate>

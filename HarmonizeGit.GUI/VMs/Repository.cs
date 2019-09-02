@@ -82,11 +82,7 @@ namespace HarmonizeGit.GUI
             this._Exists = MainVM.ShortPulse
                 .StartWith(Unit.Default)
                 .SelectLatest(this.WhenAny(x => x.Path))
-                .Select(path =>
-                {
-                    var ret = Directory.Exists(path);
-                    return ret;
-                })
+                .Select(path => Directory.Exists(path))
                 .ToProperty(this, nameof(Exists));
 
             // All parents exist check

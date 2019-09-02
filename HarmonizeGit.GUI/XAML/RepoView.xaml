@@ -28,7 +28,7 @@
         <Button
             Grid.Column="1"
             Margin="4"
-            ToolTip="Refresh config to parent repo locations&#10;Left click to autosync&#10;Right click to sync once"
+            ToolTip="Resync to parent repo commits&#10;Left click to autosync&#10;Right click to sync once"
             Visibility="{Binding ParentsAllExist, Converter={StaticResource VisibilityConverter}}">
             <Button.Style>
                 <Style BasedOn="{StaticResource MainButtonStyle}" TargetType="Button">
@@ -61,8 +61,8 @@
                 </Style>
             </Button.Style>
             <Button.InputBindings>
-                <MouseBinding Command="{Binding ResyncCommand}" Gesture="LeftClick" />
-                <MouseBinding Command="{Binding AutoSyncCommand}" Gesture="RightClick" />
+                <MouseBinding Command="{Binding ResyncCommand}" Gesture="RightClick" />
+                <MouseBinding Command="{Binding AutoSyncCommand}" Gesture="LeftClick" />
             </Button.InputBindings>
             <icon:PackIconMaterial
                 Width="12"

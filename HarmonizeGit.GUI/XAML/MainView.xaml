@@ -41,7 +41,7 @@
                     Grid.Column="1"
                     Focusable="False"
                     IsChecked="{Binding Settings.AutoSync}"
-                    ToolTip="Resync All Repos">
+                    ToolTip="Resync all to parent repo commits&#10;Left click to autosync&#10;Right click to sync once">
                     <icon:PackIconMaterial Kind="Refresh" />
                     <ToggleButton.Style>
                         <Style BasedOn="{StaticResource MainToggleButtonStyle}" TargetType="ToggleButton">

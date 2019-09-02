@@ -10,11 +10,12 @@
       </RepoListing>
       <RepoListing>
          <Nickname>CSharpExt</Nickname>
-         <Sha>313aa18ebe6ec1694582ff0d9f0f6d6e9b682571</Sha>
+         <Sha>97554c90a53e75da56ec44cdcc9b3d191c147798</Sha>
          <Path>../CSharpExt</Path>
-         <CommitDate>09-01-2019 15:45:33</CommitDate>
-         <Description>Buttons no longer have borders or backgrounds.  Border color made subtle</Description>
+         <CommitDate>09-02-2019 02:29:26</CommitDate>
+         <Description>InverseBooleanConverter.  More theming</Description>
          <Author>Justin Swanson</Author>
+         <OriginHint>https://github.com/Noggog/CSharpExt.git</OriginHint>
       </RepoListing>
       <RepoListing>
          <Nickname>DynamicData</Nickname>
