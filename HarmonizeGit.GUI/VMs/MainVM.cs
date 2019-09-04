@@ -89,7 +89,8 @@ namespace HarmonizeGit.GUI
                 this.Settings.WriteToXml(SettingsPath);
             };
 
-            this.SyncPulse = ShortPulse
+            this.SyncPulse = Observable.Interval(TimeSpan.FromSeconds(5), RxApp.MainThreadScheduler)
+                .Unit()
                 .FilterSwitch(this.WhenAny(x => x.Paused)
                     .Select(paused => !paused))
                 .PublishRefCount();
