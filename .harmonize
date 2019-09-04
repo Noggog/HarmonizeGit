@@ -10,10 +10,10 @@
       </RepoListing>
       <RepoListing>
          <Nickname>CSharpExt</Nickname>
-         <Sha>97554c90a53e75da56ec44cdcc9b3d191c147798</Sha>
+         <Sha>7af63048309e4a20125125bcf2db9a8a31d30ba6</Sha>
          <Path>../CSharpExt</Path>
-         <CommitDate>09-02-2019 02:29:26</CommitDate>
-         <Description>InverseBooleanConverter.  More theming</Description>
+         <CommitDate>09-03-2019 22:27:24</CommitDate>
+         <Description>Merge remote-tracking branch 'origin/master'</Description>
          <Author>Justin Swanson</Author>
          <OriginHint>https://github.com/Noggog/CSharpExt.git</OriginHint>
       </RepoListing>

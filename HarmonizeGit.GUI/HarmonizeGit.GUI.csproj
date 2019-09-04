@@ -60,6 +60,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="XAML\CloneRepoView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="XAML\CloneView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -87,6 +91,9 @@
     <Compile Include="SplatLogger.cs" />
     <Compile Include="VMs\CloningVM.cs" />
     <Compile Include="VMs\DirtyParentRepoVM.cs" />
+    <Compile Include="XAML\CloneRepoView.xaml.cs">
+      <DependentUpon>CloneRepoView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="XAML\CloneView.xaml.cs">
       <DependentUpon>CloneView.xaml</DependentUpon>
     </Compile>
