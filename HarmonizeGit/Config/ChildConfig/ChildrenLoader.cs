@@ -90,8 +90,7 @@ namespace HarmonizeGit
         {
             var config = HarmonizeConfig.Factory(
                 harmonize.ConfigLoader,
-                harmonize.RepoLoader,
-                repo.Info.WorkingDirectory,
+                repo,
                 commit);
             if (config == null) yield break;
             foreach (var parentListing in config.ParentRepos)

@@ -24,7 +24,7 @@
             <Storyboard x:Key="FlashAnimation">
                 <ColorAnimation
                     Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)"
-                    From="#ffd796"
+                    From="#AAAAAA"
                     Duration="0:0:0.5">
                     <ColorAnimation.EasingFunction>
                         <CubicEase />

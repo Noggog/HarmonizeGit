@@ -28,7 +28,7 @@ namespace HarmonizeGit.GUI
     #region Class
     public partial class Repository :
         ViewModel,
-        IRepository,
+        IRepositoryInternal,
         ILoquiObjectSetter<Repository>,
         IEquatable<Repository>,
         IEqualsMask
@@ -37,7 +37,7 @@ namespace HarmonizeGit.GUI
         ILoquiRegistration ILoquiObject.Registration => Repository_Registration.Instance;
         public static Repository_Registration Registration => Repository_Registration.Instance;
         protected object CommonInstance => RepositoryCommon.Instance;
-        object ILoquiObject.CommonInstance => this.CommonInstance;
+        object IRepositoryInternalGetter.CommonInstance => this.CommonInstance;
 
         #region Ctor
         public Repository()
@@ -73,7 +73,7 @@ namespace HarmonizeGit.GUI
         }
         #endregion
 
-        IMask<bool> IEqualsMask.GetEqualsIMask(object rhs, EqualsMaskHelper.Include include) => this.GetEqualsMask((IRepositoryGetter)rhs, include);
+        IMask<bool> IEqualsMask.GetEqualsIMask(object rhs, EqualsMaskHelper.Include include) => this.GetEqualsMask((IRepositoryInternalGetter)rhs, include);
         #region To String
 
         public void ToString(
@@ -91,16 +91,16 @@ namespace HarmonizeGit.GUI
         #region Equals and Hash
         public override bool Equals(object obj)
         {
-            if (!(obj is IRepositoryGetter rhs)) return false;
-            return ((RepositoryCommon)((ILoquiObject)this).CommonInstance).Equals(this, rhs);
+            if (!(obj is IRepositoryInternalGetter rhs)) return false;
+            return ((RepositoryCommon)((IRepositoryInternalGetter)this).CommonInstance).Equals(this, rhs);
         }
 
         public bool Equals(Repository obj)
         {
-            return ((RepositoryCommon)((ILoquiObject)this).CommonInstance).Equals(this, obj);
+            return ((RepositoryCommon)((IRepositoryInternalGetter)this).CommonInstance).Equals(this, obj);
         }
 
-        public override int GetHashCode() => ((RepositoryCommon)((ILoquiObject)this).CommonInstance).GetHashCode(this);
+        public override int GetHashCode() => ((RepositoryCommon)((IRepositoryInternalGetter)this).CommonInstance).GetHashCode(this);
 
         #endregion
 
@@ -536,8 +536,8 @@ namespace HarmonizeGit.GUI
 
     #region Interface
     public partial interface IRepository :
-        IRepositoryGetter,
-        ILoquiObjectSetter<IRepository>
+        IRepositoryInternalGetter,
+        ILoquiObjectSetter<IRepositoryInternal>
     {
         new String Nickname { get; set; }
 
@@ -552,9 +552,15 @@ namespace HarmonizeGit.GUI
             Repository def = null);
     }
 
+    public partial interface IRepositoryInternal :
+        IRepository,
+        IRepositoryInternalGetter
+    {
+    }
+
     public partial interface IRepositoryGetter :
         ILoquiObject,
-        ILoquiObject<IRepositoryGetter>,
+        ILoquiObject<IRepositoryInternalGetter>,
         IXmlItem
     {
         #region Nickname
@@ -572,45 +578,51 @@ namespace HarmonizeGit.GUI
 
     }
 
+    public partial interface IRepositoryInternalGetter : IRepositoryGetter
+    {
+        object CommonInstance { get; }
+
+    }
+
     #endregion
 
     #region Common MixIn
     public static class RepositoryMixIn
     {
-        public static void Clear(this IRepository item)
+        public static void Clear(this IRepositoryInternal item)
         {
-            ((RepositoryCommon)((ILoquiObject)item).CommonInstance).Clear(item: item);
+            ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance).Clear(item: item);
         }
 
         public static Repository_Mask<bool> GetEqualsMask(
-            this IRepositoryGetter item,
-            IRepositoryGetter rhs,
+            this IRepositoryInternalGetter item,
+            IRepositoryInternalGetter rhs,
             EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
         {
-            return ((RepositoryCommon)((ILoquiObject)item).CommonInstance).GetEqualsMask(
+            return ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance).GetEqualsMask(
                 item: item,
                 rhs: rhs,
                 include: include);
         }
 
         public static string ToString(
-            this IRepositoryGetter item,
+            this IRepositoryInternalGetter item,
             string name = null,
             Repository_Mask<bool> printMask = null)
         {
-            return ((RepositoryCommon)((ILoquiObject)item).CommonInstance).ToString(
+            return ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance).ToString(
                 item: item,
                 name: name,
                 printMask: printMask);
         }
 
         public static void ToString(
-            this IRepositoryGetter item,
+            this IRepositoryInternalGetter item,
             FileGeneration fg,
             string name = null,
             Repository_Mask<bool> printMask = null)
         {
-            ((RepositoryCommon)((ILoquiObject)item).CommonInstance).ToString(
+            ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance).ToString(
                 item: item,
                 fg: fg,
                 name: name,
@@ -618,28 +630,28 @@ namespace HarmonizeGit.GUI
         }
 
         public static bool HasBeenSet(
-            this IRepositoryGetter item,
+            this IRepositoryInternalGetter item,
             Repository_Mask<bool?> checkMask)
         {
-            return ((RepositoryCommon)((ILoquiObject)item).CommonInstance).HasBeenSet(
+            return ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance).HasBeenSet(
                 item: item,
                 checkMask: checkMask);
         }
 
-        public static Repository_Mask<bool> GetHasBeenSetMask(this IRepositoryGetter item)
+        public static Repository_Mask<bool> GetHasBeenSetMask(this IRepositoryInternalGetter item)
         {
             var ret = new Repository_Mask<bool>();
-            ((RepositoryCommon)((ILoquiObject)item).CommonInstance).FillHasBeenSetMask(
+            ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance).FillHasBeenSetMask(
                 item: item,
                 mask: ret);
             return ret;
         }
 
         public static bool Equals(
-            this IRepositoryGetter item,
-            IRepositoryGetter rhs)
+            this IRepositoryInternalGetter item,
+            IRepositoryInternalGetter rhs)
         {
-            return ((RepositoryCommon)((ILoquiObject)item).CommonInstance).Equals(
+            return ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance).Equals(
                 lhs: item,
                 rhs: rhs);
         }
@@ -686,11 +698,11 @@ namespace HarmonizeGit.GUI.Internals
 
         public static readonly Type GetterType = typeof(IRepositoryGetter);
 
-        public static readonly Type InternalGetterType = null;
+        public static readonly Type InternalGetterType = typeof(IRepositoryInternalGetter);
 
         public static readonly Type SetterType = typeof(IRepository);
 
-        public static readonly Type InternalSetterType = null;
+        public static readonly Type InternalSetterType = typeof(IRepositoryInternal);
 
         public static readonly Type CommonType = typeof(RepositoryCommon);
 
@@ -924,7 +936,7 @@ namespace HarmonizeGit.GUI.Internals
 
         partial void ClearPartial();
 
-        public virtual void Clear(IRepository item)
+        public virtual void Clear(IRepositoryInternal item)
         {
             ClearPartial();
             item.Nickname = default(String);
@@ -933,12 +945,12 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public Repository_Mask<bool> GetEqualsMask(
-            IRepositoryGetter item,
-            IRepositoryGetter rhs,
+            IRepositoryInternalGetter item,
+            IRepositoryInternalGetter rhs,
             EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
         {
             var ret = new Repository_Mask<bool>();
-            ((RepositoryCommon)((ILoquiObject)item).CommonInstance).FillEqualsMask(
+            this.FillEqualsMask(
                 item: item,
                 rhs: rhs,
                 ret: ret,
@@ -947,8 +959,8 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public void FillEqualsMask(
-            IRepositoryGetter item,
-            IRepositoryGetter rhs,
+            IRepositoryInternalGetter item,
+            IRepositoryInternalGetter rhs,
             Repository_Mask<bool> ret,
             EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
         {
@@ -959,7 +971,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public string ToString(
-            IRepositoryGetter item,
+            IRepositoryInternalGetter item,
             string name = null,
             Repository_Mask<bool> printMask = null)
         {
@@ -973,7 +985,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public void ToString(
-            IRepositoryGetter item,
+            IRepositoryInternalGetter item,
             FileGeneration fg,
             string name = null,
             Repository_Mask<bool> printMask = null)
@@ -998,7 +1010,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         protected static void ToStringFields(
-            IRepositoryGetter item,
+            IRepositoryInternalGetter item,
             FileGeneration fg,
             Repository_Mask<bool> printMask = null)
         {
@@ -1017,14 +1029,14 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public bool HasBeenSet(
-            IRepositoryGetter item,
+            IRepositoryInternalGetter item,
             Repository_Mask<bool?> checkMask)
         {
             return true;
         }
 
         public void FillHasBeenSetMask(
-            IRepositoryGetter item,
+            IRepositoryInternalGetter item,
             Repository_Mask<bool> mask)
         {
             mask.Nickname = true;
@@ -1034,8 +1046,8 @@ namespace HarmonizeGit.GUI.Internals
 
         #region Equals and Hash
         public virtual bool Equals(
-            IRepositoryGetter lhs,
-            IRepositoryGetter rhs)
+            IRepositoryInternalGetter lhs,
+            IRepositoryInternalGetter rhs)
         {
             if (lhs == null && rhs == null) return false;
             if (lhs == null || rhs == null) return false;
@@ -1045,7 +1057,7 @@ namespace HarmonizeGit.GUI.Internals
             return true;
         }
 
-        public virtual int GetHashCode(IRepositoryGetter item)
+        public virtual int GetHashCode(IRepositoryInternalGetter item)
         {
             int ret = 0;
             ret = HashHelper.GetHashCode(item.Nickname).CombineHashCode(ret);
@@ -1067,7 +1079,7 @@ namespace HarmonizeGit.GUI.Internals
         public readonly static RepositoryXmlWriteTranslation Instance = new RepositoryXmlWriteTranslation();
 
         public static void WriteToNodeXml(
-            IRepositoryGetter item,
+            IRepositoryInternalGetter item,
             XElement node,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask)
@@ -1103,7 +1115,7 @@ namespace HarmonizeGit.GUI.Internals
 
         public void Write(
             XElement node,
-            IRepositoryGetter item,
+            IRepositoryInternalGetter item,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask,
             string name = null)
@@ -1129,7 +1141,7 @@ namespace HarmonizeGit.GUI.Internals
             string name = null)
         {
             Write(
-                item: (IRepositoryGetter)item,
+                item: (IRepositoryInternalGetter)item,
                 name: name,
                 node: node,
                 errorMask: errorMask,
@@ -1138,7 +1150,7 @@ namespace HarmonizeGit.GUI.Internals
 
         public void Write(
             XElement node,
-            IRepositoryGetter item,
+            IRepositoryInternalGetter item,
             ErrorMaskBuilder errorMask,
             int fieldIndex,
             TranslationCrystal translationMask,
@@ -1148,7 +1160,7 @@ namespace HarmonizeGit.GUI.Internals
             {
                 errorMask?.PushIndex(fieldIndex);
                 Write(
-                    item: (IRepositoryGetter)item,
+                    item: (IRepositoryInternalGetter)item,
                     name: name,
                     node: node,
                     errorMask: errorMask,
@@ -1172,7 +1184,7 @@ namespace HarmonizeGit.GUI.Internals
         public readonly static RepositoryXmlCreateTranslation Instance = new RepositoryXmlCreateTranslation();
 
         public static void FillPublicXml(
-            IRepository item,
+            IRepositoryInternal item,
             XElement node,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask)
@@ -1197,7 +1209,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void FillPublicElementXml(
-            IRepository item,
+            IRepositoryInternal item,
             XElement node,
             string name,
             ErrorMaskBuilder errorMask,
@@ -1303,7 +1315,7 @@ namespace HarmonizeGit.GUI.Internals
     public static class RepositoryXmlTranslationMixIn
     {
         public static void WriteToXml(
-            this IRepositoryGetter item,
+            this IRepositoryInternalGetter item,
             XElement node,
             out Repository_ErrorMask errorMask,
             bool doMasks = true,
@@ -1321,7 +1333,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this IRepositoryGetter item,
+            this IRepositoryInternalGetter item,
             string path,
             out Repository_ErrorMask errorMask,
             Repository_TranslationMask translationMask = null,
@@ -1340,7 +1352,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this IRepositoryGetter item,
+            this IRepositoryInternalGetter item,
             string path,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask = null,
@@ -1358,7 +1370,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this IRepositoryGetter item,
+            this IRepositoryInternalGetter item,
             Stream stream,
             out Repository_ErrorMask errorMask,
             Repository_TranslationMask translationMask = null,
@@ -1377,7 +1389,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this IRepositoryGetter item,
+            this IRepositoryInternalGetter item,
             Stream stream,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask = null,
@@ -1395,7 +1407,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this IRepositoryGetter item,
+            this IRepositoryInternalGetter item,
             XElement node,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask = null,
@@ -1410,7 +1422,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this IRepositoryGetter item,
+            this IRepositoryInternalGetter item,
             XElement node,
             string name = null,
             Repository_TranslationMask translationMask = null)
@@ -1424,7 +1436,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this IRepositoryGetter item,
+            this IRepositoryInternalGetter item,
             string path,
             string name = null)
         {
@@ -1439,7 +1451,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this IRepositoryGetter item,
+            this IRepositoryInternalGetter item,
             Stream stream,
             string name = null)
         {

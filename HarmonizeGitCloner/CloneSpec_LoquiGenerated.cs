@@ -29,7 +29,7 @@ namespace HarmonizeGitCloner
     #region Class
     public partial class CloneSpec :
         LoquiNotifyingObject,
-        ICloneSpec,
+        ICloneSpecInternal,
         ILoquiObjectSetter<CloneSpec>,
         IEquatable<CloneSpec>,
         IEqualsMask
@@ -38,7 +38,7 @@ namespace HarmonizeGitCloner
         ILoquiRegistration ILoquiObject.Registration => CloneSpec_Registration.Instance;
         public static CloneSpec_Registration Registration => CloneSpec_Registration.Instance;
         protected object CommonInstance => CloneSpecCommon.Instance;
-        object ILoquiObject.CommonInstance => this.CommonInstance;
+        object ICloneSpecInternalGetter.CommonInstance => this.CommonInstance;
 
         #region Ctor
         public CloneSpec()
@@ -56,12 +56,12 @@ namespace HarmonizeGitCloner
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         IList<Clone> ICloneSpec.ExplicitClones => _ExplicitClones;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        IReadOnlyList<ICloneGetter> ICloneSpecGetter.ExplicitClones => _ExplicitClones;
+        IReadOnlyList<ICloneInternalGetter> ICloneSpecGetter.ExplicitClones => _ExplicitClones;
         #endregion
 
         #endregion
 
-        IMask<bool> IEqualsMask.GetEqualsIMask(object rhs, EqualsMaskHelper.Include include) => this.GetEqualsMask((ICloneSpecGetter)rhs, include);
+        IMask<bool> IEqualsMask.GetEqualsIMask(object rhs, EqualsMaskHelper.Include include) => this.GetEqualsMask((ICloneSpecInternalGetter)rhs, include);
         #region To String
 
         public void ToString(
@@ -79,16 +79,16 @@ namespace HarmonizeGitCloner
         #region Equals and Hash
         public override bool Equals(object obj)
         {
-            if (!(obj is ICloneSpecGetter rhs)) return false;
-            return ((CloneSpecCommon)((ILoquiObject)this).CommonInstance).Equals(this, rhs);
+            if (!(obj is ICloneSpecInternalGetter rhs)) return false;
+            return ((CloneSpecCommon)((ICloneSpecInternalGetter)this).CommonInstance).Equals(this, rhs);
         }
 
         public bool Equals(CloneSpec obj)
         {
-            return ((CloneSpecCommon)((ILoquiObject)this).CommonInstance).Equals(this, obj);
+            return ((CloneSpecCommon)((ICloneSpecInternalGetter)this).CommonInstance).Equals(this, obj);
         }
 
-        public override int GetHashCode() => ((CloneSpecCommon)((ILoquiObject)this).CommonInstance).GetHashCode(this);
+        public override int GetHashCode() => ((CloneSpecCommon)((ICloneSpecInternalGetter)this).CommonInstance).GetHashCode(this);
 
         #endregion
 
@@ -498,8 +498,8 @@ namespace HarmonizeGitCloner
 
     #region Interface
     public partial interface ICloneSpec :
-        ICloneSpecGetter,
-        ILoquiObjectSetter<ICloneSpec>
+        ICloneSpecInternalGetter,
+        ILoquiObjectSetter<ICloneSpecInternal>
     {
         new IList<Clone> ExplicitClones { get; }
         void CopyFieldsFrom(
@@ -509,14 +509,26 @@ namespace HarmonizeGitCloner
             CloneSpec def = null);
     }
 
+    public partial interface ICloneSpecInternal :
+        ICloneSpec,
+        ICloneSpecInternalGetter
+    {
+    }
+
     public partial interface ICloneSpecGetter :
         ILoquiObject,
-        ILoquiObject<ICloneSpecGetter>,
+        ILoquiObject<ICloneSpecInternalGetter>,
         IXmlItem
     {
         #region ExplicitClones
-        IReadOnlyList<ICloneGetter> ExplicitClones { get; }
+        IReadOnlyList<ICloneInternalGetter> ExplicitClones { get; }
         #endregion
+
+    }
+
+    public partial interface ICloneSpecInternalGetter : ICloneSpecGetter
+    {
+        object CommonInstance { get; }
 
     }
 
@@ -525,40 +537,40 @@ namespace HarmonizeGitCloner
     #region Common MixIn
     public static class CloneSpecMixIn
     {
-        public static void Clear(this ICloneSpec item)
+        public static void Clear(this ICloneSpecInternal item)
         {
-            ((CloneSpecCommon)((ILoquiObject)item).CommonInstance).Clear(item: item);
+            ((CloneSpecCommon)((ICloneSpecInternalGetter)item).CommonInstance).Clear(item: item);
         }
 
         public static CloneSpec_Mask<bool> GetEqualsMask(
-            this ICloneSpecGetter item,
-            ICloneSpecGetter rhs,
+            this ICloneSpecInternalGetter item,
+            ICloneSpecInternalGetter rhs,
             EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
         {
-            return ((CloneSpecCommon)((ILoquiObject)item).CommonInstance).GetEqualsMask(
+            return ((CloneSpecCommon)((ICloneSpecInternalGetter)item).CommonInstance).GetEqualsMask(
                 item: item,
                 rhs: rhs,
                 include: include);
         }
 
         public static string ToString(
-            this ICloneSpecGetter item,
+            this ICloneSpecInternalGetter item,
             string name = null,
             CloneSpec_Mask<bool> printMask = null)
         {
-            return ((CloneSpecCommon)((ILoquiObject)item).CommonInstance).ToString(
+            return ((CloneSpecCommon)((ICloneSpecInternalGetter)item).CommonInstance).ToString(
                 item: item,
                 name: name,
                 printMask: printMask);
         }
 
         public static void ToString(
-            this ICloneSpecGetter item,
+            this ICloneSpecInternalGetter item,
             FileGeneration fg,
             string name = null,
             CloneSpec_Mask<bool> printMask = null)
         {
-            ((CloneSpecCommon)((ILoquiObject)item).CommonInstance).ToString(
+            ((CloneSpecCommon)((ICloneSpecInternalGetter)item).CommonInstance).ToString(
                 item: item,
                 fg: fg,
                 name: name,
@@ -566,28 +578,28 @@ namespace HarmonizeGitCloner
         }
 
         public static bool HasBeenSet(
-            this ICloneSpecGetter item,
+            this ICloneSpecInternalGetter item,
             CloneSpec_Mask<bool?> checkMask)
         {
-            return ((CloneSpecCommon)((ILoquiObject)item).CommonInstance).HasBeenSet(
+            return ((CloneSpecCommon)((ICloneSpecInternalGetter)item).CommonInstance).HasBeenSet(
                 item: item,
                 checkMask: checkMask);
         }
 
-        public static CloneSpec_Mask<bool> GetHasBeenSetMask(this ICloneSpecGetter item)
+        public static CloneSpec_Mask<bool> GetHasBeenSetMask(this ICloneSpecInternalGetter item)
         {
             var ret = new CloneSpec_Mask<bool>();
-            ((CloneSpecCommon)((ILoquiObject)item).CommonInstance).FillHasBeenSetMask(
+            ((CloneSpecCommon)((ICloneSpecInternalGetter)item).CommonInstance).FillHasBeenSetMask(
                 item: item,
                 mask: ret);
             return ret;
         }
 
         public static bool Equals(
-            this ICloneSpecGetter item,
-            ICloneSpecGetter rhs)
+            this ICloneSpecInternalGetter item,
+            ICloneSpecInternalGetter rhs)
         {
-            return ((CloneSpecCommon)((ILoquiObject)item).CommonInstance).Equals(
+            return ((CloneSpecCommon)((ICloneSpecInternalGetter)item).CommonInstance).Equals(
                 lhs: item,
                 rhs: rhs);
         }
@@ -632,11 +644,11 @@ namespace HarmonizeGitCloner.Internals
 
         public static readonly Type GetterType = typeof(ICloneSpecGetter);
 
-        public static readonly Type InternalGetterType = null;
+        public static readonly Type InternalGetterType = typeof(ICloneSpecInternalGetter);
 
         public static readonly Type SetterType = typeof(ICloneSpec);
 
-        public static readonly Type InternalSetterType = null;
+        public static readonly Type InternalSetterType = typeof(ICloneSpecInternal);
 
         public static readonly Type CommonType = typeof(CloneSpecCommon);
 
@@ -831,19 +843,19 @@ namespace HarmonizeGitCloner.Internals
 
         partial void ClearPartial();
 
-        public virtual void Clear(ICloneSpec item)
+        public virtual void Clear(ICloneSpecInternal item)
         {
             ClearPartial();
             item.ExplicitClones.Clear();
         }
 
         public CloneSpec_Mask<bool> GetEqualsMask(
-            ICloneSpecGetter item,
-            ICloneSpecGetter rhs,
+            ICloneSpecInternalGetter item,
+            ICloneSpecInternalGetter rhs,
             EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
         {
             var ret = new CloneSpec_Mask<bool>();
-            ((CloneSpecCommon)((ILoquiObject)item).CommonInstance).FillEqualsMask(
+            this.FillEqualsMask(
                 item: item,
                 rhs: rhs,
                 ret: ret,
@@ -852,8 +864,8 @@ namespace HarmonizeGitCloner.Internals
         }
 
         public void FillEqualsMask(
-            ICloneSpecGetter item,
-            ICloneSpecGetter rhs,
+            ICloneSpecInternalGetter item,
+            ICloneSpecInternalGetter rhs,
             CloneSpec_Mask<bool> ret,
             EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
         {
@@ -865,7 +877,7 @@ namespace HarmonizeGitCloner.Internals
         }
 
         public string ToString(
-            ICloneSpecGetter item,
+            ICloneSpecInternalGetter item,
             string name = null,
             CloneSpec_Mask<bool> printMask = null)
         {
@@ -879,7 +891,7 @@ namespace HarmonizeGitCloner.Internals
         }
 
         public void ToString(
-            ICloneSpecGetter item,
+            ICloneSpecInternalGetter item,
             FileGeneration fg,
             string name = null,
             CloneSpec_Mask<bool> printMask = null)
@@ -904,7 +916,7 @@ namespace HarmonizeGitCloner.Internals
         }
 
         protected static void ToStringFields(
-            ICloneSpecGetter item,
+            ICloneSpecInternalGetter item,
             FileGeneration fg,
             CloneSpec_Mask<bool> printMask = null)
         {
@@ -929,14 +941,14 @@ namespace HarmonizeGitCloner.Internals
         }
 
         public bool HasBeenSet(
-            ICloneSpecGetter item,
+            ICloneSpecInternalGetter item,
             CloneSpec_Mask<bool?> checkMask)
         {
             return true;
         }
 
         public void FillHasBeenSetMask(
-            ICloneSpecGetter item,
+            ICloneSpecInternalGetter item,
             CloneSpec_Mask<bool> mask)
         {
             mask.ExplicitClones = new MaskItem<bool, IEnumerable<MaskItemIndexed<bool, Clone_Mask<bool>>>>(true, item.ExplicitClones.WithIndex().Select((i) => new MaskItemIndexed<bool, Clone_Mask<bool>>(i.Index, true, i.Item.GetHasBeenSetMask())));
@@ -944,8 +956,8 @@ namespace HarmonizeGitCloner.Internals
 
         #region Equals and Hash
         public virtual bool Equals(
-            ICloneSpecGetter lhs,
-            ICloneSpecGetter rhs)
+            ICloneSpecInternalGetter lhs,
+            ICloneSpecInternalGetter rhs)
         {
             if (lhs == null && rhs == null) return false;
             if (lhs == null || rhs == null) return false;
@@ -953,7 +965,7 @@ namespace HarmonizeGitCloner.Internals
             return true;
         }
 
-        public virtual int GetHashCode(ICloneSpecGetter item)
+        public virtual int GetHashCode(ICloneSpecInternalGetter item)
         {
             int ret = 0;
             ret = HashHelper.GetHashCode(item.ExplicitClones).CombineHashCode(ret);
@@ -973,21 +985,21 @@ namespace HarmonizeGitCloner.Internals
         public readonly static CloneSpecXmlWriteTranslation Instance = new CloneSpecXmlWriteTranslation();
 
         public static void WriteToNodeXml(
-            ICloneSpecGetter item,
+            ICloneSpecInternalGetter item,
             XElement node,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask)
         {
             if ((translationMask?.GetShouldTranslate((int)CloneSpec_FieldIndex.ExplicitClones) ?? true))
             {
-                ListXmlTranslation<ICloneGetter>.Instance.Write(
+                ListXmlTranslation<ICloneInternalGetter>.Instance.Write(
                     node: node,
                     name: nameof(item.ExplicitClones),
                     item: item.ExplicitClones,
                     fieldIndex: (int)CloneSpec_FieldIndex.ExplicitClones,
                     errorMask: errorMask,
                     translationMask: translationMask?.GetSubCrystal((int)CloneSpec_FieldIndex.ExplicitClones),
-                    transl: (XElement subNode, ICloneGetter subItem, ErrorMaskBuilder listSubMask, TranslationCrystal listTranslMask) =>
+                    transl: (XElement subNode, ICloneInternalGetter subItem, ErrorMaskBuilder listSubMask, TranslationCrystal listTranslMask) =>
                     {
                         var loquiItem = subItem;
                         ((CloneXmlWriteTranslation)((IXmlItem)loquiItem).XmlWriteTranslator).Write(
@@ -1002,7 +1014,7 @@ namespace HarmonizeGitCloner.Internals
 
         public void Write(
             XElement node,
-            ICloneSpecGetter item,
+            ICloneSpecInternalGetter item,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask,
             string name = null)
@@ -1028,7 +1040,7 @@ namespace HarmonizeGitCloner.Internals
             string name = null)
         {
             Write(
-                item: (ICloneSpecGetter)item,
+                item: (ICloneSpecInternalGetter)item,
                 name: name,
                 node: node,
                 errorMask: errorMask,
@@ -1037,7 +1049,7 @@ namespace HarmonizeGitCloner.Internals
 
         public void Write(
             XElement node,
-            ICloneSpecGetter item,
+            ICloneSpecInternalGetter item,
             ErrorMaskBuilder errorMask,
             int fieldIndex,
             TranslationCrystal translationMask,
@@ -1047,7 +1059,7 @@ namespace HarmonizeGitCloner.Internals
             {
                 errorMask?.PushIndex(fieldIndex);
                 Write(
-                    item: (ICloneSpecGetter)item,
+                    item: (ICloneSpecInternalGetter)item,
                     name: name,
                     node: node,
                     errorMask: errorMask,
@@ -1071,7 +1083,7 @@ namespace HarmonizeGitCloner.Internals
         public readonly static CloneSpecXmlCreateTranslation Instance = new CloneSpecXmlCreateTranslation();
 
         public static void FillPublicXml(
-            ICloneSpec item,
+            ICloneSpecInternal item,
             XElement node,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask)
@@ -1096,7 +1108,7 @@ namespace HarmonizeGitCloner.Internals
         }
 
         public static void FillPublicElementXml(
-            ICloneSpec item,
+            ICloneSpecInternal item,
             XElement node,
             string name,
             ErrorMaskBuilder errorMask,
@@ -1146,7 +1158,7 @@ namespace HarmonizeGitCloner.Internals
     public static class CloneSpecXmlTranslationMixIn
     {
         public static void WriteToXml(
-            this ICloneSpecGetter item,
+            this ICloneSpecInternalGetter item,
             XElement node,
             out CloneSpec_ErrorMask errorMask,
             bool doMasks = true,
@@ -1164,7 +1176,7 @@ namespace HarmonizeGitCloner.Internals
         }
 
         public static void WriteToXml(
-            this ICloneSpecGetter item,
+            this ICloneSpecInternalGetter item,
             string path,
             out CloneSpec_ErrorMask errorMask,
             CloneSpec_TranslationMask translationMask = null,
@@ -1183,7 +1195,7 @@ namespace HarmonizeGitCloner.Internals
         }
 
         public static void WriteToXml(
-            this ICloneSpecGetter item,
+            this ICloneSpecInternalGetter item,
             string path,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask = null,
@@ -1201,7 +1213,7 @@ namespace HarmonizeGitCloner.Internals
         }
 
         public static void WriteToXml(
-            this ICloneSpecGetter item,
+            this ICloneSpecInternalGetter item,
             Stream stream,
             out CloneSpec_ErrorMask errorMask,
             CloneSpec_TranslationMask translationMask = null,
@@ -1220,7 +1232,7 @@ namespace HarmonizeGitCloner.Internals
         }
 
         public static void WriteToXml(
-            this ICloneSpecGetter item,
+            this ICloneSpecInternalGetter item,
             Stream stream,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask = null,
@@ -1238,7 +1250,7 @@ namespace HarmonizeGitCloner.Internals
         }
 
         public static void WriteToXml(
-            this ICloneSpecGetter item,
+            this ICloneSpecInternalGetter item,
             XElement node,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask = null,
@@ -1253,7 +1265,7 @@ namespace HarmonizeGitCloner.Internals
         }
 
         public static void WriteToXml(
-            this ICloneSpecGetter item,
+            this ICloneSpecInternalGetter item,
             XElement node,
             string name = null,
             CloneSpec_TranslationMask translationMask = null)
@@ -1267,7 +1279,7 @@ namespace HarmonizeGitCloner.Internals
         }
 
         public static void WriteToXml(
-            this ICloneSpecGetter item,
+            this ICloneSpecInternalGetter item,
             string path,
             string name = null)
         {
@@ -1282,7 +1294,7 @@ namespace HarmonizeGitCloner.Internals
         }
 
         public static void WriteToXml(
-            this ICloneSpecGetter item,
+            this ICloneSpecInternalGetter item,
             Stream stream,
             string name = null)
         {

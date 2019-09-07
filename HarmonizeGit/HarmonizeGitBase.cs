@@ -288,8 +288,7 @@ namespace HarmonizeGit
 
             targetConfig = HarmonizeConfig.Factory(
                 this.ConfigLoader,
-                this.RepoLoader,
-                this.TargetPath,
+                this.RepoLoader.GetRepo(this.TargetPath),
                 targetCommit);
             if (targetConfig == null) return true;
             return SyncParentRepos(targetConfig);

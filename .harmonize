@@ -7,6 +7,7 @@
          <CommitDate>08-30-2019 23:55:08</CommitDate>
          <Description>ILogger</Description>
          <Author>Justin Swanson</Author>
+         <OriginHint>https://github.com/Noggog/FishingWithGit.git</OriginHint>
       </RepoListing>
       <RepoListing>
          <Nickname>CSharpExt</Nickname>
@@ -24,14 +25,16 @@
          <CommitDate>08-31-2019 15:59:16</CommitDate>
          <Description>Nuget Update</Description>
          <Author>Justin Swanson</Author>
+         <OriginHint>https://github.com/Noggog/DynamicData.git</OriginHint>
       </RepoListing>
       <RepoListing>
          <Nickname>Loqui</Nickname>
-         <Sha>617d2702c849c1ea2b088176306bdccd64d9ad4f</Sha>
+         <Sha>b42f843ad872c3254cb3f2664740000389c5daec</Sha>
          <Path>../Loqui</Path>
-         <CommitDate>08-31-2019 16:18:39</CommitDate>
-         <Description>Fix for default value of TypicalTypeGeneration</Description>
+         <CommitDate>09-04-2019 23:00:56</CommitDate>
+         <Description>Common generics split to be class for everything but copy</Description>
          <Author>Justin Swanson</Author>
+         <OriginHint>https://github.com/Noggog/Loqui.git</OriginHint>
       </RepoListing>
    </ParentRepos>
 </HarmonizeConfig>

@@ -120,26 +120,37 @@ namespace HarmonizeGit
         }
 
         public static bool TryLoadConfig(
-            string path,
-            RepoLoader repoLoader,
+            Repository repo,
             out HarmonizeConfig config)
         {
-            FileInfo file = new FileInfo(path + "/" + Constants.HarmonizeConfigPath);
+            FileInfo file = new FileInfo(repo.Info.WorkingDirectory + "/" + Constants.HarmonizeConfigPath);
             if (!file.Exists)
             {
                 config = default;
                 return false;
             }
-            var pathing = PathingConfig.Factory(path);
+            var pathing = PathingConfig.Factory(repo.Info.WorkingDirectory);
             using (var stream = new FileStream(file.FullName, FileMode.Open, FileAccess.Read))
             {
                 config = HarmonizeConfig.Factory(
-                    repoLoader,
-                    path,
+                    repo,
                     stream,
                     pathing);
                 return true;
             }
+        }
+
+        public static bool TryLoadConfig(
+            Repository repo,
+            ConfigLoader configLoader,
+            Commit commit,
+            out HarmonizeConfig config)
+        {
+            config = HarmonizeConfig.Factory(
+                configLoader,
+                repo,
+                commit);
+            return config != null;
         }
 
         public static async Task SyncAndWriteConfig(HarmonizeConfig config, string path, RepoLoader repoLoader, ILogger logger)
@@ -196,7 +207,7 @@ namespace HarmonizeGit
             }
             return true;
         }
-        
+
         public static async Task<IErrorResponse> IsDirty(
             string path,
             ConfigLoader configLoader,

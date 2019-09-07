@@ -54,8 +54,7 @@ namespace HarmonizeGit
             this._logger.WriteLine($"Loading config from repo at path {repo.Info.WorkingDirectory} at commit {commit.Sha} ");
             ret = HarmonizeConfig.Factory(
                 this,
-                this._repoLoader,
-                repo.Info.WorkingDirectory,
+                repo,
                 commit);
             repoConfigs[key] = ret;
             return ret;
@@ -67,8 +66,7 @@ namespace HarmonizeGit
             {
                 this._logger.WriteLine($"Loading config at path {path}");
                 if (HarmonizeFunctionality.TryLoadConfig(
-                    path,
-                    this._repoLoader,
+                    this._repoLoader.GetRepo(path),
                     out var config))
                 {
                     return config;

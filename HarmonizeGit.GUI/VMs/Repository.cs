@@ -164,11 +164,10 @@ namespace HarmonizeGit.GUI
                             _ParentRepos.Clear();
                             return;
                         }
-                        using (var repoLoader = new RepoLoader(path))
+                        using (var repo = new LibGit2Sharp.Repository(path))
                         {
                             if (!HarmonizeFunctionality.TryLoadConfig(
-                                path,
-                                repoLoader,
+                                repo,
                                 out var config))
                             {
                                 this.Log().Error($"Could not load config at path {path} to compile parent repos.");
@@ -197,8 +196,7 @@ namespace HarmonizeGit.GUI
                 using (var repoLoader = new RepoLoader(this.Path))
                 {
                     if (!HarmonizeFunctionality.TryLoadConfig(
-                        this.Path,
-                        repoLoader,
+                        repoLoader.GetRepo(this.Path),
                         out var config))
                     {
                         // ToDo
@@ -222,8 +220,7 @@ namespace HarmonizeGit.GUI
                 using (var repoLoader = new RepoLoader(this.Path))
                 {
                     if (!HarmonizeFunctionality.TryLoadConfig(
-                        this.Path,
-                        repoLoader,
+                        repoLoader.GetRepo(this.Path),
                         out var config))
                     {
                         // ToDo

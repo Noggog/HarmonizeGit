@@ -29,7 +29,7 @@ namespace HarmonizeGit.GUI
     #region Class
     public partial class Settings :
         LoquiNotifyingObject,
-        ISettings,
+        ISettingsInternal,
         ILoquiObjectSetter<Settings>,
         IEquatable<Settings>,
         IEqualsMask
@@ -38,7 +38,7 @@ namespace HarmonizeGit.GUI
         ILoquiRegistration ILoquiObject.Registration => Settings_Registration.Instance;
         public static Settings_Registration Registration => Settings_Registration.Instance;
         protected object CommonInstance => SettingsCommon.Instance;
-        object ILoquiObject.CommonInstance => this.CommonInstance;
+        object ISettingsInternalGetter.CommonInstance => this.CommonInstance;
 
         #region Ctor
         public Settings()
@@ -57,7 +57,7 @@ namespace HarmonizeGit.GUI
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         IList<Repository> ISettings.Repositories => _Repositories;
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        IReadOnlyList<IRepositoryGetter> ISettingsGetter.Repositories => _Repositories;
+        IReadOnlyList<IRepositoryInternalGetter> ISettingsGetter.Repositories => _Repositories;
         #endregion
 
         #endregion
@@ -78,7 +78,7 @@ namespace HarmonizeGit.GUI
         }
         #endregion
         #region PauseSeconds
-        private Int32 _PauseSeconds =  _PauseSeconds_Default;
+        private Int32 _PauseSeconds = _PauseSeconds_Default;
         public readonly static Int32 _PauseSeconds_Default = 30;
         public Int32 PauseSeconds
         {
@@ -88,7 +88,7 @@ namespace HarmonizeGit.GUI
         public static RangeInt32 PauseSeconds_Range = new RangeInt32(0, int.MaxValue);
         #endregion
 
-        IMask<bool> IEqualsMask.GetEqualsIMask(object rhs, EqualsMaskHelper.Include include) => this.GetEqualsMask((ISettingsGetter)rhs, include);
+        IMask<bool> IEqualsMask.GetEqualsIMask(object rhs, EqualsMaskHelper.Include include) => this.GetEqualsMask((ISettingsInternalGetter)rhs, include);
         #region To String
 
         public void ToString(
@@ -106,16 +106,16 @@ namespace HarmonizeGit.GUI
         #region Equals and Hash
         public override bool Equals(object obj)
         {
-            if (!(obj is ISettingsGetter rhs)) return false;
-            return ((SettingsCommon)((ILoquiObject)this).CommonInstance).Equals(this, rhs);
+            if (!(obj is ISettingsInternalGetter rhs)) return false;
+            return ((SettingsCommon)((ISettingsInternalGetter)this).CommonInstance).Equals(this, rhs);
         }
 
         public bool Equals(Settings obj)
         {
-            return ((SettingsCommon)((ILoquiObject)this).CommonInstance).Equals(this, obj);
+            return ((SettingsCommon)((ISettingsInternalGetter)this).CommonInstance).Equals(this, obj);
         }
 
-        public override int GetHashCode() => ((SettingsCommon)((ILoquiObject)this).CommonInstance).GetHashCode(this);
+        public override int GetHashCode() => ((SettingsCommon)((ISettingsInternalGetter)this).CommonInstance).GetHashCode(this);
 
         #endregion
 
@@ -558,8 +558,8 @@ namespace HarmonizeGit.GUI
 
     #region Interface
     public partial interface ISettings :
-        ISettingsGetter,
-        ILoquiObjectSetter<ISettings>
+        ISettingsInternalGetter,
+        ILoquiObjectSetter<ISettingsInternal>
     {
         new IList<Repository> Repositories { get; }
         new String LastReferencedDirectory { get; set; }
@@ -575,13 +575,19 @@ namespace HarmonizeGit.GUI
             Settings def = null);
     }
 
+    public partial interface ISettingsInternal :
+        ISettings,
+        ISettingsInternalGetter
+    {
+    }
+
     public partial interface ISettingsGetter :
         ILoquiObject,
-        ILoquiObject<ISettingsGetter>,
+        ILoquiObject<ISettingsInternalGetter>,
         IXmlItem
     {
         #region Repositories
-        IReadOnlyList<IRepositoryGetter> Repositories { get; }
+        IReadOnlyList<IRepositoryInternalGetter> Repositories { get; }
         #endregion
         #region LastReferencedDirectory
         String LastReferencedDirectory { get; }
@@ -598,45 +604,51 @@ namespace HarmonizeGit.GUI
 
     }
 
+    public partial interface ISettingsInternalGetter : ISettingsGetter
+    {
+        object CommonInstance { get; }
+
+    }
+
     #endregion
 
     #region Common MixIn
     public static class SettingsMixIn
     {
-        public static void Clear(this ISettings item)
+        public static void Clear(this ISettingsInternal item)
         {
-            ((SettingsCommon)((ILoquiObject)item).CommonInstance).Clear(item: item);
+            ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance).Clear(item: item);
         }
 
         public static Settings_Mask<bool> GetEqualsMask(
-            this ISettingsGetter item,
-            ISettingsGetter rhs,
+            this ISettingsInternalGetter item,
+            ISettingsInternalGetter rhs,
             EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
         {
-            return ((SettingsCommon)((ILoquiObject)item).CommonInstance).GetEqualsMask(
+            return ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance).GetEqualsMask(
                 item: item,
                 rhs: rhs,
                 include: include);
         }
 
         public static string ToString(
-            this ISettingsGetter item,
+            this ISettingsInternalGetter item,
             string name = null,
             Settings_Mask<bool> printMask = null)
         {
-            return ((SettingsCommon)((ILoquiObject)item).CommonInstance).ToString(
+            return ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance).ToString(
                 item: item,
                 name: name,
                 printMask: printMask);
         }
 
         public static void ToString(
-            this ISettingsGetter item,
+            this ISettingsInternalGetter item,
             FileGeneration fg,
             string name = null,
             Settings_Mask<bool> printMask = null)
         {
-            ((SettingsCommon)((ILoquiObject)item).CommonInstance).ToString(
+            ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance).ToString(
                 item: item,
                 fg: fg,
                 name: name,
@@ -644,28 +656,28 @@ namespace HarmonizeGit.GUI
         }
 
         public static bool HasBeenSet(
-            this ISettingsGetter item,
+            this ISettingsInternalGetter item,
             Settings_Mask<bool?> checkMask)
         {
-            return ((SettingsCommon)((ILoquiObject)item).CommonInstance).HasBeenSet(
+            return ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance).HasBeenSet(
                 item: item,
                 checkMask: checkMask);
         }
 
-        public static Settings_Mask<bool> GetHasBeenSetMask(this ISettingsGetter item)
+        public static Settings_Mask<bool> GetHasBeenSetMask(this ISettingsInternalGetter item)
         {
             var ret = new Settings_Mask<bool>();
-            ((SettingsCommon)((ILoquiObject)item).CommonInstance).FillHasBeenSetMask(
+            ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance).FillHasBeenSetMask(
                 item: item,
                 mask: ret);
             return ret;
         }
 
         public static bool Equals(
-            this ISettingsGetter item,
-            ISettingsGetter rhs)
+            this ISettingsInternalGetter item,
+            ISettingsInternalGetter rhs)
         {
-            return ((SettingsCommon)((ILoquiObject)item).CommonInstance).Equals(
+            return ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance).Equals(
                 lhs: item,
                 rhs: rhs);
         }
@@ -713,11 +725,11 @@ namespace HarmonizeGit.GUI.Internals
 
         public static readonly Type GetterType = typeof(ISettingsGetter);
 
-        public static readonly Type InternalGetterType = null;
+        public static readonly Type InternalGetterType = typeof(ISettingsInternalGetter);
 
         public static readonly Type SetterType = typeof(ISettings);
 
-        public static readonly Type InternalSetterType = null;
+        public static readonly Type InternalSetterType = typeof(ISettingsInternal);
 
         public static readonly Type CommonType = typeof(SettingsCommon);
 
@@ -998,7 +1010,7 @@ namespace HarmonizeGit.GUI.Internals
 
         partial void ClearPartial();
 
-        public virtual void Clear(ISettings item)
+        public virtual void Clear(ISettingsInternal item)
         {
             ClearPartial();
             item.Repositories.Clear();
@@ -1008,12 +1020,12 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public Settings_Mask<bool> GetEqualsMask(
-            ISettingsGetter item,
-            ISettingsGetter rhs,
+            ISettingsInternalGetter item,
+            ISettingsInternalGetter rhs,
             EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
         {
             var ret = new Settings_Mask<bool>();
-            ((SettingsCommon)((ILoquiObject)item).CommonInstance).FillEqualsMask(
+            this.FillEqualsMask(
                 item: item,
                 rhs: rhs,
                 ret: ret,
@@ -1022,8 +1034,8 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public void FillEqualsMask(
-            ISettingsGetter item,
-            ISettingsGetter rhs,
+            ISettingsInternalGetter item,
+            ISettingsInternalGetter rhs,
             Settings_Mask<bool> ret,
             EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
         {
@@ -1038,7 +1050,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public string ToString(
-            ISettingsGetter item,
+            ISettingsInternalGetter item,
             string name = null,
             Settings_Mask<bool> printMask = null)
         {
@@ -1052,7 +1064,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public void ToString(
-            ISettingsGetter item,
+            ISettingsInternalGetter item,
             FileGeneration fg,
             string name = null,
             Settings_Mask<bool> printMask = null)
@@ -1077,7 +1089,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         protected static void ToStringFields(
-            ISettingsGetter item,
+            ISettingsInternalGetter item,
             FileGeneration fg,
             Settings_Mask<bool> printMask = null)
         {
@@ -1114,14 +1126,14 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public bool HasBeenSet(
-            ISettingsGetter item,
+            ISettingsInternalGetter item,
             Settings_Mask<bool?> checkMask)
         {
             return true;
         }
 
         public void FillHasBeenSetMask(
-            ISettingsGetter item,
+            ISettingsInternalGetter item,
             Settings_Mask<bool> mask)
         {
             mask.Repositories = new MaskItem<bool, IEnumerable<MaskItemIndexed<bool, Repository_Mask<bool>>>>(true, item.Repositories.WithIndex().Select((i) => new MaskItemIndexed<bool, Repository_Mask<bool>>(i.Index, true, i.Item.GetHasBeenSetMask())));
@@ -1132,8 +1144,8 @@ namespace HarmonizeGit.GUI.Internals
 
         #region Equals and Hash
         public virtual bool Equals(
-            ISettingsGetter lhs,
-            ISettingsGetter rhs)
+            ISettingsInternalGetter lhs,
+            ISettingsInternalGetter rhs)
         {
             if (lhs == null && rhs == null) return false;
             if (lhs == null || rhs == null) return false;
@@ -1144,7 +1156,7 @@ namespace HarmonizeGit.GUI.Internals
             return true;
         }
 
-        public virtual int GetHashCode(ISettingsGetter item)
+        public virtual int GetHashCode(ISettingsInternalGetter item)
         {
             int ret = 0;
             ret = HashHelper.GetHashCode(item.Repositories).CombineHashCode(ret);
@@ -1167,21 +1179,21 @@ namespace HarmonizeGit.GUI.Internals
         public readonly static SettingsXmlWriteTranslation Instance = new SettingsXmlWriteTranslation();
 
         public static void WriteToNodeXml(
-            ISettingsGetter item,
+            ISettingsInternalGetter item,
             XElement node,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask)
         {
             if ((translationMask?.GetShouldTranslate((int)Settings_FieldIndex.Repositories) ?? true))
             {
-                ListXmlTranslation<IRepositoryGetter>.Instance.Write(
+                ListXmlTranslation<IRepositoryInternalGetter>.Instance.Write(
                     node: node,
                     name: nameof(item.Repositories),
                     item: item.Repositories,
                     fieldIndex: (int)Settings_FieldIndex.Repositories,
                     errorMask: errorMask,
                     translationMask: translationMask?.GetSubCrystal((int)Settings_FieldIndex.Repositories),
-                    transl: (XElement subNode, IRepositoryGetter subItem, ErrorMaskBuilder listSubMask, TranslationCrystal listTranslMask) =>
+                    transl: (XElement subNode, IRepositoryInternalGetter subItem, ErrorMaskBuilder listSubMask, TranslationCrystal listTranslMask) =>
                     {
                         var loquiItem = subItem;
                         ((RepositoryXmlWriteTranslation)((IXmlItem)loquiItem).XmlWriteTranslator).Write(
@@ -1223,7 +1235,7 @@ namespace HarmonizeGit.GUI.Internals
 
         public void Write(
             XElement node,
-            ISettingsGetter item,
+            ISettingsInternalGetter item,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask,
             string name = null)
@@ -1249,7 +1261,7 @@ namespace HarmonizeGit.GUI.Internals
             string name = null)
         {
             Write(
-                item: (ISettingsGetter)item,
+                item: (ISettingsInternalGetter)item,
                 name: name,
                 node: node,
                 errorMask: errorMask,
@@ -1258,7 +1270,7 @@ namespace HarmonizeGit.GUI.Internals
 
         public void Write(
             XElement node,
-            ISettingsGetter item,
+            ISettingsInternalGetter item,
             ErrorMaskBuilder errorMask,
             int fieldIndex,
             TranslationCrystal translationMask,
@@ -1268,7 +1280,7 @@ namespace HarmonizeGit.GUI.Internals
             {
                 errorMask?.PushIndex(fieldIndex);
                 Write(
-                    item: (ISettingsGetter)item,
+                    item: (ISettingsInternalGetter)item,
                     name: name,
                     node: node,
                     errorMask: errorMask,
@@ -1292,7 +1304,7 @@ namespace HarmonizeGit.GUI.Internals
         public readonly static SettingsXmlCreateTranslation Instance = new SettingsXmlCreateTranslation();
 
         public static void FillPublicXml(
-            ISettings item,
+            ISettingsInternal item,
             XElement node,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask)
@@ -1317,7 +1329,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void FillPublicElementXml(
-            ISettings item,
+            ISettingsInternal item,
             XElement node,
             string name,
             ErrorMaskBuilder errorMask,
@@ -1454,7 +1466,7 @@ namespace HarmonizeGit.GUI.Internals
     public static class SettingsXmlTranslationMixIn
     {
         public static void WriteToXml(
-            this ISettingsGetter item,
+            this ISettingsInternalGetter item,
             XElement node,
             out Settings_ErrorMask errorMask,
             bool doMasks = true,
@@ -1472,7 +1484,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this ISettingsGetter item,
+            this ISettingsInternalGetter item,
             string path,
             out Settings_ErrorMask errorMask,
             Settings_TranslationMask translationMask = null,
@@ -1491,7 +1503,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this ISettingsGetter item,
+            this ISettingsInternalGetter item,
             string path,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask = null,
@@ -1509,7 +1521,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this ISettingsGetter item,
+            this ISettingsInternalGetter item,
             Stream stream,
             out Settings_ErrorMask errorMask,
             Settings_TranslationMask translationMask = null,
@@ -1528,7 +1540,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this ISettingsGetter item,
+            this ISettingsInternalGetter item,
             Stream stream,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask = null,
@@ -1546,7 +1558,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this ISettingsGetter item,
+            this ISettingsInternalGetter item,
             XElement node,
             ErrorMaskBuilder errorMask,
             TranslationCrystal translationMask = null,
@@ -1561,7 +1573,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this ISettingsGetter item,
+            this ISettingsInternalGetter item,
             XElement node,
             string name = null,
             Settings_TranslationMask translationMask = null)
@@ -1575,7 +1587,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this ISettingsGetter item,
+            this ISettingsInternalGetter item,
             string path,
             string name = null)
         {
@@ -1590,7 +1602,7 @@ namespace HarmonizeGit.GUI.Internals
         }
 
         public static void WriteToXml(
-            this ISettingsGetter item,
+            this ISettingsInternalGetter item,
             Stream stream,
             string name = null)
         {
