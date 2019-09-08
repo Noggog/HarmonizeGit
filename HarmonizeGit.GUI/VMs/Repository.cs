@@ -219,8 +219,11 @@ namespace HarmonizeGit.GUI
             {
                 using (var repoLoader = new RepoLoader(this.Path))
                 {
+                    var repo = repoLoader.GetRepo(this.Path);
                     if (!HarmonizeFunctionality.TryLoadConfig(
-                        repoLoader.GetRepo(this.Path),
+                        repo,
+                        new ConfigLoader(this.Path, repoLoader, MainVM.HarmonizeLogger),
+                        repo.Head.Tip,
                         out var config))
                     {
                         // ToDo
