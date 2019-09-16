@@ -11,10 +11,10 @@
       </RepoListing>
       <RepoListing>
          <Nickname>CSharpExt</Nickname>
-         <Sha>7af63048309e4a20125125bcf2db9a8a31d30ba6</Sha>
+         <Sha>7951b6889cf77637eff59e2924087ed48e436e36</Sha>
          <Path>../CSharpExt</Path>
-         <CommitDate>09-03-2019 22:27:24</CommitDate>
-         <Description>Merge remote-tracking branch 'origin/master'</Description>
+         <CommitDate>09-15-2019 02:02:44</CommitDate>
+         <Description>namespace System -&gt; Noggog</Description>
          <Author>Justin Swanson</Author>
          <OriginHint>https://github.com/Noggog/CSharpExt.git</OriginHint>
       </RepoListing>
@@ -29,10 +29,10 @@
       </RepoListing>
       <RepoListing>
          <Nickname>Loqui</Nickname>
-         <Sha>b42f843ad872c3254cb3f2664740000389c5daec</Sha>
+         <Sha>d5ee337228acb6ac7acc9ba97bb5f90a6055bd15</Sha>
          <Path>../Loqui</Path>
-         <CommitDate>09-04-2019 23:00:56</CommitDate>
-         <Description>Common generics split to be class for everything but copy</Description>
+         <CommitDate>09-15-2019 02:02:55</CommitDate>
+         <Description>Library updates</Description>
          <Author>Justin Swanson</Author>
          <OriginHint>https://github.com/Noggog/Loqui.git</OriginHint>
       </RepoListing>

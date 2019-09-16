@@ -34,12 +34,6 @@ namespace HarmonizeGit.GUI
         IEquatable<Settings>,
         IEqualsMask
     {
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        ILoquiRegistration ILoquiObject.Registration => Settings_Registration.Instance;
-        public static Settings_Registration Registration => Settings_Registration.Instance;
-        protected object CommonInstance => SettingsCommon.Instance;
-        object ISettingsInternalGetter.CommonInstance => this.CommonInstance;
-
         #region Ctor
         public Settings()
         {
@@ -107,21 +101,34 @@ namespace HarmonizeGit.GUI
         public override bool Equals(object obj)
         {
             if (!(obj is ISettingsInternalGetter rhs)) return false;
-            return ((SettingsCommon)((ISettingsInternalGetter)this).CommonInstance).Equals(this, rhs);
+            return ((SettingsCommon)((ISettingsInternalGetter)this).CommonInstance()).Equals(this, rhs);
         }
 
         public bool Equals(Settings obj)
         {
-            return ((SettingsCommon)((ISettingsInternalGetter)this).CommonInstance).Equals(this, obj);
+            return ((SettingsCommon)((ISettingsInternalGetter)this).CommonInstance()).Equals(this, obj);
         }
 
-        public override int GetHashCode() => ((SettingsCommon)((ISettingsInternalGetter)this).CommonInstance).GetHashCode(this);
+        public override int GetHashCode() => ((SettingsCommon)((ISettingsInternalGetter)this).CommonInstance()).GetHashCode(this);
 
         #endregion
 
         #region Xml Translation
         protected object XmlWriteTranslator => SettingsXmlWriteTranslation.Instance;
         object IXmlItem.XmlWriteTranslator => this.XmlWriteTranslator;
+        void IXmlItem.WriteToXml(
+            XElement node,
+            ErrorMaskBuilder errorMask,
+            TranslationCrystal translationMask,
+            string name = null)
+        {
+            ((SettingsXmlWriteTranslation)this.XmlWriteTranslator).Write(
+                item: this,
+                name: name,
+                node: node,
+                errorMask: errorMask,
+                translationMask: translationMask);
+        }
         #region Xml Create
         [DebuggerStepThrough]
         public static Settings CreateFromXml(
@@ -469,7 +476,7 @@ namespace HarmonizeGit.GUI
             bool doMasks = true)
         {
             var errorMaskBuilder = new ErrorMaskBuilder();
-            SettingsCommon.CopyFieldsFrom(
+            SettingsSetterCopyCommon.CopyFieldsFrom(
                 item: this,
                 rhs: rhs,
                 def: def,
@@ -484,7 +491,7 @@ namespace HarmonizeGit.GUI
             Settings_CopyMask copyMask = null,
             Settings def = null)
         {
-            SettingsCommon.CopyFieldsFrom(
+            SettingsSetterCopyCommon.CopyFieldsFrom(
                 item: this,
                 rhs: rhs,
                 def: def,
@@ -516,7 +523,7 @@ namespace HarmonizeGit.GUI
 
         public void Clear()
         {
-            SettingsCommon.Instance.Clear(this);
+            SettingsSetterCommon.Instance.Clear(this);
         }
 
         public static Settings Create(IEnumerable<KeyValuePair<ushort, object>> fields)
@@ -606,7 +613,9 @@ namespace HarmonizeGit.GUI
 
     public partial interface ISettingsInternalGetter : ISettingsGetter
     {
-        object CommonInstance { get; }
+        object CommonInstance();
+        object CommonSetterInstance();
+        object CommonSetterCopyInstance();
 
     }
 
@@ -617,7 +626,7 @@ namespace HarmonizeGit.GUI
     {
         public static void Clear(this ISettingsInternal item)
         {
-            ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance).Clear(item: item);
+            ((SettingsSetterCommon)((ISettingsInternalGetter)item).CommonSetterInstance()).Clear(item: item);
         }
 
         public static Settings_Mask<bool> GetEqualsMask(
@@ -625,7 +634,7 @@ namespace HarmonizeGit.GUI
             ISettingsInternalGetter rhs,
             EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
         {
-            return ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance).GetEqualsMask(
+            return ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance()).GetEqualsMask(
                 item: item,
                 rhs: rhs,
                 include: include);
@@ -636,7 +645,7 @@ namespace HarmonizeGit.GUI
             string name = null,
             Settings_Mask<bool> printMask = null)
         {
-            return ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance).ToString(
+            return ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance()).ToString(
                 item: item,
                 name: name,
                 printMask: printMask);
@@ -648,7 +657,7 @@ namespace HarmonizeGit.GUI
             string name = null,
             Settings_Mask<bool> printMask = null)
         {
-            ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance).ToString(
+            ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance()).ToString(
                 item: item,
                 fg: fg,
                 name: name,
@@ -659,7 +668,7 @@ namespace HarmonizeGit.GUI
             this ISettingsInternalGetter item,
             Settings_Mask<bool?> checkMask)
         {
-            return ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance).HasBeenSet(
+            return ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance()).HasBeenSet(
                 item: item,
                 checkMask: checkMask);
         }
@@ -667,7 +676,7 @@ namespace HarmonizeGit.GUI
         public static Settings_Mask<bool> GetHasBeenSetMask(this ISettingsInternalGetter item)
         {
             var ret = new Settings_Mask<bool>();
-            ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance).FillHasBeenSetMask(
+            ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance()).FillHasBeenSetMask(
                 item: item,
                 mask: ret);
             return ret;
@@ -677,7 +686,7 @@ namespace HarmonizeGit.GUI
             this ISettingsInternalGetter item,
             ISettingsInternalGetter rhs)
         {
-            return ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance).Equals(
+            return ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance()).Equals(
                 lhs: item,
                 rhs: rhs);
         }
@@ -730,8 +739,6 @@ namespace HarmonizeGit.GUI.Internals
         public static readonly Type SetterType = typeof(ISettings);
 
         public static readonly Type InternalSetterType = typeof(ISettingsInternal);
-
-        public static readonly Type CommonType = typeof(SettingsCommon);
 
         public const string FullName = "HarmonizeGit.GUI.Settings";
 
@@ -887,7 +894,6 @@ namespace HarmonizeGit.GUI.Internals
         Type ILoquiRegistration.InternalSetterType => InternalSetterType;
         Type ILoquiRegistration.GetterType => GetterType;
         Type ILoquiRegistration.InternalGetterType => InternalGetterType;
-        Type ILoquiRegistration.CommonType => CommonType;
         string ILoquiRegistration.FullName => FullName;
         string ILoquiRegistration.Name => Name;
         string ILoquiRegistration.Namespace => Namespace;
@@ -907,9 +913,182 @@ namespace HarmonizeGit.GUI.Internals
     #endregion
 
     #region Common
+    public partial class SettingsSetterCommon
+    {
+        public static readonly SettingsSetterCommon Instance = new SettingsSetterCommon();
+
+        partial void ClearPartial();
+        
+        public virtual void Clear(ISettingsInternal item)
+        {
+            ClearPartial();
+            item.Repositories.Clear();
+            item.LastReferencedDirectory = default(String);
+            item.AutoSync = default(Boolean);
+            item.PauseSeconds = Settings._PauseSeconds_Default;
+        }
+        
+        
+    }
     public partial class SettingsCommon
     {
         public static readonly SettingsCommon Instance = new SettingsCommon();
+
+        public Settings_Mask<bool> GetEqualsMask(
+            ISettingsInternalGetter item,
+            ISettingsInternalGetter rhs,
+            EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
+        {
+            var ret = new Settings_Mask<bool>();
+            ((SettingsCommon)((ISettingsInternalGetter)item).CommonInstance()).FillEqualsMask(
+                item: item,
+                rhs: rhs,
+                ret: ret,
+                include: include);
+            return ret;
+        }
+        
+        public void FillEqualsMask(
+            ISettingsInternalGetter item,
+            ISettingsInternalGetter rhs,
+            Settings_Mask<bool> ret,
+            EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
+        {
+            if (rhs == null) return;
+            ret.Repositories = item.Repositories.CollectionEqualsHelper(
+                rhs.Repositories,
+                (loqLhs, loqRhs) => loqLhs.GetEqualsMask(loqRhs, include),
+                include);
+            ret.LastReferencedDirectory = string.Equals(item.LastReferencedDirectory, rhs.LastReferencedDirectory);
+            ret.AutoSync = item.AutoSync == rhs.AutoSync;
+            ret.PauseSeconds = item.PauseSeconds == rhs.PauseSeconds;
+        }
+        
+        public string ToString(
+            ISettingsInternalGetter item,
+            string name = null,
+            Settings_Mask<bool> printMask = null)
+        {
+            var fg = new FileGeneration();
+            ToString(
+                item: item,
+                fg: fg,
+                name: name,
+                printMask: printMask);
+            return fg.ToString();
+        }
+        
+        public void ToString(
+            ISettingsInternalGetter item,
+            FileGeneration fg,
+            string name = null,
+            Settings_Mask<bool> printMask = null)
+        {
+            if (name == null)
+            {
+                fg.AppendLine($"Settings =>");
+            }
+            else
+            {
+                fg.AppendLine($"{name} (Settings) =>");
+            }
+            fg.AppendLine("[");
+            using (new DepthWrapper(fg))
+            {
+                ToStringFields(
+                    item: item,
+                    fg: fg,
+                    printMask: printMask);
+            }
+            fg.AppendLine("]");
+        }
+        
+        protected static void ToStringFields(
+            ISettingsInternalGetter item,
+            FileGeneration fg,
+            Settings_Mask<bool> printMask = null)
+        {
+            if (printMask?.Repositories?.Overall ?? true)
+            {
+                fg.AppendLine("Repositories =>");
+                fg.AppendLine("[");
+                using (new DepthWrapper(fg))
+                {
+                    foreach (var subItem in item.Repositories)
+                    {
+                        fg.AppendLine("[");
+                        using (new DepthWrapper(fg))
+                        {
+                            subItem?.ToString(fg, "Item");
+                        }
+                        fg.AppendLine("]");
+                    }
+                }
+                fg.AppendLine("]");
+            }
+            if (printMask?.LastReferencedDirectory ?? true)
+            {
+                fg.AppendLine($"LastReferencedDirectory => {item.LastReferencedDirectory}");
+            }
+            if (printMask?.AutoSync ?? true)
+            {
+                fg.AppendLine($"AutoSync => {item.AutoSync}");
+            }
+            if (printMask?.PauseSeconds ?? true)
+            {
+                fg.AppendLine($"PauseSeconds => {item.PauseSeconds}");
+            }
+        }
+        
+        public bool HasBeenSet(
+            ISettingsInternalGetter item,
+            Settings_Mask<bool?> checkMask)
+        {
+            return true;
+        }
+        
+        public void FillHasBeenSetMask(
+            ISettingsInternalGetter item,
+            Settings_Mask<bool> mask)
+        {
+            mask.Repositories = new MaskItem<bool, IEnumerable<MaskItemIndexed<bool, Repository_Mask<bool>>>>(true, item.Repositories.WithIndex().Select((i) => new MaskItemIndexed<bool, Repository_Mask<bool>>(i.Index, true, i.Item.GetHasBeenSetMask())));
+            mask.LastReferencedDirectory = true;
+            mask.AutoSync = true;
+            mask.PauseSeconds = true;
+        }
+        
+        #region Equals and Hash
+        public virtual bool Equals(
+            ISettingsInternalGetter lhs,
+            ISettingsInternalGetter rhs)
+        {
+            if (lhs == null && rhs == null) return false;
+            if (lhs == null || rhs == null) return false;
+            if (!lhs.Repositories.SequenceEqual(rhs.Repositories)) return false;
+            if (!string.Equals(lhs.LastReferencedDirectory, rhs.LastReferencedDirectory)) return false;
+            if (lhs.AutoSync != rhs.AutoSync) return false;
+            if (lhs.PauseSeconds != rhs.PauseSeconds) return false;
+            return true;
+        }
+        
+        public virtual int GetHashCode(ISettingsInternalGetter item)
+        {
+            int ret = 0;
+            ret = HashHelper.GetHashCode(item.Repositories).CombineHashCode(ret);
+            ret = HashHelper.GetHashCode(item.LastReferencedDirectory).CombineHashCode(ret);
+            ret = HashHelper.GetHashCode(item.AutoSync).CombineHashCode(ret);
+            ret = HashHelper.GetHashCode(item.PauseSeconds).CombineHashCode(ret);
+            return ret;
+        }
+        
+        #endregion
+        
+        
+        
+    }
+    public partial class SettingsSetterCopyCommon
+    {
+        public static readonly SettingsSetterCopyCommon Instance = new SettingsSetterCopyCommon();
 
         #region Copy Fields From
         public static void CopyFieldsFrom(
@@ -1005,170 +1184,10 @@ namespace HarmonizeGit.GUI.Internals
                 }
             }
         }
-
+        
         #endregion
-
-        partial void ClearPartial();
-
-        public virtual void Clear(ISettingsInternal item)
-        {
-            ClearPartial();
-            item.Repositories.Clear();
-            item.LastReferencedDirectory = default(String);
-            item.AutoSync = default(Boolean);
-            item.PauseSeconds = Settings._PauseSeconds_Default;
-        }
-
-        public Settings_Mask<bool> GetEqualsMask(
-            ISettingsInternalGetter item,
-            ISettingsInternalGetter rhs,
-            EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
-        {
-            var ret = new Settings_Mask<bool>();
-            this.FillEqualsMask(
-                item: item,
-                rhs: rhs,
-                ret: ret,
-                include: include);
-            return ret;
-        }
-
-        public void FillEqualsMask(
-            ISettingsInternalGetter item,
-            ISettingsInternalGetter rhs,
-            Settings_Mask<bool> ret,
-            EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
-        {
-            if (rhs == null) return;
-            ret.Repositories = item.Repositories.CollectionEqualsHelper(
-                rhs.Repositories,
-                (loqLhs, loqRhs) => loqLhs.GetEqualsMask(loqRhs, include),
-                include);
-            ret.LastReferencedDirectory = string.Equals(item.LastReferencedDirectory, rhs.LastReferencedDirectory);
-            ret.AutoSync = item.AutoSync == rhs.AutoSync;
-            ret.PauseSeconds = item.PauseSeconds == rhs.PauseSeconds;
-        }
-
-        public string ToString(
-            ISettingsInternalGetter item,
-            string name = null,
-            Settings_Mask<bool> printMask = null)
-        {
-            var fg = new FileGeneration();
-            ToString(
-                item: item,
-                fg: fg,
-                name: name,
-                printMask: printMask);
-            return fg.ToString();
-        }
-
-        public void ToString(
-            ISettingsInternalGetter item,
-            FileGeneration fg,
-            string name = null,
-            Settings_Mask<bool> printMask = null)
-        {
-            if (name == null)
-            {
-                fg.AppendLine($"Settings =>");
-            }
-            else
-            {
-                fg.AppendLine($"{name} (Settings) =>");
-            }
-            fg.AppendLine("[");
-            using (new DepthWrapper(fg))
-            {
-                ToStringFields(
-                    item: item,
-                    fg: fg,
-                    printMask: printMask);
-            }
-            fg.AppendLine("]");
-        }
-
-        protected static void ToStringFields(
-            ISettingsInternalGetter item,
-            FileGeneration fg,
-            Settings_Mask<bool> printMask = null)
-        {
-            if (printMask?.Repositories?.Overall ?? true)
-            {
-                fg.AppendLine("Repositories =>");
-                fg.AppendLine("[");
-                using (new DepthWrapper(fg))
-                {
-                    foreach (var subItem in item.Repositories)
-                    {
-                        fg.AppendLine("[");
-                        using (new DepthWrapper(fg))
-                        {
-                            subItem?.ToString(fg, "Item");
-                        }
-                        fg.AppendLine("]");
-                    }
-                }
-                fg.AppendLine("]");
-            }
-            if (printMask?.LastReferencedDirectory ?? true)
-            {
-                fg.AppendLine($"LastReferencedDirectory => {item.LastReferencedDirectory}");
-            }
-            if (printMask?.AutoSync ?? true)
-            {
-                fg.AppendLine($"AutoSync => {item.AutoSync}");
-            }
-            if (printMask?.PauseSeconds ?? true)
-            {
-                fg.AppendLine($"PauseSeconds => {item.PauseSeconds}");
-            }
-        }
-
-        public bool HasBeenSet(
-            ISettingsInternalGetter item,
-            Settings_Mask<bool?> checkMask)
-        {
-            return true;
-        }
-
-        public void FillHasBeenSetMask(
-            ISettingsInternalGetter item,
-            Settings_Mask<bool> mask)
-        {
-            mask.Repositories = new MaskItem<bool, IEnumerable<MaskItemIndexed<bool, Repository_Mask<bool>>>>(true, item.Repositories.WithIndex().Select((i) => new MaskItemIndexed<bool, Repository_Mask<bool>>(i.Index, true, i.Item.GetHasBeenSetMask())));
-            mask.LastReferencedDirectory = true;
-            mask.AutoSync = true;
-            mask.PauseSeconds = true;
-        }
-
-        #region Equals and Hash
-        public virtual bool Equals(
-            ISettingsInternalGetter lhs,
-            ISettingsInternalGetter rhs)
-        {
-            if (lhs == null && rhs == null) return false;
-            if (lhs == null || rhs == null) return false;
-            if (!lhs.Repositories.SequenceEqual(rhs.Repositories)) return false;
-            if (!string.Equals(lhs.LastReferencedDirectory, rhs.LastReferencedDirectory)) return false;
-            if (lhs.AutoSync != rhs.AutoSync) return false;
-            if (lhs.PauseSeconds != rhs.PauseSeconds) return false;
-            return true;
-        }
-
-        public virtual int GetHashCode(ISettingsInternalGetter item)
-        {
-            int ret = 0;
-            ret = HashHelper.GetHashCode(item.Repositories).CombineHashCode(ret);
-            ret = HashHelper.GetHashCode(item.LastReferencedDirectory).CombineHashCode(ret);
-            ret = HashHelper.GetHashCode(item.AutoSync).CombineHashCode(ret);
-            ret = HashHelper.GetHashCode(item.PauseSeconds).CombineHashCode(ret);
-            return ret;
-        }
-
-        #endregion
-
-
+        
+        
     }
     #endregion
 
@@ -2058,4 +2077,42 @@ namespace HarmonizeGit.GUI.Internals
 
     #endregion
 
+}
+
+namespace HarmonizeGit.GUI
+{
+    public partial class Settings
+    {
+        #region Common Routing
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        ILoquiRegistration ILoquiObject.Registration => Settings_Registration.Instance;
+        public static Settings_Registration Registration => Settings_Registration.Instance;
+        protected object CommonInstance()
+        {
+            return SettingsCommon.Instance;
+        }
+        protected object CommonSetterInstance()
+        {
+            return SettingsSetterCommon.Instance;
+        }
+        protected object CommonSetterCopyInstance()
+        {
+            return SettingsSetterCopyCommon.Instance;
+        }
+        object ISettingsInternalGetter.CommonInstance()
+        {
+            return this.CommonInstance();
+        }
+        object ISettingsInternalGetter.CommonSetterInstance()
+        {
+            return this.CommonSetterInstance();
+        }
+        object ISettingsInternalGetter.CommonSetterCopyInstance()
+        {
+            return this.CommonSetterCopyInstance();
+        }
+
+        #endregion
+
+    }
 }

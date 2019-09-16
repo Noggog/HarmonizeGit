@@ -34,7 +34,7 @@ namespace HarmonizeGit.GUI
         public CloningVM CloningVM { get; }
 
         private object _WindowActiveObject;
-        public object WindowActiveObject { get => _WindowActiveObject; set => this.RaiseAndSetIfReferenceChanged(ref _WindowActiveObject, value); }
+        public object WindowActiveObject { get => _WindowActiveObject; set => this.RaiseAndSetIfChanged(ref _WindowActiveObject, value); }
 
         public IReactiveCommand AddCommand { get; }
         public IReactiveCommand ResyncCommand { get; }

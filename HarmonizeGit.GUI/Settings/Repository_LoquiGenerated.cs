@@ -33,12 +33,6 @@ namespace HarmonizeGit.GUI
         IEquatable<Repository>,
         IEqualsMask
     {
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        ILoquiRegistration ILoquiObject.Registration => Repository_Registration.Instance;
-        public static Repository_Registration Registration => Repository_Registration.Instance;
-        protected object CommonInstance => RepositoryCommon.Instance;
-        object IRepositoryInternalGetter.CommonInstance => this.CommonInstance;
-
         #region Ctor
         public Repository()
         {
@@ -53,7 +47,7 @@ namespace HarmonizeGit.GUI
         public String Nickname
         {
             get => this._Nickname;
-            set => this.RaiseAndSetIfReferenceChanged(ref this._Nickname, value, nameof(Nickname));
+            set => this.RaiseAndSetIfChanged(ref this._Nickname, value, nameof(Nickname));
         }
         #endregion
         #region Path
@@ -61,7 +55,7 @@ namespace HarmonizeGit.GUI
         public String Path
         {
             get => this._Path;
-            set => this.RaiseAndSetIfReferenceChanged(ref this._Path, value, nameof(Path));
+            set => this.RaiseAndSetIfChanged(ref this._Path, value, nameof(Path));
         }
         #endregion
         #region AutoSync
@@ -92,21 +86,34 @@ namespace HarmonizeGit.GUI
         public override bool Equals(object obj)
         {
             if (!(obj is IRepositoryInternalGetter rhs)) return false;
-            return ((RepositoryCommon)((IRepositoryInternalGetter)this).CommonInstance).Equals(this, rhs);
+            return ((RepositoryCommon)((IRepositoryInternalGetter)this).CommonInstance()).Equals(this, rhs);
         }
 
         public bool Equals(Repository obj)
         {
-            return ((RepositoryCommon)((IRepositoryInternalGetter)this).CommonInstance).Equals(this, obj);
+            return ((RepositoryCommon)((IRepositoryInternalGetter)this).CommonInstance()).Equals(this, obj);
         }
 
-        public override int GetHashCode() => ((RepositoryCommon)((IRepositoryInternalGetter)this).CommonInstance).GetHashCode(this);
+        public override int GetHashCode() => ((RepositoryCommon)((IRepositoryInternalGetter)this).CommonInstance()).GetHashCode(this);
 
         #endregion
 
         #region Xml Translation
         protected object XmlWriteTranslator => RepositoryXmlWriteTranslation.Instance;
         object IXmlItem.XmlWriteTranslator => this.XmlWriteTranslator;
+        void IXmlItem.WriteToXml(
+            XElement node,
+            ErrorMaskBuilder errorMask,
+            TranslationCrystal translationMask,
+            string name = null)
+        {
+            ((RepositoryXmlWriteTranslation)this.XmlWriteTranslator).Write(
+                item: this,
+                name: name,
+                node: node,
+                errorMask: errorMask,
+                translationMask: translationMask);
+        }
         #region Xml Create
         [DebuggerStepThrough]
         public static Repository CreateFromXml(
@@ -453,7 +460,7 @@ namespace HarmonizeGit.GUI
             bool doMasks = true)
         {
             var errorMaskBuilder = new ErrorMaskBuilder();
-            RepositoryCommon.CopyFieldsFrom(
+            RepositorySetterCopyCommon.CopyFieldsFrom(
                 item: this,
                 rhs: rhs,
                 def: def,
@@ -468,7 +475,7 @@ namespace HarmonizeGit.GUI
             Repository_CopyMask copyMask = null,
             Repository def = null)
         {
-            RepositoryCommon.CopyFieldsFrom(
+            RepositorySetterCopyCommon.CopyFieldsFrom(
                 item: this,
                 rhs: rhs,
                 def: def,
@@ -497,7 +504,7 @@ namespace HarmonizeGit.GUI
 
         public void Clear()
         {
-            RepositoryCommon.Instance.Clear(this);
+            RepositorySetterCommon.Instance.Clear(this);
         }
 
         public static Repository Create(IEnumerable<KeyValuePair<ushort, object>> fields)
@@ -580,7 +587,9 @@ namespace HarmonizeGit.GUI
 
     public partial interface IRepositoryInternalGetter : IRepositoryGetter
     {
-        object CommonInstance { get; }
+        object CommonInstance();
+        object CommonSetterInstance();
+        object CommonSetterCopyInstance();
 
     }
 
@@ -591,7 +600,7 @@ namespace HarmonizeGit.GUI
     {
         public static void Clear(this IRepositoryInternal item)
         {
-            ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance).Clear(item: item);
+            ((RepositorySetterCommon)((IRepositoryInternalGetter)item).CommonSetterInstance()).Clear(item: item);
         }
 
         public static Repository_Mask<bool> GetEqualsMask(
@@ -599,7 +608,7 @@ namespace HarmonizeGit.GUI
             IRepositoryInternalGetter rhs,
             EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
         {
-            return ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance).GetEqualsMask(
+            return ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance()).GetEqualsMask(
                 item: item,
                 rhs: rhs,
                 include: include);
@@ -610,7 +619,7 @@ namespace HarmonizeGit.GUI
             string name = null,
             Repository_Mask<bool> printMask = null)
         {
-            return ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance).ToString(
+            return ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance()).ToString(
                 item: item,
                 name: name,
                 printMask: printMask);
@@ -622,7 +631,7 @@ namespace HarmonizeGit.GUI
             string name = null,
             Repository_Mask<bool> printMask = null)
         {
-            ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance).ToString(
+            ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance()).ToString(
                 item: item,
                 fg: fg,
                 name: name,
@@ -633,7 +642,7 @@ namespace HarmonizeGit.GUI
             this IRepositoryInternalGetter item,
             Repository_Mask<bool?> checkMask)
         {
-            return ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance).HasBeenSet(
+            return ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance()).HasBeenSet(
                 item: item,
                 checkMask: checkMask);
         }
@@ -641,7 +650,7 @@ namespace HarmonizeGit.GUI
         public static Repository_Mask<bool> GetHasBeenSetMask(this IRepositoryInternalGetter item)
         {
             var ret = new Repository_Mask<bool>();
-            ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance).FillHasBeenSetMask(
+            ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance()).FillHasBeenSetMask(
                 item: item,
                 mask: ret);
             return ret;
@@ -651,7 +660,7 @@ namespace HarmonizeGit.GUI
             this IRepositoryInternalGetter item,
             IRepositoryInternalGetter rhs)
         {
-            return ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance).Equals(
+            return ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance()).Equals(
                 lhs: item,
                 rhs: rhs);
         }
@@ -703,8 +712,6 @@ namespace HarmonizeGit.GUI.Internals
         public static readonly Type SetterType = typeof(IRepository);
 
         public static readonly Type InternalSetterType = typeof(IRepositoryInternal);
-
-        public static readonly Type CommonType = typeof(RepositoryCommon);
 
         public const string FullName = "HarmonizeGit.GUI.Repository";
 
@@ -847,7 +854,6 @@ namespace HarmonizeGit.GUI.Internals
         Type ILoquiRegistration.InternalSetterType => InternalSetterType;
         Type ILoquiRegistration.GetterType => GetterType;
         Type ILoquiRegistration.InternalGetterType => InternalGetterType;
-        Type ILoquiRegistration.CommonType => CommonType;
         string ILoquiRegistration.FullName => FullName;
         string ILoquiRegistration.Name => Name;
         string ILoquiRegistration.Namespace => Namespace;
@@ -867,9 +873,156 @@ namespace HarmonizeGit.GUI.Internals
     #endregion
 
     #region Common
+    public partial class RepositorySetterCommon
+    {
+        public static readonly RepositorySetterCommon Instance = new RepositorySetterCommon();
+
+        partial void ClearPartial();
+        
+        public virtual void Clear(IRepositoryInternal item)
+        {
+            ClearPartial();
+            item.Nickname = default(String);
+            item.Path = default(String);
+            item.AutoSync = default(Boolean);
+        }
+        
+        
+    }
     public partial class RepositoryCommon
     {
         public static readonly RepositoryCommon Instance = new RepositoryCommon();
+
+        public Repository_Mask<bool> GetEqualsMask(
+            IRepositoryInternalGetter item,
+            IRepositoryInternalGetter rhs,
+            EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
+        {
+            var ret = new Repository_Mask<bool>();
+            ((RepositoryCommon)((IRepositoryInternalGetter)item).CommonInstance()).FillEqualsMask(
+                item: item,
+                rhs: rhs,
+                ret: ret,
+                include: include);
+            return ret;
+        }
+        
+        public void FillEqualsMask(
+            IRepositoryInternalGetter item,
+            IRepositoryInternalGetter rhs,
+            Repository_Mask<bool> ret,
+            EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
+        {
+            if (rhs == null) return;
+            ret.Nickname = string.Equals(item.Nickname, rhs.Nickname);
+            ret.Path = string.Equals(item.Path, rhs.Path);
+            ret.AutoSync = item.AutoSync == rhs.AutoSync;
+        }
+        
+        public string ToString(
+            IRepositoryInternalGetter item,
+            string name = null,
+            Repository_Mask<bool> printMask = null)
+        {
+            var fg = new FileGeneration();
+            ToString(
+                item: item,
+                fg: fg,
+                name: name,
+                printMask: printMask);
+            return fg.ToString();
+        }
+        
+        public void ToString(
+            IRepositoryInternalGetter item,
+            FileGeneration fg,
+            string name = null,
+            Repository_Mask<bool> printMask = null)
+        {
+            if (name == null)
+            {
+                fg.AppendLine($"Repository =>");
+            }
+            else
+            {
+                fg.AppendLine($"{name} (Repository) =>");
+            }
+            fg.AppendLine("[");
+            using (new DepthWrapper(fg))
+            {
+                ToStringFields(
+                    item: item,
+                    fg: fg,
+                    printMask: printMask);
+            }
+            fg.AppendLine("]");
+        }
+        
+        protected static void ToStringFields(
+            IRepositoryInternalGetter item,
+            FileGeneration fg,
+            Repository_Mask<bool> printMask = null)
+        {
+            if (printMask?.Nickname ?? true)
+            {
+                fg.AppendLine($"Nickname => {item.Nickname}");
+            }
+            if (printMask?.Path ?? true)
+            {
+                fg.AppendLine($"Path => {item.Path}");
+            }
+            if (printMask?.AutoSync ?? true)
+            {
+                fg.AppendLine($"AutoSync => {item.AutoSync}");
+            }
+        }
+        
+        public bool HasBeenSet(
+            IRepositoryInternalGetter item,
+            Repository_Mask<bool?> checkMask)
+        {
+            return true;
+        }
+        
+        public void FillHasBeenSetMask(
+            IRepositoryInternalGetter item,
+            Repository_Mask<bool> mask)
+        {
+            mask.Nickname = true;
+            mask.Path = true;
+            mask.AutoSync = true;
+        }
+        
+        #region Equals and Hash
+        public virtual bool Equals(
+            IRepositoryInternalGetter lhs,
+            IRepositoryInternalGetter rhs)
+        {
+            if (lhs == null && rhs == null) return false;
+            if (lhs == null || rhs == null) return false;
+            if (!string.Equals(lhs.Nickname, rhs.Nickname)) return false;
+            if (!string.Equals(lhs.Path, rhs.Path)) return false;
+            if (lhs.AutoSync != rhs.AutoSync) return false;
+            return true;
+        }
+        
+        public virtual int GetHashCode(IRepositoryInternalGetter item)
+        {
+            int ret = 0;
+            ret = HashHelper.GetHashCode(item.Nickname).CombineHashCode(ret);
+            ret = HashHelper.GetHashCode(item.Path).CombineHashCode(ret);
+            ret = HashHelper.GetHashCode(item.AutoSync).CombineHashCode(ret);
+            return ret;
+        }
+        
+        #endregion
+        
+        
+        
+    }
+    public partial class RepositorySetterCopyCommon
+    {
+        public static readonly RepositorySetterCopyCommon Instance = new RepositorySetterCopyCommon();
 
         #region Copy Fields From
         public static void CopyFieldsFrom(
@@ -931,144 +1084,10 @@ namespace HarmonizeGit.GUI.Internals
                 }
             }
         }
-
+        
         #endregion
-
-        partial void ClearPartial();
-
-        public virtual void Clear(IRepositoryInternal item)
-        {
-            ClearPartial();
-            item.Nickname = default(String);
-            item.Path = default(String);
-            item.AutoSync = default(Boolean);
-        }
-
-        public Repository_Mask<bool> GetEqualsMask(
-            IRepositoryInternalGetter item,
-            IRepositoryInternalGetter rhs,
-            EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
-        {
-            var ret = new Repository_Mask<bool>();
-            this.FillEqualsMask(
-                item: item,
-                rhs: rhs,
-                ret: ret,
-                include: include);
-            return ret;
-        }
-
-        public void FillEqualsMask(
-            IRepositoryInternalGetter item,
-            IRepositoryInternalGetter rhs,
-            Repository_Mask<bool> ret,
-            EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
-        {
-            if (rhs == null) return;
-            ret.Nickname = string.Equals(item.Nickname, rhs.Nickname);
-            ret.Path = string.Equals(item.Path, rhs.Path);
-            ret.AutoSync = item.AutoSync == rhs.AutoSync;
-        }
-
-        public string ToString(
-            IRepositoryInternalGetter item,
-            string name = null,
-            Repository_Mask<bool> printMask = null)
-        {
-            var fg = new FileGeneration();
-            ToString(
-                item: item,
-                fg: fg,
-                name: name,
-                printMask: printMask);
-            return fg.ToString();
-        }
-
-        public void ToString(
-            IRepositoryInternalGetter item,
-            FileGeneration fg,
-            string name = null,
-            Repository_Mask<bool> printMask = null)
-        {
-            if (name == null)
-            {
-                fg.AppendLine($"Repository =>");
-            }
-            else
-            {
-                fg.AppendLine($"{name} (Repository) =>");
-            }
-            fg.AppendLine("[");
-            using (new DepthWrapper(fg))
-            {
-                ToStringFields(
-                    item: item,
-                    fg: fg,
-                    printMask: printMask);
-            }
-            fg.AppendLine("]");
-        }
-
-        protected static void ToStringFields(
-            IRepositoryInternalGetter item,
-            FileGeneration fg,
-            Repository_Mask<bool> printMask = null)
-        {
-            if (printMask?.Nickname ?? true)
-            {
-                fg.AppendLine($"Nickname => {item.Nickname}");
-            }
-            if (printMask?.Path ?? true)
-            {
-                fg.AppendLine($"Path => {item.Path}");
-            }
-            if (printMask?.AutoSync ?? true)
-            {
-                fg.AppendLine($"AutoSync => {item.AutoSync}");
-            }
-        }
-
-        public bool HasBeenSet(
-            IRepositoryInternalGetter item,
-            Repository_Mask<bool?> checkMask)
-        {
-            return true;
-        }
-
-        public void FillHasBeenSetMask(
-            IRepositoryInternalGetter item,
-            Repository_Mask<bool> mask)
-        {
-            mask.Nickname = true;
-            mask.Path = true;
-            mask.AutoSync = true;
-        }
-
-        #region Equals and Hash
-        public virtual bool Equals(
-            IRepositoryInternalGetter lhs,
-            IRepositoryInternalGetter rhs)
-        {
-            if (lhs == null && rhs == null) return false;
-            if (lhs == null || rhs == null) return false;
-            if (!string.Equals(lhs.Nickname, rhs.Nickname)) return false;
-            if (!string.Equals(lhs.Path, rhs.Path)) return false;
-            if (lhs.AutoSync != rhs.AutoSync) return false;
-            return true;
-        }
-
-        public virtual int GetHashCode(IRepositoryInternalGetter item)
-        {
-            int ret = 0;
-            ret = HashHelper.GetHashCode(item.Nickname).CombineHashCode(ret);
-            ret = HashHelper.GetHashCode(item.Path).CombineHashCode(ret);
-            ret = HashHelper.GetHashCode(item.AutoSync).CombineHashCode(ret);
-            return ret;
-        }
-
-        #endregion
-
-
+        
+        
     }
     #endregion
 
@@ -1802,4 +1821,42 @@ namespace HarmonizeGit.GUI.Internals
 
     #endregion
 
+}
+
+namespace HarmonizeGit.GUI
+{
+    public partial class Repository
+    {
+        #region Common Routing
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        ILoquiRegistration ILoquiObject.Registration => Repository_Registration.Instance;
+        public static Repository_Registration Registration => Repository_Registration.Instance;
+        protected object CommonInstance()
+        {
+            return RepositoryCommon.Instance;
+        }
+        protected object CommonSetterInstance()
+        {
+            return RepositorySetterCommon.Instance;
+        }
+        protected object CommonSetterCopyInstance()
+        {
+            return RepositorySetterCopyCommon.Instance;
+        }
+        object IRepositoryInternalGetter.CommonInstance()
+        {
+            return this.CommonInstance();
+        }
+        object IRepositoryInternalGetter.CommonSetterInstance()
+        {
+            return this.CommonSetterInstance();
+        }
+        object IRepositoryInternalGetter.CommonSetterCopyInstance()
+        {
+            return this.CommonSetterCopyInstance();
+        }
+
+        #endregion
+
+    }
 }

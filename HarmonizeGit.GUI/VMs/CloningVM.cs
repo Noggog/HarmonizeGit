@@ -24,7 +24,7 @@ namespace HarmonizeGit.GUI
         public MainVM MVM { get; }
 
         private Repository _TargetRepository;
-        public Repository TargetRepository { get => _TargetRepository; set => this.RaiseAndSetIfReferenceChanged(ref _TargetRepository, value); }
+        public Repository TargetRepository { get => _TargetRepository; set => this.RaiseAndSetIfChanged(ref _TargetRepository, value); }
 
         public IReactiveCommand GoBackCommand { get; }
         public IReactiveCommand CloneAllCommand { get; }

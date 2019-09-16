@@ -32,12 +32,6 @@ namespace HarmonizeGitCloner
         IEquatable<Clone>,
         IEqualsMask
     {
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        ILoquiRegistration ILoquiObject.Registration => Clone_Registration.Instance;
-        public static Clone_Registration Registration => Clone_Registration.Instance;
-        protected object CommonInstance => CloneCommon.Instance;
-        object ICloneInternalGetter.CommonInstance => this.CommonInstance;
-
         #region Ctor
         public Clone()
         {
@@ -83,21 +77,34 @@ namespace HarmonizeGitCloner
         public override bool Equals(object obj)
         {
             if (!(obj is ICloneInternalGetter rhs)) return false;
-            return ((CloneCommon)((ICloneInternalGetter)this).CommonInstance).Equals(this, rhs);
+            return ((CloneCommon)((ICloneInternalGetter)this).CommonInstance()).Equals(this, rhs);
         }
 
         public bool Equals(Clone obj)
         {
-            return ((CloneCommon)((ICloneInternalGetter)this).CommonInstance).Equals(this, obj);
+            return ((CloneCommon)((ICloneInternalGetter)this).CommonInstance()).Equals(this, obj);
         }
 
-        public override int GetHashCode() => ((CloneCommon)((ICloneInternalGetter)this).CommonInstance).GetHashCode(this);
+        public override int GetHashCode() => ((CloneCommon)((ICloneInternalGetter)this).CommonInstance()).GetHashCode(this);
 
         #endregion
 
         #region Xml Translation
         protected object XmlWriteTranslator => CloneXmlWriteTranslation.Instance;
         object IXmlItem.XmlWriteTranslator => this.XmlWriteTranslator;
+        void IXmlItem.WriteToXml(
+            XElement node,
+            ErrorMaskBuilder errorMask,
+            TranslationCrystal translationMask,
+            string name = null)
+        {
+            ((CloneXmlWriteTranslation)this.XmlWriteTranslator).Write(
+                item: this,
+                name: name,
+                node: node,
+                errorMask: errorMask,
+                translationMask: translationMask);
+        }
         #region Xml Create
         [DebuggerStepThrough]
         public static Clone CreateFromXml(
@@ -443,7 +450,7 @@ namespace HarmonizeGitCloner
             bool doMasks = true)
         {
             var errorMaskBuilder = new ErrorMaskBuilder();
-            CloneCommon.CopyFieldsFrom(
+            CloneSetterCopyCommon.CopyFieldsFrom(
                 item: this,
                 rhs: rhs,
                 def: def,
@@ -458,7 +465,7 @@ namespace HarmonizeGitCloner
             Clone_CopyMask copyMask = null,
             Clone def = null)
         {
-            CloneCommon.CopyFieldsFrom(
+            CloneSetterCopyCommon.CopyFieldsFrom(
                 item: this,
                 rhs: rhs,
                 def: def,
@@ -484,7 +491,7 @@ namespace HarmonizeGitCloner
 
         public void Clear()
         {
-            CloneCommon.Instance.Clear(this);
+            CloneSetterCommon.Instance.Clear(this);
         }
 
         public static Clone Create(IEnumerable<KeyValuePair<ushort, object>> fields)
@@ -558,7 +565,9 @@ namespace HarmonizeGitCloner
 
     public partial interface ICloneInternalGetter : ICloneGetter
     {
-        object CommonInstance { get; }
+        object CommonInstance();
+        object CommonSetterInstance();
+        object CommonSetterCopyInstance();
 
     }
 
@@ -569,7 +578,7 @@ namespace HarmonizeGitCloner
     {
         public static void Clear(this ICloneInternal item)
         {
-            ((CloneCommon)((ICloneInternalGetter)item).CommonInstance).Clear(item: item);
+            ((CloneSetterCommon)((ICloneInternalGetter)item).CommonSetterInstance()).Clear(item: item);
         }
 
         public static Clone_Mask<bool> GetEqualsMask(
@@ -577,7 +586,7 @@ namespace HarmonizeGitCloner
             ICloneInternalGetter rhs,
             EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
         {
-            return ((CloneCommon)((ICloneInternalGetter)item).CommonInstance).GetEqualsMask(
+            return ((CloneCommon)((ICloneInternalGetter)item).CommonInstance()).GetEqualsMask(
                 item: item,
                 rhs: rhs,
                 include: include);
@@ -588,7 +597,7 @@ namespace HarmonizeGitCloner
             string name = null,
             Clone_Mask<bool> printMask = null)
         {
-            return ((CloneCommon)((ICloneInternalGetter)item).CommonInstance).ToString(
+            return ((CloneCommon)((ICloneInternalGetter)item).CommonInstance()).ToString(
                 item: item,
                 name: name,
                 printMask: printMask);
@@ -600,7 +609,7 @@ namespace HarmonizeGitCloner
             string name = null,
             Clone_Mask<bool> printMask = null)
         {
-            ((CloneCommon)((ICloneInternalGetter)item).CommonInstance).ToString(
+            ((CloneCommon)((ICloneInternalGetter)item).CommonInstance()).ToString(
                 item: item,
                 fg: fg,
                 name: name,
@@ -611,7 +620,7 @@ namespace HarmonizeGitCloner
             this ICloneInternalGetter item,
             Clone_Mask<bool?> checkMask)
         {
-            return ((CloneCommon)((ICloneInternalGetter)item).CommonInstance).HasBeenSet(
+            return ((CloneCommon)((ICloneInternalGetter)item).CommonInstance()).HasBeenSet(
                 item: item,
                 checkMask: checkMask);
         }
@@ -619,7 +628,7 @@ namespace HarmonizeGitCloner
         public static Clone_Mask<bool> GetHasBeenSetMask(this ICloneInternalGetter item)
         {
             var ret = new Clone_Mask<bool>();
-            ((CloneCommon)((ICloneInternalGetter)item).CommonInstance).FillHasBeenSetMask(
+            ((CloneCommon)((ICloneInternalGetter)item).CommonInstance()).FillHasBeenSetMask(
                 item: item,
                 mask: ret);
             return ret;
@@ -629,7 +638,7 @@ namespace HarmonizeGitCloner
             this ICloneInternalGetter item,
             ICloneInternalGetter rhs)
         {
-            return ((CloneCommon)((ICloneInternalGetter)item).CommonInstance).Equals(
+            return ((CloneCommon)((ICloneInternalGetter)item).CommonInstance()).Equals(
                 lhs: item,
                 rhs: rhs);
         }
@@ -680,8 +689,6 @@ namespace HarmonizeGitCloner.Internals
         public static readonly Type SetterType = typeof(IClone);
 
         public static readonly Type InternalSetterType = typeof(ICloneInternal);
-
-        public static readonly Type CommonType = typeof(CloneCommon);
 
         public const string FullName = "HarmonizeGitCloner.Clone";
 
@@ -813,7 +820,6 @@ namespace HarmonizeGitCloner.Internals
         Type ILoquiRegistration.InternalSetterType => InternalSetterType;
         Type ILoquiRegistration.GetterType => GetterType;
         Type ILoquiRegistration.InternalGetterType => InternalGetterType;
-        Type ILoquiRegistration.CommonType => CommonType;
         string ILoquiRegistration.FullName => FullName;
         string ILoquiRegistration.Name => Name;
         string ILoquiRegistration.Namespace => Namespace;
@@ -833,9 +839,147 @@ namespace HarmonizeGitCloner.Internals
     #endregion
 
     #region Common
+    public partial class CloneSetterCommon
+    {
+        public static readonly CloneSetterCommon Instance = new CloneSetterCommon();
+
+        partial void ClearPartial();
+        
+        public virtual void Clear(ICloneInternal item)
+        {
+            ClearPartial();
+            item.Nickname = default(String);
+            item.ClonePath = default(String);
+        }
+        
+        
+    }
     public partial class CloneCommon
     {
         public static readonly CloneCommon Instance = new CloneCommon();
+
+        public Clone_Mask<bool> GetEqualsMask(
+            ICloneInternalGetter item,
+            ICloneInternalGetter rhs,
+            EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
+        {
+            var ret = new Clone_Mask<bool>();
+            ((CloneCommon)((ICloneInternalGetter)item).CommonInstance()).FillEqualsMask(
+                item: item,
+                rhs: rhs,
+                ret: ret,
+                include: include);
+            return ret;
+        }
+        
+        public void FillEqualsMask(
+            ICloneInternalGetter item,
+            ICloneInternalGetter rhs,
+            Clone_Mask<bool> ret,
+            EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
+        {
+            if (rhs == null) return;
+            ret.Nickname = string.Equals(item.Nickname, rhs.Nickname);
+            ret.ClonePath = string.Equals(item.ClonePath, rhs.ClonePath);
+        }
+        
+        public string ToString(
+            ICloneInternalGetter item,
+            string name = null,
+            Clone_Mask<bool> printMask = null)
+        {
+            var fg = new FileGeneration();
+            ToString(
+                item: item,
+                fg: fg,
+                name: name,
+                printMask: printMask);
+            return fg.ToString();
+        }
+        
+        public void ToString(
+            ICloneInternalGetter item,
+            FileGeneration fg,
+            string name = null,
+            Clone_Mask<bool> printMask = null)
+        {
+            if (name == null)
+            {
+                fg.AppendLine($"Clone =>");
+            }
+            else
+            {
+                fg.AppendLine($"{name} (Clone) =>");
+            }
+            fg.AppendLine("[");
+            using (new DepthWrapper(fg))
+            {
+                ToStringFields(
+                    item: item,
+                    fg: fg,
+                    printMask: printMask);
+            }
+            fg.AppendLine("]");
+        }
+        
+        protected static void ToStringFields(
+            ICloneInternalGetter item,
+            FileGeneration fg,
+            Clone_Mask<bool> printMask = null)
+        {
+            if (printMask?.Nickname ?? true)
+            {
+                fg.AppendLine($"Nickname => {item.Nickname}");
+            }
+            if (printMask?.ClonePath ?? true)
+            {
+                fg.AppendLine($"ClonePath => {item.ClonePath}");
+            }
+        }
+        
+        public bool HasBeenSet(
+            ICloneInternalGetter item,
+            Clone_Mask<bool?> checkMask)
+        {
+            return true;
+        }
+        
+        public void FillHasBeenSetMask(
+            ICloneInternalGetter item,
+            Clone_Mask<bool> mask)
+        {
+            mask.Nickname = true;
+            mask.ClonePath = true;
+        }
+        
+        #region Equals and Hash
+        public virtual bool Equals(
+            ICloneInternalGetter lhs,
+            ICloneInternalGetter rhs)
+        {
+            if (lhs == null && rhs == null) return false;
+            if (lhs == null || rhs == null) return false;
+            if (!string.Equals(lhs.Nickname, rhs.Nickname)) return false;
+            if (!string.Equals(lhs.ClonePath, rhs.ClonePath)) return false;
+            return true;
+        }
+        
+        public virtual int GetHashCode(ICloneInternalGetter item)
+        {
+            int ret = 0;
+            ret = HashHelper.GetHashCode(item.Nickname).CombineHashCode(ret);
+            ret = HashHelper.GetHashCode(item.ClonePath).CombineHashCode(ret);
+            return ret;
+        }
+        
+        #endregion
+        
+        
+        
+    }
+    public partial class CloneSetterCopyCommon
+    {
+        public static readonly CloneSetterCopyCommon Instance = new CloneSetterCopyCommon();
 
         #region Copy Fields From
         public static void CopyFieldsFrom(
@@ -880,135 +1024,10 @@ namespace HarmonizeGitCloner.Internals
                 }
             }
         }
-
+        
         #endregion
-
-        partial void ClearPartial();
-
-        public virtual void Clear(ICloneInternal item)
-        {
-            ClearPartial();
-            item.Nickname = default(String);
-            item.ClonePath = default(String);
-        }
-
-        public Clone_Mask<bool> GetEqualsMask(
-            ICloneInternalGetter item,
-            ICloneInternalGetter rhs,
-            EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
-        {
-            var ret = new Clone_Mask<bool>();
-            this.FillEqualsMask(
-                item: item,
-                rhs: rhs,
-                ret: ret,
-                include: include);
-            return ret;
-        }
-
-        public void FillEqualsMask(
-            ICloneInternalGetter item,
-            ICloneInternalGetter rhs,
-            Clone_Mask<bool> ret,
-            EqualsMaskHelper.Include include = EqualsMaskHelper.Include.All)
-        {
-            if (rhs == null) return;
-            ret.Nickname = string.Equals(item.Nickname, rhs.Nickname);
-            ret.ClonePath = string.Equals(item.ClonePath, rhs.ClonePath);
-        }
-
-        public string ToString(
-            ICloneInternalGetter item,
-            string name = null,
-            Clone_Mask<bool> printMask = null)
-        {
-            var fg = new FileGeneration();
-            ToString(
-                item: item,
-                fg: fg,
-                name: name,
-                printMask: printMask);
-            return fg.ToString();
-        }
-
-        public void ToString(
-            ICloneInternalGetter item,
-            FileGeneration fg,
-            string name = null,
-            Clone_Mask<bool> printMask = null)
-        {
-            if (name == null)
-            {
-                fg.AppendLine($"Clone =>");
-            }
-            else
-            {
-                fg.AppendLine($"{name} (Clone) =>");
-            }
-            fg.AppendLine("[");
-            using (new DepthWrapper(fg))
-            {
-                ToStringFields(
-                    item: item,
-                    fg: fg,
-                    printMask: printMask);
-            }
-            fg.AppendLine("]");
-        }
-
-        protected static void ToStringFields(
-            ICloneInternalGetter item,
-            FileGeneration fg,
-            Clone_Mask<bool> printMask = null)
-        {
-            if (printMask?.Nickname ?? true)
-            {
-                fg.AppendLine($"Nickname => {item.Nickname}");
-            }
-            if (printMask?.ClonePath ?? true)
-            {
-                fg.AppendLine($"ClonePath => {item.ClonePath}");
-            }
-        }
-
-        public bool HasBeenSet(
-            ICloneInternalGetter item,
-            Clone_Mask<bool?> checkMask)
-        {
-            return true;
-        }
-
-        public void FillHasBeenSetMask(
-            ICloneInternalGetter item,
-            Clone_Mask<bool> mask)
-        {
-            mask.Nickname = true;
-            mask.ClonePath = true;
-        }
-
-        #region Equals and Hash
-        public virtual bool Equals(
-            ICloneInternalGetter lhs,
-            ICloneInternalGetter rhs)
-        {
-            if (lhs == null && rhs == null) return false;
-            if (lhs == null || rhs == null) return false;
-            if (!string.Equals(lhs.Nickname, rhs.Nickname)) return false;
-            if (!string.Equals(lhs.ClonePath, rhs.ClonePath)) return false;
-            return true;
-        }
-
-        public virtual int GetHashCode(ICloneInternalGetter item)
-        {
-            int ret = 0;
-            ret = HashHelper.GetHashCode(item.Nickname).CombineHashCode(ret);
-            ret = HashHelper.GetHashCode(item.ClonePath).CombineHashCode(ret);
-            return ret;
-        }
-
-        #endregion
-
-
+        
+        
     }
     #endregion
 
@@ -1677,4 +1696,42 @@ namespace HarmonizeGitCloner.Internals
 
     #endregion
 
+}
+
+namespace HarmonizeGitCloner
+{
+    public partial class Clone
+    {
+        #region Common Routing
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        ILoquiRegistration ILoquiObject.Registration => Clone_Registration.Instance;
+        public static Clone_Registration Registration => Clone_Registration.Instance;
+        protected object CommonInstance()
+        {
+            return CloneCommon.Instance;
+        }
+        protected object CommonSetterInstance()
+        {
+            return CloneSetterCommon.Instance;
+        }
+        protected object CommonSetterCopyInstance()
+        {
+            return CloneSetterCopyCommon.Instance;
+        }
+        object ICloneInternalGetter.CommonInstance()
+        {
+            return this.CommonInstance();
+        }
+        object ICloneInternalGetter.CommonSetterInstance()
+        {
+            return this.CommonSetterInstance();
+        }
+        object ICloneInternalGetter.CommonSetterCopyInstance()
+        {
+            return this.CommonSetterCopyInstance();
+        }
+
+        #endregion
+
+    }
 }
