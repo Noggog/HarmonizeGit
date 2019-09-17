@@ -15,6 +15,8 @@ using System.Windows.Input;
 using Splat;
 using System.IO;
 using System.Security.Cryptography;
+using System.Windows.Media;
+using Ookii.Dialogs.Wpf;
 
 namespace HarmonizeGit.GUI
 {
@@ -41,23 +43,20 @@ namespace HarmonizeGit.GUI
         private ObservableAsPropertyHelper<bool> _ParentsAllExist;
         public bool ParentsAllExist => _ParentsAllExist.Value;
 
+        private ObservableAsPropertyHelper<ErrorState> _Error;
+        public ErrorState Error => _Error.Value;
+
         public void Init(MainVM mvm)
         {
             this.MainVM = mvm;
             this.OpenRepoFolderDialogCommand = ReactiveCommand.Create(
                 execute: () =>
                 {
-                    using (var fbd = new FolderBrowserDialog())
-                    {
-                        fbd.SelectedPath = MainVM.Instance.Settings.LastReferencedDirectory;
-                        DialogResult result = fbd.ShowDialog();
-
-                        if (result == DialogResult.OK)
-                        {
-                            this.Path = fbd.SelectedPath;
-                            MainVM.Instance.Settings.LastReferencedDirectory = fbd.SelectedPath;
-                        }
-                    }
+                    VistaFolderBrowserDialog diag = new VistaFolderBrowserDialog();
+                    diag.SelectedPath = MainVM.Instance.Settings.LastReferencedDirectory;
+                    if (!diag.ShowDialog() ?? false) return;
+                    this.Path = diag.SelectedPath;
+                    MainVM.Instance.Settings.LastReferencedDirectory = diag.SelectedPath;
                 });
             this.ResyncCommand = ReactiveCommand.CreateFromTask(Resync);
             this.AutoSyncCommand = ReactiveCommand.Create(() =>
@@ -126,6 +125,8 @@ namespace HarmonizeGit.GUI
 
             this.SyncParentReposCommand = ReactiveCommand.CreateFromTask(SyncParentRepos);
 
+            BehaviorSubject<Exception> configError = new BehaviorSubject<Exception>(null);
+
             // Compile parent repo list
             mvm.ShortPulse
                 .StartWith(Unit.Default)
@@ -159,6 +160,7 @@ namespace HarmonizeGit.GUI
                 {
                     try
                     {
+                        configError.OnNext(null);
                         if (!Directory.Exists(path))
                         {
                             _ParentRepos.Clear();
@@ -184,9 +186,35 @@ namespace HarmonizeGit.GUI
                     {
                         this.Log().Error($"Exception while compiling parent repositories for {this.Path}: {ex}");
                         _ParentRepos.Clear();
+                        configError.OnNext(ex);
                     }
                 })
                 .DisposeWith(this.CompositeDisposable);
+
+            this._Error = Observable.CombineLatest(
+                this.ParentRepos.Connect()
+                    .CollectionCount()
+                    .Select(c => c > 0)
+                    .DistinctUntilChanged()
+                    .Select(has => has ? null : new ErrorState()
+                    {
+                        Message = "Has no listed parent repositories to track.\nCheck that the path is set to a repository with a .harmonize file.",
+                        Level = ErrorLevel.Warning
+                    }),
+                configError
+                    .StartWith(default(Exception))
+                    .DistinctUntilChanged()
+                    .Select(ex => ex == null ? null : new ErrorState()
+                    {
+                        Message = "Error opening repository:\n" + ex,
+                        Level = ErrorLevel.Error
+                    }),
+                resultSelector: (empty, error) =>
+                {
+                    return error ?? empty;
+                })
+                .DistinctUntilChanged()
+                .ToProperty(this, nameof(Error));
         }
 
         private async Task Resync()

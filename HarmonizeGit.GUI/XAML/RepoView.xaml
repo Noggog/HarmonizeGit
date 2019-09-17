@@ -97,6 +97,7 @@
                             <MultiDataTrigger.Conditions>
                                 <Condition Binding="{Binding ParentsAllExist}" Value="False" />
                                 <Condition Binding="{Binding Exists}" Value="True" />
+                                <Condition Binding="{Binding Error}" Value="{x:Null}" />
                             </MultiDataTrigger.Conditions>
                             <MultiDataTrigger.Setters>
                                 <Setter Property="Visibility" Value="Visible" />
@@ -106,6 +107,27 @@
                 </Style>
             </Button.Style>
         </Button>
+        <icon:PackIconMaterial
+            Grid.Column="2"
+            Height="10"
+            Margin="4"
+            VerticalAlignment="Center"
+            Kind="Circle"
+            ToolTip="{Binding Error.Message}"
+            Visibility="{Binding Error, Converter={StaticResource IsNotNullVisibilityConverter}}">
+            <icon:PackIconMaterial.Style>
+                <Style TargetType="icon:PackIconMaterial">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding Error.Level}" Value="{x:Static local:ErrorLevel.Warning}">
+                            <Setter Property="Foreground" Value="{StaticResource WarningBrush}" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Error.Level}" Value="{x:Static local:ErrorLevel.Error}">
+                            <Setter Property="Foreground" Value="{StaticResource ErrorBrush}" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </icon:PackIconMaterial.Style>
+        </icon:PackIconMaterial>
         <Button
             Grid.Column="3"
             Margin="4"

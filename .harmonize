@@ -11,28 +11,28 @@
       </RepoListing>
       <RepoListing>
          <Nickname>CSharpExt</Nickname>
-         <Sha>7951b6889cf77637eff59e2924087ed48e436e36</Sha>
+         <Sha>bdf1ee53af3e7eb2f4102754d77fbd54fcd31314</Sha>
          <Path>../CSharpExt</Path>
-         <CommitDate>09-15-2019 02:02:44</CommitDate>
-         <Description>namespace System -&gt; Noggog</Description>
+         <CommitDate>09-16-2019 21:15:09</CommitDate>
+         <Description>Some colors</Description>
          <Author>Justin Swanson</Author>
          <OriginHint>https://github.com/Noggog/CSharpExt.git</OriginHint>
       </RepoListing>
       <RepoListing>
          <Nickname>DynamicData</Nickname>
-         <Sha>a357e131f6e5eb90f6b82ee71f87f525fb58a14e</Sha>
+         <Sha>a5866ca375b49ede7bd91346657e8adedad09286</Sha>
          <Path>../DynamicData</Path>
-         <CommitDate>08-31-2019 15:59:16</CommitDate>
-         <Description>Nuget Update</Description>
+         <CommitDate>09-16-2019 21:38:33</CommitDate>
+         <Description>ObservableListEx.CollectionCount starts with 0</Description>
          <Author>Justin Swanson</Author>
          <OriginHint>https://github.com/Noggog/DynamicData.git</OriginHint>
       </RepoListing>
       <RepoListing>
          <Nickname>Loqui</Nickname>
-         <Sha>d5ee337228acb6ac7acc9ba97bb5f90a6055bd15</Sha>
+         <Sha>e346f7b59c8ecab88830cf4f6af0d0ce19b1ed93</Sha>
          <Path>../Loqui</Path>
-         <CommitDate>09-15-2019 02:02:55</CommitDate>
-         <Description>Library updates</Description>
+         <CommitDate>09-15-2019 23:16:40</CommitDate>
+         <Description>_Error -&gt; WithErrorMask</Description>
          <Author>Justin Swanson</Author>
          <OriginHint>https://github.com/Noggog/Loqui.git</OriginHint>
       </RepoListing>
