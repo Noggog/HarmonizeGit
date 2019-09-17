@@ -11,10 +11,10 @@
       </RepoListing>
       <RepoListing>
          <Nickname>CSharpExt</Nickname>
-         <Sha>bdf1ee53af3e7eb2f4102754d77fbd54fcd31314</Sha>
+         <Sha>0c47e4a5392487a93d68d203c89cc6748c823226</Sha>
          <Path>../CSharpExt</Path>
-         <CommitDate>09-16-2019 21:15:09</CommitDate>
-         <Description>Some colors</Description>
+         <CommitDate>09-16-2019 23:09:40</CommitDate>
+         <Description>ObservableListExt.TransformMany -&gt; TransformToLatest, plus bugfix</Description>
          <Author>Justin Swanson</Author>
          <OriginHint>https://github.com/Noggog/CSharpExt.git</OriginHint>
       </RepoListing>

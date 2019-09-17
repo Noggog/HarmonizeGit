@@ -86,7 +86,7 @@ namespace HarmonizeGit.GUI
 
             // All parents exist check
             this._ParentsAllExist = this.ParentRepos.Connect()
-                .TransformMany(repoListing =>
+                .TransformToLatest(repoListing =>
                 {
                     var parentDir = FishingWithGit.Common.Utility.StandardizePath(repoListing.Path, this.Path);
                     return MainVM.ShortPulse
